@@ -90,6 +90,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       const tokenName = token?.name || tokenId;
 
@@ -100,7 +101,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         let role = null;
         try {
@@ -182,8 +185,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${tokenName} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -216,6 +221,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -225,7 +231,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         for (const heroId of heroIds) {
           if (shouldStop.value) break;
@@ -279,8 +287,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
       }
     });
 
@@ -307,6 +317,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -316,7 +327,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         for (const heroId of heroIds) {
           if (shouldStop.value) break;
@@ -370,8 +383,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
       }
     });
 
@@ -398,6 +413,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -407,7 +423,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         for (let i = 1; i <= 10; i++) {
           if (shouldStop.value) break;
@@ -454,8 +472,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
       }
     });
 
@@ -482,6 +502,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
 
@@ -492,7 +513,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -522,8 +545,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -556,6 +581,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -565,7 +591,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const res = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -734,8 +762,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -768,6 +798,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -777,7 +808,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         // 获取最新角色信息
         const roleInfoRes = await tokenStore.sendMessageWithPromise(
@@ -916,8 +949,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
       }
     });
 
@@ -951,6 +986,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
 
@@ -966,7 +1002,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         for (let i = 0; i < batches && !shouldStop.value; i++) {
           await tokenStore.sendMessageWithPromise(
@@ -1017,8 +1055,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -1059,6 +1099,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
 
@@ -1069,7 +1110,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         // 检查鱼竿数量
         let role = tokenStore.gameData?.roleInfo?.role;
@@ -1244,8 +1287,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -1284,6 +1329,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
 
@@ -1299,7 +1345,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         for (let i = 0; i < batches && !shouldStop.value; i++) {
           await tokenStore.sendMessageWithPromise(
@@ -1346,8 +1394,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -1388,6 +1438,7 @@ export function createTasksItem(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -1402,7 +1453,9 @@ export function createTasksItem(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const roleInfoRes = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -1616,8 +1669,10 @@ export function createTasksItem(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,

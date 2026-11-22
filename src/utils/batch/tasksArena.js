@@ -48,6 +48,7 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       // 加载该Token的独立配置，如果未找到则回退到currentSettings(虽然可能不准确，但作为最后的兜底)
       const tokenSettings = loadSettings
@@ -60,7 +61,9 @@ export function createTasksArena(deps) {
           message: `=== 开始一键竞技场战斗: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         if (shouldStop.value) return;
 
         // 检查咸神门票 (ID: 1007)
@@ -205,8 +208,10 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -236,6 +241,7 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -243,7 +249,9 @@ export function createTasksArena(deps) {
           message: `=== 开始钓鱼补齐: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 获取月度任务进度...`,
@@ -534,8 +542,10 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -565,6 +575,7 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       // 加载该Token的独立配置，如果未找到则回退到currentSettings
       const tokenSettings = loadSettings
@@ -578,7 +589,9 @@ export function createTasksArena(deps) {
           message: `=== 开始竞技场补齐: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const teamInfo = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -901,8 +914,10 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,

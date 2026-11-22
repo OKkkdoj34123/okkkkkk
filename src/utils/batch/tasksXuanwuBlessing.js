@@ -274,10 +274,13 @@ export function createTasksXuanwuBlessing(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         log(`=== 开始玄武赐福: ${token.name} ===`);
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         if (shouldStop.value) return;
 
         const resolved = await resolveWarOrder(tokenId);
@@ -335,8 +338,10 @@ export function createTasksXuanwuBlessing(deps) {
           "error",
         );
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         log(`${token.name} 连接已关闭`);
       }
     });

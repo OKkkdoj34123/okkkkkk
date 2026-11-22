@@ -110,10 +110,13 @@ export function createTasksApex(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         addLog({
           time: new Date().toLocaleTimeString(),
@@ -321,8 +324,10 @@ export function createTasksApex(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,

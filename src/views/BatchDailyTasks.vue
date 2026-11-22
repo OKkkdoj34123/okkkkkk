@@ -6461,17 +6461,54 @@ const startBatch = async (options = {}) => {
         commandDelay: batchSettings.commandDelay,
         taskDelay: batchSettings.taskDelay,
       });
-      const result = await runner.run(tokenId, {
-        shouldStop: () => shouldStop.value,
-        onLog: (log) =>
-          addLog({ ...log, message: `${token.name}: ${log.message}` }),
-        onProgress: (progress) =>
-          addLog({
-            time: new Date().toLocaleTimeString(),
-            message: `${token.name}: 服务器每日任务完成并领奖 ${progress}%`,
-            type: "info",
-          }),
-      });
+      // 偶发断线会导致整轮中断。自动重连并补差（只补服务器仍显示未完成的任务），
+      // 最多重试 2 次；用户主动停止时不重试。
+      const MAX_RECONNECT_RETRIES = 2;
+      let result = null;
+      for (let attempt = 0; attempt <= MAX_RECONNECT_RETRIES; attempt++) {
+        try {
+          result = await runner.run(tokenId, {
+            shouldStop: () => shouldStop.value,
+            onLog: (log) =>
+              addLog({ ...log, message: `${token.name}: ${log.message}` }),
+            onProgress: (progress) =>
+              addLog({
+                time: new Date().toLocaleTimeString(),
+                message: `${token.name}: 服务器每日任务完成并领奖 ${progress}%`,
+                type: "info",
+              }),
+          });
+          break;
+        } catch (runError) {
+          const isDisconnect = !!runError.interrupted;
+          const userStopped = shouldStop.value;
+          if (isDisconnect && !userStopped && attempt < MAX_RECONNECT_RETRIES) {
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name}: 连接中断，${attempt + 1}/${MAX_RECONNECT_RETRIES} 自动重连并补差`,
+              type: "warning",
+            });
+            try {
+              // 先归还本次占用的槽位，否则重连会一直等待空闲槽位而死锁
+              if (ownsSlot) {
+                tokenStore.closeWebSocketConnection(tokenId);
+                releaseConnectionSlot();
+                ownsSlot = false;
+              } else {
+                tokenStore.closeWebSocketConnection(tokenId);
+              }
+              await ensureConnection(tokenId, 2, (owned) => {
+                ownsSlot = ownsSlot || owned;
+              });
+              continue;
+            } catch (reconnectError) {
+              throw runError;
+            }
+          }
+          throw runError;
+        }
+      }
+      if (!result) throw new Error("日常任务未返回执行结果");
       tokenStatus.value[tokenId] = result.incomplete ? "pending" : "completed";
       addLog({
         time: new Date().toLocaleTimeString(),

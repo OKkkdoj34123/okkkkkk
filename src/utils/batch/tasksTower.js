@@ -113,6 +113,7 @@ export function createTasksTower(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       // 加载该Token的独立配置，如果未找到则回退到currentSettings
@@ -127,7 +128,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const teamInfo = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -330,8 +333,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -364,6 +369,7 @@ export function createTasksTower(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       // 加载该Token的独立配置，如果未找到则回退到currentSettings
@@ -378,7 +384,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const teamInfo = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -616,8 +624,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -648,6 +658,7 @@ export function createTasksTower(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
@@ -657,7 +668,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const freeEnergyResult = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -700,8 +713,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -734,6 +749,7 @@ export function createTasksTower(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -743,7 +759,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         // 获取活动信息
         let res = await tokenStore.sendMessageWithPromise(
@@ -1009,8 +1027,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 断开连接`,
@@ -1039,6 +1059,7 @@ export function createTasksTower(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -1048,7 +1069,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         // 1. 获取活动信息
         const infoRes = await tokenStore.sendMessageWithPromise(
@@ -1149,8 +1172,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 断开连接`,
@@ -1180,6 +1205,7 @@ export function createTasksTower(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -1189,7 +1215,9 @@ export function createTasksTower(deps) {
           type: "info",
         });
 
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         let loopCount = 0;
         const MAX_LOOPS = 20;
@@ -1374,8 +1402,10 @@ export function createTasksTower(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 断开连接`,

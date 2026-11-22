@@ -45,6 +45,7 @@ export function createTasksLegacy(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
@@ -53,7 +54,9 @@ export function createTasksLegacy(deps) {
           message: `=== 开始领取功法残卷: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         const LegacyClaimHangUpResp = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -76,8 +79,10 @@ export function createTasksLegacy(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -142,6 +147,7 @@ export function createTasksLegacy(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       let consecutiveErrors = 0;
@@ -155,7 +161,9 @@ export function createTasksLegacy(deps) {
             type: "info",
           });
 
-          await ensureConnection(tokenId);
+          await ensureConnection(tokenId, 2, (owned) => {
+            ownsSlot = owned;
+          });
 
           const roleInfo = await tokenStore.sendGetRoleInfo(tokenId);
           const legacyFragmentCount =
@@ -310,8 +318,10 @@ export function createTasksLegacy(deps) {
             break;
           }
         } finally {
-          tokenStore.closeWebSocketConnection(tokenId);
-          releaseConnectionSlot();
+          if (ownsSlot) {
+        tokenStore.closeWebSocketConnection(tokenId);
+        releaseConnectionSlot();
+          }
           addLog({
             time: new Date().toLocaleTimeString(),
             message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,

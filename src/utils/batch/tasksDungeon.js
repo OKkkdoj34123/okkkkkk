@@ -42,6 +42,7 @@ export function createTasksDungeon(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -49,7 +50,9 @@ export function createTasksDungeon(deps) {
           message: `=== 开始一键宝库: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         const bosstowerinfo = await tokenStore.sendMessageWithPromise(
           tokenId,
           "bosstower_getinfo",
@@ -91,8 +94,10 @@ export function createTasksDungeon(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -122,6 +127,7 @@ export function createTasksDungeon(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -129,7 +135,9 @@ export function createTasksDungeon(deps) {
           message: `=== 开始一键宝库: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         const bosstowerinfo = await tokenStore.sendMessageWithPromise(
           tokenId,
           "bosstower_getinfo",
@@ -162,8 +170,10 @@ export function createTasksDungeon(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -193,6 +203,7 @@ export function createTasksDungeon(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -200,7 +211,9 @@ export function createTasksDungeon(deps) {
           message: `=== 开始咸王梦境: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         if (shouldStop.value) return;
         const mjbattleTeam = { 0: 107 };
         const dayOfWeek = new Date().getDay();
@@ -239,8 +252,10 @@ export function createTasksDungeon(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -282,6 +297,7 @@ export function createTasksDungeon(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
+      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -289,7 +305,9 @@ export function createTasksDungeon(deps) {
           message: `=== 开始梦境购买: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
 
         // 1. 获取角色信息以获得商店数据
         const roleInfo = await tokenStore.sendMessageWithPromise(
@@ -402,8 +420,10 @@ export function createTasksDungeon(deps) {
           type: "error",
         });
       } finally {
+        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
         releaseConnectionSlot();
+        }
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,

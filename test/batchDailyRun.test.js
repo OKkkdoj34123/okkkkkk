@@ -39,6 +39,8 @@ function fixture({
   connectionSucceeds = true,
   runError = null,
   incomplete = 0,
+  runOutcomes = null,
+  stopDuringRun = false,
 } = {}) {
   const logs = [];
   const state = { runs: 0, closed: 0, connected };
@@ -79,7 +81,13 @@ function fixture({
     },
     DailyTaskRunner: class {
       async run() {
-        state.runs++;
+        const index = state.runs++;
+        if (stopDuringRun) context.shouldStop.value = true;
+        if (runOutcomes) {
+          const outcome = runOutcomes[index];
+          if (outcome instanceof Error) throw outcome;
+          return outcome;
+        }
         if (runError) throw runError;
         return { incomplete };
       }
@@ -130,4 +138,34 @@ test("stop while waiting for a connection slot does not acquire a slot", async (
     (error) => error.interrupted === true,
   );
   assert.equal(f.context.connectionQueue.active, 2);
+});
+
+test("daily batch reconnects and resumes after a transient disconnect", async () => {
+  const disconnect = new Error("WebSocket 已断开，停止执行并等待重新查询服务器状态");
+  disconnect.interrupted = true;
+  const f = fixture({
+    connected: false,
+    connectionSucceeds: true,
+    runOutcomes: [disconnect, { incomplete: 0 }],
+  });
+  await f.startBatch();
+  assert.equal(f.state.runs, 2, "runner should be invoked twice: after disconnect and after reconnect");
+  assert.equal(f.context.tokenStatus.value["account-a"], "completed");
+  assert.ok(
+    f.logs.some((log) => /自动重连并补差/.test(log.message)),
+    "a reconnect log should be emitted",
+  );
+});
+
+test("daily batch does not retry when the user stops it", async () => {
+  const disconnect = new Error("任务已停止");
+  disconnect.interrupted = true;
+  const f = fixture({
+    connected: false,
+    runOutcomes: [disconnect],
+    stopDuringRun: true,
+  });
+  await f.startBatch();
+  assert.equal(f.state.runs, 1, "no retry when stop was requested by user");
+  assert.equal(f.context.tokenStatus.value["account-a"], "stopped");
 });
