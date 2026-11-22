@@ -50,6 +50,7 @@ export const availableTasks = [
   { label: "一键俱乐部签到", value: "batchclubsign" },
   { label: "营地挑战", value: "batchCampChallenge" },
   { label: "营地挑战宠物", value: "batchCampChallengePet" },
+  { label: "营地智能挑战(凑3胜)", value: "batchCampChallengeSmart" },
   { label: "领取营地任务奖励", value: "batchCampClaimTasks" },
   { label: "批量申请俱乐部", value: "batchApplyLegion" },
   { label: "一键竞技场战斗3次", value: "batcharenafight" },

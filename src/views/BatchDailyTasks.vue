@@ -3893,6 +3893,7 @@ const taskGroupDefinitions = [
       "batcharenafight",
       "batchCampChallenge",
       "batchCampChallengePet",
+      "batchCampChallengeSmart",
       "batchCampClaimTasks",
       "store_syncpurchaseconfig",
       "store_purchase",
@@ -4827,6 +4828,7 @@ function getScheduledTask(taskName) {
     batchclubsign,
     batchCampChallenge,
     batchCampChallengePet,
+    batchCampChallengeSmart,
     batchCampClaimTasks,
     batchApplyLegion,
     batcharenafight,
@@ -6351,8 +6353,12 @@ const tasksApex = createTasksApex(createTaskDeps());
 const { batchApexGuess } = tasksApex;
 
 const tasksCampChallenge = createTasksCampChallenge(createTaskDeps());
-const { batchCampChallenge, batchCampChallengePet, batchCampClaimTasks } =
-  tasksCampChallenge;
+const {
+  batchCampChallenge,
+  batchCampChallengePet,
+  batchCampChallengeSmart,
+  batchCampClaimTasks,
+} = tasksCampChallenge;
 const tasksXuanwuBlessing = createTasksXuanwuBlessing(createTaskDeps());
 const { batchXuanwuBlessing } = tasksXuanwuBlessing;
 

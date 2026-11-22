@@ -1,6 +1,15 @@
+import {
+  CAMP_PET_ATTEMPT_LIMIT,
+  CAMP_WINS_TARGET,
+  decideNextStep,
+  hasEnoughWins,
+  sortTargetsByPower,
+} from "./campChallengePlanner.js";
+
 /**
  * 营地挑战类任务
- * 包含: batchCampChallenge, batchCampChallengePet, batchCampClaimTasks
+ * 包含: batchCampChallenge, batchCampChallengePet, batchCampClaimTasks,
+ *       batchCampChallengeSmart（挑最弱对手凑胜场）
  */
 
 /**
@@ -40,13 +49,16 @@ export function createTasksCampChallenge(deps) {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
       const token = tokens.value.find((t) => t.id === tokenId);
+      let ownsSlot = false;
       try {
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `=== 开始营地挑战: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         if (shouldStop.value) return;
 
         // 1. 获取我方阵容配置（参考 QuenchAnalysisCard.refreshHeroes）
@@ -267,13 +279,16 @@ export function createTasksCampChallenge(deps) {
           type: "error",
         });
       } finally {
-        tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `${token.name} 连接已关闭`,
-          type: "info",
-        });
+        // 只释放本次自己占用的槽位，避免误关其他账号共用的连接
+        if (ownsSlot) {
+          tokenStore.closeWebSocketConnection(tokenId);
+          releaseConnectionSlot();
+          addLog({
+            time: new Date().toLocaleTimeString(),
+            message: `${token.name} 连接已关闭`,
+            type: "info",
+          });
+        }
       }
     });
 
@@ -306,13 +321,16 @@ export function createTasksCampChallenge(deps) {
         if (shouldStop.value) return;
         tokenStatus.value[tokenId] = "running";
         const token = tokens.value.find((t) => t.id === tokenId);
+        let ownsSlot = false;
         try {
           addLog({
             time: new Date().toLocaleTimeString(),
             message: `=== 营地挑战宠物 ${token.name} (第${round}/${maxRounds}轮) ===`,
             type: "info",
           });
-          await ensureConnection(tokenId);
+          await ensureConnection(tokenId, 2, (owned) => {
+            ownsSlot = owned;
+          });
           if (shouldStop.value) return;
 
           // 获取我方阵容配置
@@ -395,10 +413,12 @@ export function createTasksCampChallenge(deps) {
           tokenStatus.value[tokenId] = "failed";
           addLog({
             time: new Date().toLocaleTimeString(),
-            message: `${token.name} 营地挑战宠物失败: ${error.message || "未知错误"}`,
-            type: "error",
-          });
-        } finally {
+          message: `${token.name} 营地挑战宠物失败: ${error.message || "未知错误"}`,
+          type: "error",
+        });
+      } finally {
+        // 只释放本次自己占用的槽位；3 轮循环里某一轮可能复用已连接账号
+        if (ownsSlot) {
           tokenStore.closeWebSocketConnection(tokenId);
           releaseConnectionSlot();
           addLog({
@@ -407,7 +427,8 @@ export function createTasksCampChallenge(deps) {
             type: "info",
           });
         }
-      });
+      }
+    });
 
       await Promise.all(taskPromises);
     }
@@ -415,6 +436,245 @@ export function createTasksCampChallenge(deps) {
     isRunning.value = false;
     currentRunningTokenId.value = null;
     message.success("批量营地挑战宠物结束");
+
+    // 领取任务奖励
+    await batchCampClaimTasks();
+  };
+
+  /**
+   * 智能挑战：按战力升序挑最弱对手，赢够 3 场即停；
+   * 10 次机会用完仍不足则改打宠物补足（宠物不占次数）。
+   */
+  const batchCampChallengeSmart = async () => {
+    if (selectedTokens.value.length === 0) return;
+    isRunning.value = true;
+    shouldStop.value = false;
+
+    selectedTokens.value.forEach((id) => {
+      tokenStatus.value[id] = "waiting";
+    });
+
+    const getTodayKey = () => {
+      const now = new Date();
+      return (
+        String(now.getFullYear() % 100).padStart(2, "0") +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0")
+      );
+    };
+
+    const taskPromises = selectedTokens.value.map(async (tokenId) => {
+      if (shouldStop.value) return;
+      tokenStatus.value[tokenId] = "running";
+      const token = tokens.value.find((t) => t.id === tokenId);
+      let ownsSlot = false;
+      try {
+        addLog({
+          time: new Date().toLocaleTimeString(),
+          message: `=== 智能挑战开始: ${token.name}（目标赢 ${CAMP_WINS_TARGET} 场）===`,
+          type: "info",
+        });
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
+        if (shouldStop.value) return;
+
+        // 1. 解析我方阵容（与手动挑战一致，使用竞技场阵容）
+        const [presetTeamResult, roleInfoResult] = await Promise.all([
+          tokenStore.sendMessageWithPromise(tokenId, "presetteam_getinfo", {}, 5000),
+          tokenStore.sendMessageWithPromise(tokenId, "role_getroleinfo", {}, 15000),
+        ]);
+        const lordWeaponId = roleInfoResult?.role?.lordWeaponId || 0;
+        const tokenSettings = loadSettings ? loadSettings(tokenId) : {};
+        const formationId = String(tokenSettings?.arenaFormation || 1);
+        const root =
+          presetTeamResult?.presetTeamInfo?.presetTeamInfo ||
+          presetTeamResult?.presetTeamInfo ||
+          {};
+        const teamInfoData =
+          root[formationId]?.teamInfo || root["1"]?.teamInfo || {};
+        const battleTeam = {};
+        for (const [pos, hero] of Object.entries(teamInfoData)) {
+          const hid = hero?.heroId ?? hero?.id;
+          if (hid) battleTeam[pos] = Number(hid);
+        }
+        if (Object.keys(battleTeam).length === 0) {
+          throw new Error(`无法获取阵容${formationId}数据`);
+        }
+        const teamSetParams = { lordWeaponId, petUId: "", battleTeam };
+
+        // 2. 读取今日战况：已挑战次数与已胜场
+        const infoRes = await tokenStore.sendMessageWithPromise(
+          tokenId,
+          "club_getinfo",
+          {},
+          12000,
+        );
+        const siege = infoRes?.siege || {};
+        const attackMap = siege.attackMap || {};
+        const todayStat = attackMap[getTodayKey()] || {};
+        let winCount = Number(todayStat.aSuccessCnt || 0);
+        let attackCount = Number(todayStat.attackCnt || 0);
+
+        addLog({
+          time: new Date().toLocaleTimeString(),
+          message: `${token.name} 今日已挑战 ${attackCount} 次、胜 ${winCount} 场`,
+          type: "info",
+        });
+
+        // 3. 收集未击败对手，逐个查询战力后按升序排列（最弱优先）
+        const oppoMap = infoRes?.club?.oppoMap || {};
+        const candidates = [];
+        for (const [oppoKey, opponent] of Object.entries(oppoMap)) {
+          const defenders = opponent?.defenders || {};
+          for (const [nodeId, defender] of Object.entries(defenders)) {
+            if (defender?.defeated) continue;
+            candidates.push({
+              oppoKey,
+              opponentName: opponent.name,
+              nodeId,
+              targetId: defender.roleId,
+              defender,
+            });
+          }
+        }
+
+        const powerById = {};
+        for (const candidate of candidates) {
+          if (!candidate.targetId) continue;
+          try {
+            const teamRes = await tokenStore.sendMessageWithPromise(
+              tokenId,
+              "club_gettargetteam",
+              { targetId: candidate.targetId },
+              5000,
+            );
+            const role = teamRes?.roleBattleTeam?.role || teamRes?.teamInfo;
+            powerById[String(candidate.targetId)] = Number(role?.power || 0);
+          } catch {
+            powerById[String(candidate.targetId)] = 0;
+          }
+        }
+        const ordered = sortTargetsByPower(candidates, powerById).slice(
+          0,
+          CAMP_DAILY_ATTACK_LIMIT,
+        );
+
+        // 4. 先按战力从低到高挑战自然人，赢够即停
+        for (const target of ordered) {
+          if (shouldStop.value) break;
+          const decision = decideNextStep({ winCount, attackCount });
+          if (decision.done) break;
+          if (decision.usePets) break;
+
+          const { opponentName, nodeId, defender, targetId } = target;
+          addLog({
+            time: new Date().toLocaleTimeString(),
+            message: `${token.name} 智能挑战 ${opponentName} - ${defender.name}（战力 ${powerById[String(targetId)] || 0}，第 ${attackCount + 1} 次）`,
+            type: "info",
+          });
+          try {
+            await tokenStore.sendMessageWithPromise(
+              tokenId,
+              "club_gettargetteam",
+              { targetId },
+              5000,
+            );
+            const attackRes = await tokenStore.sendMessageWithPromise(
+              tokenId,
+              "club_attack",
+              {
+                nodeId: Number(nodeId),
+                targetId,
+                challengeCnt: defender.challengeCnt || 0,
+                failCnt: defender.failCnt || 0,
+                useItem: false,
+                teamSetParams,
+              },
+              8000,
+            );
+            const curHP = attackRes?.battleData?.result?.accept?.ext?.curHP;
+            const isWin = curHP === 0;
+            attackCount++;
+            if (isWin) winCount++;
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 挑战${isWin ? "胜利" : "失败"}（累计 ${winCount}/${CAMP_WINS_TARGET} 胜，${attackCount} 次机会）`,
+              type: isWin ? "success" : "warning",
+            });
+          } catch (err) {
+            attackCount++;
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 挑战异常: ${err.message || "未知错误"}`,
+              type: "error",
+            });
+          }
+        }
+
+        // 5. 次数用完仍不足 3 胜 → 打宠物补足（宠物不占次数）
+        let petAttempts = 0;
+        while (
+          !shouldStop.value &&
+          !hasEnoughWins(winCount) &&
+          petAttempts < CAMP_PET_ATTEMPT_LIMIT
+        ) {
+          petAttempts++;
+          try {
+            const attackRes = await tokenStore.sendMessageWithPromise(
+              tokenId,
+              "club_attackmonster",
+              { useItem: false, teamSetParams },
+              8000,
+            );
+            const curHP = attackRes?.battleData?.result?.accept?.ext?.curHP;
+            const isWin = curHP === 0;
+            if (isWin) winCount++;
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 打宠物第 ${petAttempts} 次${isWin ? "胜利" : "失败"}（累计 ${winCount}/${CAMP_WINS_TARGET} 胜）`,
+              type: isWin ? "success" : "warning",
+            });
+          } catch (err) {
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 打宠物异常: ${err.message || "未知错误"}`,
+              type: "error",
+            });
+          }
+        }
+
+        addLog({
+          time: new Date().toLocaleTimeString(),
+          message: `${token.name} 智能挑战结束：${winCount} 胜，自然人挑战 ${attackCount} 次，打宠物 ${petAttempts} 次${hasEnoughWins(winCount) ? "（已达标）" : "（未达标，战力不足）"}`,
+          type: hasEnoughWins(winCount) ? "success" : "warning",
+        });
+        tokenStatus.value[tokenId] = "completed";
+      } catch (error) {
+        console.error(error);
+        tokenStatus.value[tokenId] = "failed";
+        addLog({
+          time: new Date().toLocaleTimeString(),
+          message: `${token.name} 智能挑战失败: ${error.message || "未知错误"}`,
+          type: "error",
+        });
+      } finally {
+        if (ownsSlot) {
+          tokenStore.closeWebSocketConnection(tokenId);
+          releaseConnectionSlot();
+          addLog({
+            time: new Date().toLocaleTimeString(),
+            message: `${token.name} 连接已关闭`,
+            type: "info",
+          });
+        }
+      }
+    });
+
+    await Promise.all(taskPromises);
+    isRunning.value = false;
+    currentRunningTokenId.value = null;
+    message.success("批量智能挑战结束");
 
     // 领取任务奖励
     await batchCampClaimTasks();
@@ -439,13 +699,16 @@ export function createTasksCampChallenge(deps) {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
       const token = tokens.value.find((t) => t.id === tokenId);
+      let ownsSlot = false;
       try {
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `=== 开始领取营地任务奖励: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId);
+        await ensureConnection(tokenId, 2, (owned) => {
+          ownsSlot = owned;
+        });
         if (shouldStop.value) return;
 
         await tokenStore.sendMessageWithPromise(
@@ -496,13 +759,16 @@ export function createTasksCampChallenge(deps) {
           type: "error",
         });
       } finally {
-        tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `${token.name} 连接已关闭`,
-          type: "info",
-        });
+        // 只释放本次自己占用的槽位，避免误关其他账号共用的连接
+        if (ownsSlot) {
+          tokenStore.closeWebSocketConnection(tokenId);
+          releaseConnectionSlot();
+          addLog({
+            time: new Date().toLocaleTimeString(),
+            message: `${token.name} 连接已关闭`,
+            type: "info",
+          });
+        }
       }
     });
 
@@ -515,6 +781,7 @@ export function createTasksCampChallenge(deps) {
   return {
     batchCampChallenge,
     batchCampChallengePet,
+    batchCampChallengeSmart,
     batchCampClaimTasks,
   };
 }
