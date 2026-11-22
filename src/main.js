@@ -49,5 +49,19 @@ const applyTheme = () => {
 
 applyTheme();
 
+// GitHub Pages SPA 回退：404.html 把原始路径编码到 ?spa-redirect=，
+// 这里在挂载前用 history API 还原到真实路由。
+(function restoreSpaRedirect() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const redirected = params.get("spa-redirect");
+    if (!redirected) return;
+    // redirected 已包含原始路径、查询串和锚点，直接整体还原即可
+    window.history.replaceState(null, "", redirected);
+  } catch (e) {
+    console.warn("SPA redirect restore failed", e);
+  }
+})();
+
 // 挂载应用
 app.mount("#app");

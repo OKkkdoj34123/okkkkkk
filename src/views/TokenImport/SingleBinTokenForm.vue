@@ -103,6 +103,10 @@ import { reactive, ref } from "vue";
 
 import useIndexedDB from "@/hooks/useIndexedDB";
 import { useTokenStore } from "@/stores/tokenStore";
+import {
+  buildAccountKey,
+  parseBinFileName,
+} from "@/utils/accountIdentity";
 import { getTokenId, transformToken } from "@/utils/token";
 
 const $emit = defineEmits(["cancel", "ok"]);
@@ -131,6 +135,9 @@ const roleList = ref<
     server: string;
     wsUrl: string;
     importMethod: string;
+    accountKey?: string | null;
+    roleId?: string | null;
+    roleIndex?: string | null;
   }>
 >([]);
 
@@ -166,10 +173,23 @@ const uploadBin = (binFile: File) => {
     reader.onload = async (e) => {
       const userToken = e.target?.result as ArrayBuffer;
       // console.log('转换Token:', userToken);
-      const tokenId = getTokenId(userToken);
+      const contentId = getTokenId(userToken);
       const roleToken = await transformToken(userToken);
       const roleName = roleMeta.roleName || binFile.name.split(".")?.[0] || "";
-      // 刷新indexDB数据库token数据
+
+      // 用文件名里的稳定角色标识（服务器+角色ID）查找已有账号：
+      // 命中则复用旧 id，让定时任务/分组/账号设置里的引用继续有效；
+      // 未命中才用 bin 内容 MD5 作为新 id。
+      const accountKey = buildAccountKey(roleMeta.server, roleMeta.roleId);
+      const existingToken = tokenStore.findTokenByAccountKey(
+        accountKey,
+        roleMeta.roleId || null,
+        `${roleMeta.server}${roleMeta.roleIndex}` || roleMeta.server || "",
+        roleName,
+      );
+      const tokenId = existingToken?.id || contentId;
+
+      // 把新 bin 存到（可能复用的）id 下，刷新时即可读取到最新数据
       const saved = await storeArrayBuffer(tokenId, userToken);
       if (!saved) {
         message.error("保存BIN数据到IndexedDB失败");
@@ -181,19 +201,23 @@ const uploadBin = (binFile: File) => {
         message.error("上传列表中已存在同名角色! ");
         return;
       }
-      // 检查待上传的角色是否已在tokenStore中存在
-      const existingToken = tokenStore.gameTokens.find((t) => t.id === tokenId);
       if (existingToken) {
-        message.warning(`角色"${roleName}"已存在，将更新该角色的Token`);
+        message.warning(
+          `识别到已有角色"${roleName}"，导入后将更新该账号（定时任务等设置保持不变）`,
+        );
+      } else {
+        message.success("Token读取成功，请检查角色名称等信息后提交");
       }
-      message.success("Token读取成功，请检查角色名称等信息后提交");
       roleList.value.push({
         id: tokenId,
         token: roleToken,
         name: roleName,
         server: `${roleMeta.server}${roleMeta.roleIndex}` || "",
-        wsUrl: importForm.wsUrl || "",
+        wsUrl: importForm.wsUrl || existingToken?.wsUrl || "",
         importMethod: "bin",
+        accountKey,
+        roleId: roleMeta.roleId || existingToken?.roleId || null,
+        roleIndex: roleMeta.roleIndex || existingToken?.roleIndex || null,
       });
     };
     reader.onerror = () => {
@@ -213,8 +237,8 @@ const handleImport = async () => {
     // tokenStore.gameTokens中发现已存在的重复名称，则移出token后重新添加
     const gameToken = tokenStore.gameTokens.find((t) => t.id === role.id);
     if (gameToken) {
-      console.log("移除同名token:", gameToken);
-      // tokenStore.removeToken(gameToken.id);
+      // 同一角色更新：保留原 id，定时任务/分组/账号设置引用不变
+      console.log("更新同名token:", gameToken);
       tokenStore.updateToken(gameToken.id, {
         ...role,
       });

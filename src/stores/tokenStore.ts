@@ -5,6 +5,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import useIndexedDB from "@/hooks/useIndexedDB";
 import router from "@/router";
+import { findMatchingToken } from "@/utils/accountIdentity";
 import { g_utils } from "@/utils/bonProtocol";
 
 import { gameLogger, tokenLogger, wsLogger } from "@/utils/logger";
@@ -42,6 +43,8 @@ declare interface TokenData {
   serverId?: string | number;
   roleId?: string | number;
   roleIndex?: number;
+  /** Stable role identity (server:roleId) used to replace BIN data without changing id. */
+  accountKey?: string | null;
 }
 
 declare interface WebSocketConnection {
@@ -242,6 +245,7 @@ export const useTokenStore = defineStore("tokens", () => {
       serverId: tokenData.serverId ?? null,
       roleId: tokenData.roleId ?? null,
       roleIndex: tokenData.roleIndex ?? null,
+      accountKey: tokenData.accountKey ?? null,
     };
 
     gameTokens.value.push(newToken);
@@ -1644,6 +1648,30 @@ export const useTokenStore = defineStore("tokens", () => {
     });
   };
 
+  /**
+   * Find an existing account by its stable role identity.
+   * Matches accountKey (server:roleId) first, then falls back to legacy
+   * roleId+server records that predate the accountKey field.
+   * @param {string|null} accountKey Stable identity key.
+   * @param {string|number|null} roleId Game role id.
+   * @param {string} [server] Server label used with legacy matching.
+   * @param {string} [name] Role name, used for legacy accounts imported before
+   *   roleId/accountKey were stored.
+   * @returns {TokenData|undefined} Existing token record when found.
+   */
+  const findTokenByAccountKey = (
+    accountKey: string | null,
+    roleId: string | number | null,
+    server?: string,
+    name?: string,
+  ) =>
+    findMatchingToken(gameTokens.value, {
+      accountKey,
+      roleId,
+      server,
+      name,
+    });
+
   return {
     // 状态
     gameTokens,
@@ -1736,6 +1764,7 @@ export const useTokenStore = defineStore("tokens", () => {
     getGroupTokenIds,
     getValidGroupTokenIds,
     cleanupInvalidTokens,
+    findTokenByAccountKey,
 
     // 开发者工具
     devTools: {

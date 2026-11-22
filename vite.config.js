@@ -104,6 +104,23 @@ export default defineConfig(async () => {
     componentsPlugin,
     vueI18nPlugin,
     {
+      // GitHub Pages SPA fallback: 把实际 base 注入 dist/404.html
+      name: "inject-404-base",
+      closeBundle() {
+        try {
+          const dest = path.resolve(__dirname, "dist/404.html");
+          if (!fs.existsSync(dest)) return;
+          const base = process.env.VITE_BASE_PATH || "/";
+          const html = fs
+            .readFileSync(dest, "utf8")
+            .replaceAll("__GH_PAGES_BASE__", base);
+          fs.writeFileSync(dest, html);
+        } catch (e) {
+          console.error("\n[inject-404-base] Error:", e);
+        }
+      },
+    },
+    {
       name: "copy-worker",
       closeBundle() {
         try {
@@ -127,6 +144,8 @@ export default defineConfig(async () => {
   ].filter(Boolean);
 
   return {
+    // GitHub Pages 部署在子路径下，需要相对/前缀路径；本地与 Cloudflare 保持根路径。
+    base: process.env.VITE_BASE_PATH || "/",
     plugins,
     resolve: {
       alias: {

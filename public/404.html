@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>正在加载应用...</title>
+    <script>
+      // GitHub Pages 对不存在的路径返回本文件。
+      // 把原始路径编码进查询串并跳转到入口页，由 main.js 还原路由。
+      (function () {
+        var base = "__GH_PAGES_BASE__";
+        var path = location.pathname;
+        if (base !== "/" && path.indexOf(base) === 0) {
+          path = path.slice(base.length);
+        }
+        var target =
+          base +
+          "?spa-redirect=" +
+          encodeURIComponent(path + location.search + location.hash);
+        location.replace(target);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
