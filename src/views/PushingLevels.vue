@@ -282,6 +282,7 @@ import {
   watch,
 } from "vue";
 import { useTokenStore } from "@/stores/tokenStore";
+import { checkUpgradeMilestone } from "@/utils/hangupMilestone.js";
 import { BOSS_NAMES } from "./boss_names.js";
 
 const MAX_LOGS = 2000;
@@ -587,6 +588,8 @@ function initState(tokenId, tokenName) {
     retries: 0,
     maxRetries: maxRetries.value || 999999,
     battles: 0,
+    // 逢百关升级挂机的里程碑（已升级过的百关数），避免重复或漏触发
+    lastUpgradeMilestone: 0,
     countdown: 0,
     totalTime: 0,
     lastError: "",
@@ -1048,11 +1051,17 @@ async function runOneBattle(tokenId, tokenName) {
     "info",
   );
 
-  if (state.level > 0 && state.level % 100 === 1) {
+  // 逢百关升级挂机：用里程碑判定，避免关卡同步跳变时错过精确的 x01 关卡
+  const upgradeCheck = checkUpgradeMilestone(
+    state.level,
+    state.lastUpgradeMilestone,
+  );
+  if (upgradeCheck.upgrade) {
+    state.lastUpgradeMilestone = upgradeCheck.milestone;
     addLog(
       tokenId,
       tokenName,
-      `通过逢100关卡 ${state.level - 1}，自动升级挂机奖励`,
+      `通过第 ${upgradeCheck.crossedLevel} 关，自动升级挂机奖励`,
       "info",
     );
     await upgradeHangupReward(tokenId, tokenName);
