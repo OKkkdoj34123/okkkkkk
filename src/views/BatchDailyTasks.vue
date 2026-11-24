@@ -87,16 +87,16 @@
           >
             <n-button
               type="primary"
-              @click="startBatch"
-              :disabled="isRunning || selectedTokens.length === 0"
+              @click="enqueueStartBatch"
+              :disabled="isRunning || taskQueueBusy || selectedTokens.length === 0"
               size="medium"
             >
-              {{ isRunning ? "执行中..." : "开始执行" }}
+              {{ isRunning || taskQueueBusy ? "执行中..." : "开始执行" }}
             </n-button>
             <n-button
               type="warning"
-              @click="startBatchInGroups"
-              :disabled="isRunning || selectedTokens.length === 0"
+              @click="enqueueStartBatchInGroups"
+              :disabled="isRunning || taskQueueBusy || selectedTokens.length === 0"
               size="medium"
             >
               分批执行
@@ -3206,6 +3206,7 @@ import { goldItemsConfig, merchantConfig } from "@/utils/dreamConstants";
 import { isSameGameValue } from "@/utils/gameValue.js";
 
 import { DEFAULT_WEIRD_TOWER_MAX_CLIMB } from "@/utils/towerClimbLimit.js";
+import { ScheduledTaskQueue } from "@/utils/scheduledTaskQueue.js";
 
 // Initialize token store, message service, and task runner
 const tokenStore = useTokenStore();
@@ -3394,6 +3395,8 @@ const selectedTokens = ref([]);
 const tokenStatus = ref({}); // { tokenId: 'waiting' | 'running' | 'completed' | 'failed' }
 const isRunning = ref(false);
 const shouldStop = ref(false);
+// 串行队列是否忙碌（含排队中的任务），用于让手动执行按钮在排队期间也禁用
+const taskQueueBusy = ref(false);
 
 // =====================
 // Token分组管理状态
@@ -3991,9 +3994,22 @@ const manualExecuteTask = async (task) => {
   }
 
   executingTaskIds.value.push(task.id);
+  const queued = enqueueScheduledTask(task);
+  if (!queued.enqueued) {
+    executingTaskIds.value = executingTaskIds.value.filter(
+      (id) => id !== task.id,
+    );
+    message.info(`任务 ${task.name} 未开始：${queued.reason}`);
+    return;
+  }
   try {
-    message.info(`开始执行任务: ${task.name}`);
-    await executeScheduledTask(task);
+    message.info(
+      queued.position > 1
+        ? `任务 ${task.name} 已排队（第 ${queued.position} 位）`
+        : `开始执行任务: ${task.name}`,
+    );
+    // 等待该任务真正执行完成（含排队时间），再提示
+    await waitForTaskCompletion(`sched:${task.id}`);
     message.success(`任务 ${task.name} 执行完成`);
   } catch (e) {
     console.error(`执行任务 ${task.name} 失败:`, e);
@@ -4709,9 +4725,9 @@ const startScheduler = () => {
               taskExecutionKey,
             );
 
-            // Execute the task
+            // Queue the task so overlapping schedules run one after another
             lastTaskExecution = Date.now();
-            executeScheduledTask(task);
+            enqueueScheduledTask(task);
           } else {
             // Only log once per minute to avoid spamming logs
             // But since we check every 10s, this might log multiple times if we don't track logged state
@@ -4762,6 +4778,11 @@ onBeforeUnmount(() => {
 
   // 移除Token刷新等待事件监听
   $emit.off("token:refresh:waiting", handleTokenRefreshWaiting);
+
+  // 清空排队中的定时任务（正在执行的由 shouldStop 处理）
+  if (scheduledTaskQueue.size > 0) {
+    scheduledTaskQueue.clear();
+  }
 
   // Cleanup task scheduler intervals
   if (intervalId.value) {
@@ -4940,6 +4961,83 @@ const verifyTaskDependencies = async (task) => {
 };
 
 // Execute a scheduled task with dependency verification
+/**
+ * 定时任务串行队列：到点的任务先入队，前一个跑完再执行下一个，
+ * 避免多个任务并发改写 selectedTokens 造成账号串台/连接冲突。
+ */
+const scheduledTaskQueue = new ScheduledTaskQueue(async (task) => {
+  // 统一执行入队任务自带的回调（定时任务 / 开始执行 / 分批执行）
+  await task.run();
+});
+scheduledTaskQueue.onChange((event, detail) => {
+  // 同步队列忙碌状态，让手动执行按钮在排队期间也保持禁用
+  taskQueueBusy.value = scheduledTaskQueue.busy || scheduledTaskQueue.size > 0;
+  if (event === "enqueued" && detail.position > 1) {
+    addLog({
+      time: new Date().toLocaleTimeString(),
+      message: `=== ${detail.task.name} 已排队（第 ${detail.position} 位），等待前一个任务完成 ===`,
+      type: "info",
+    });
+  } else if (event === "start" && detail.remaining > 0) {
+    addLog({
+      time: new Date().toLocaleTimeString(),
+      message: `=== 开始执行: ${detail.task.name}（队列中还有 ${detail.remaining} 个）===`,
+      type: "info",
+    });
+  } else if (event === "cleared") {
+    addLog({
+      time: new Date().toLocaleTimeString(),
+      message: `=== 已清空 ${detail.removed} 个排队中的任务 ===`,
+      type: "info",
+    });
+  }
+});
+
+/** 统一的入队入口：把带 name/run 的任务对象加入串行队列 */
+const enqueueQueueTask = (queueTask) => {
+  const result = scheduledTaskQueue.enqueue(queueTask);
+  if (!result.enqueued) {
+    addLog({
+      time: new Date().toLocaleTimeString(),
+      message: `=== ${queueTask.name} 未入队：${result.reason} ===`,
+      type: "info",
+    });
+  }
+  return result;
+};
+
+/** 定时任务入队（调度器与定时任务的手动立即执行都走这里） */
+const enqueueScheduledTask = (task) =>
+  enqueueQueueTask({
+    id: `sched:${task.id}`,
+    name: `定时任务 ${task.name}`,
+    run: () => executeScheduledTask(task),
+  });
+
+/** 等待某个任务（含排队时间）从队列消失，用于手动执行的结果提示 */
+const waitForTaskCompletion = (taskId) =>
+  new Promise((resolve, reject) => {
+    if (!scheduledTaskQueue.has(taskId)) return resolve();
+    const off = scheduledTaskQueue.onChange((event, detail) => {
+      if (
+        (event === "completed" || event === "failed" || event === "cleared") &&
+        detail?.task?.id === taskId
+      ) {
+        off();
+        if (event === "failed") reject(detail.error || new Error("任务执行失败"));
+        else resolve();
+        return;
+      }
+      // 任务被清空时 detail 没有 task，兜底检查
+      if (event === "idle" || event === "cleared") {
+        if (!scheduledTaskQueue.has(taskId)) {
+          off();
+          resolve();
+        }
+      }
+    });
+  });
+
 const executeScheduledTask = async (task) => {
   addLog({
     time: new Date().toLocaleTimeString(),
@@ -6636,11 +6734,49 @@ const startBatchInGroups = async () => {
   else message.success("分批任务执行结束");
 };
 
+/**
+ * 「开始执行」按钮入口：纳入串行队列，与定时任务互斥，避免并发串台。
+ * 用固定 id 做去重，排队/执行期间重复点击不会叠加任务。
+ */
+const MANUAL_BATCH_ID = "manual:batch";
+const enqueueStartBatch = () => {
+  if (isRunning.value || selectedTokens.value.length === 0) return;
+  const result = enqueueQueueTask({
+    id: MANUAL_BATCH_ID,
+    name: "手动批量执行（日常任务）",
+    run: () => startBatch(),
+  });
+  if (!result.enqueued) {
+    message.info(`开始执行未开始：${result.reason}`);
+  }
+};
+
+/**
+ * 「分批执行」按钮入口：同样纳入串行队列。
+ */
+const MANUAL_GROUPS_ID = "manual:groups";
+const enqueueStartBatchInGroups = () => {
+  if (isRunning.value || selectedTokens.value.length === 0) return;
+  const result = enqueueQueueTask({
+    id: MANUAL_GROUPS_ID,
+    name: "手动分批执行（日常任务）",
+    run: () => startBatchInGroups(),
+  });
+  if (!result.enqueued) {
+    message.info(`分批执行未开始：${result.reason}`);
+  }
+};
+
 const stopBatch = () => {
   shouldStop.value = true;
+  // 停止时清空排队中的任务（正在执行的由 shouldStop 自行中断）
+  if (scheduledTaskQueue.size > 0) {
+    scheduledTaskQueue.clear();
+  }
+  taskQueueBusy.value = scheduledTaskQueue.busy || scheduledTaskQueue.size > 0;
   addLog({
     time: new Date().toLocaleTimeString(),
-    message: "正在停止...",
+    message: "正在停止...（已清空排队中的任务）",
     type: "warning",
   });
 };

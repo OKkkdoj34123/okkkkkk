@@ -51,6 +51,7 @@
             <n-radio-button value="mobile"> 手机号验证码 </n-radio-button>
             <n-radio-button value="bin"> BIN多角色获取 </n-radio-button>
             <n-radio-button value="singlebin"> BIN单角色获取 </n-radio-button>
+            <n-radio-button value="qrrole"> 扫码批量导入 </n-radio-button>
           </n-radio-group>
         </div>
 
@@ -104,6 +105,11 @@
             @cancel="() => (showImportForm = false)"
             @ok="() => (showImportForm = false)"
             v-if="importMethod === 'singlebin'"
+          />
+          <QrRoleImportForm
+            @cancel="() => (showImportForm = false)"
+            @ok="() => (showImportForm = false)"
+            v-if="importMethod === 'qrrole'"
           />
         </div>
       </a-modal>
@@ -786,6 +792,7 @@ import BinTokenForm from "./BinTokenForm.vue";
 import ManualTokenForm from "./ManualTokenForm.vue";
 import MobileTokenForm from "./MobileTokenForm.vue";
 import SingleBinTokenForm from "./SingleBinTokenForm.vue";
+import QrRoleImportForm from "./QrRoleImportForm.vue";
 import UrlTokenForm from "./UrlTokenForm.vue";
 import WxQrcodeForm from "./WxQrcodeForm.vue";
 // 接收路由参数
