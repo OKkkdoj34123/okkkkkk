@@ -1,4 +1,5 @@
 import {
+  CAMP_DAILY_ATTACK_LIMIT,
   CAMP_PET_ATTEMPT_LIMIT,
   CAMP_WINS_TARGET,
   decideNextStep,
