@@ -7,6 +7,9 @@ import {
   decideNextStep,
   hasEnoughWins,
   hasAttacksLeft,
+  isNoChanceError,
+  shouldStopNaturalAttacks,
+  CAMP_NO_CHANCE_THRESHOLD,
   sortTargetsByPower,
 } from "../src/utils/batch/campChallengePlanner.js";
 
@@ -65,4 +68,20 @@ test("still has attacks means keep challenging people", () => {
   const decision = decideNextStep({ winCount: 1, attackCount: 4 });
   assert.equal(decision.usePets, false);
   assert.equal(decision.done, false);
+});
+
+test("isNoChanceError recognizes 200020 / generic message", () => {
+  assert.equal(isNoChanceError(new Error("服务器错误: 200020 - 出了点小问题")), true);
+  assert.equal(isNoChanceError({ message: "出了点小问题，请尝试重启游戏" }), true);
+  assert.equal(isNoChanceError(new Error("连接超时")), false);
+  assert.equal(isNoChanceError(null), false);
+});
+
+test("shouldStopNaturalAttacks stops after consecutive threshold", () => {
+  assert.equal(CAMP_NO_CHANCE_THRESHOLD, 5);
+  assert.equal(shouldStopNaturalAttacks(0), false);
+  assert.equal(shouldStopNaturalAttacks(2), false);
+  assert.equal(shouldStopNaturalAttacks(4), false);
+  assert.equal(shouldStopNaturalAttacks(5), true);
+  assert.equal(shouldStopNaturalAttacks(6), true);
 });

@@ -51,3 +51,19 @@ export const decideNextStep = ({ winCount = 0, attackCount = 0 } = {}) => {
     return { done: false, usePets: true, reason: "挑战次数已用完，改打宠物补足" };
   return { done: false, usePets: false, reason: "继续挑战最弱对手" };
 };
+
+/** 连续多少次"次数已用完"错误后判定当日次数耗尽（放宽避免偶发误判） */
+export const CAMP_NO_CHANCE_THRESHOLD = 5;
+
+/** 服务器"次数已用完/出了点小问题"错误码 */
+export const isNoChanceError = (error) => {
+  const message = String(error?.message || error || "");
+  return message.includes("200020") || message.includes("出了点小问题");
+};
+
+/**
+ * 连续出现次数耗尽错误时，提前结束自然人挑战转打宠物。
+ * @returns {boolean}
+ */
+export const shouldStopNaturalAttacks = (consecutiveNoChance = 0) =>
+  Number(consecutiveNoChance) >= CAMP_NO_CHANCE_THRESHOLD;

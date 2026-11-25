@@ -4,6 +4,8 @@ import {
   CAMP_WINS_TARGET,
   decideNextStep,
   hasEnoughWins,
+  isNoChanceError,
+  shouldStopNaturalAttacks,
   sortTargetsByPower,
 } from "./campChallengePlanner.js";
 
@@ -32,7 +34,11 @@ export function createTasksCampChallenge(deps) {
     message,
     currentRunningTokenId,
     loadSettings,
+    delayConfig,
   } = deps;
+  // 战斗请求间隔：游戏服务端要求上一场结算完才能下一场，太快会返回 200020。
+  // 与竞技场/爬塔一致，复用全局 battleDelay（默认 500ms）。
+  const battleDelay = Number(delayConfig?.battle ?? 500);
 
   /**
    * 一键营地挑战
@@ -562,11 +568,22 @@ export function createTasksCampChallenge(deps) {
         );
 
         // 4. 先按战力从低到高挑战自然人，赢够即停
+        // 账号当日次数可能已被手动打过，助手计数从 0 开始会连吃 200020；
+        // 连续 N 次"次数已用完"就提前转打宠物，避免刷一屏红色报错。
+        let consecutiveNoChance = 0;
         for (const target of ordered) {
           if (shouldStop.value) break;
           const decision = decideNextStep({ winCount, attackCount });
           if (decision.done) break;
           if (decision.usePets) break;
+          if (shouldStopNaturalAttacks(consecutiveNoChance)) {
+            addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 自然人挑战次数已用完，提前改打宠物补足`,
+              type: "info",
+            });
+            break;
+          }
 
           const { opponentName, nodeId, defender, targetId } = target;
           addLog({
@@ -575,6 +592,9 @@ export function createTasksCampChallenge(deps) {
             type: "info",
           });
           try {
+            // 等上一场战斗结算完再发起挑战，太快服务端会返回 200020
+            await new Promise((r) => setTimeout(r, battleDelay));
+            if (shouldStop.value) break;
             await tokenStore.sendMessageWithPromise(
               tokenId,
               "club_gettargetteam",
@@ -597,6 +617,7 @@ export function createTasksCampChallenge(deps) {
             const curHP = attackRes?.battleData?.result?.accept?.ext?.curHP;
             const isWin = curHP === 0;
             attackCount++;
+            consecutiveNoChance = 0; // 拿到真实战斗结果，说明次数没耗尽
             if (isWin) winCount++;
             addLog({
               time: new Date().toLocaleTimeString(),
@@ -605,11 +626,20 @@ export function createTasksCampChallenge(deps) {
             });
           } catch (err) {
             attackCount++;
-            addLog({
-              time: new Date().toLocaleTimeString(),
-              message: `${token.name} 挑战异常: ${err.message || "未知错误"}`,
-              type: "error",
-            });
+            if (isNoChanceError(err)) {
+              consecutiveNoChance++;
+              addLog({
+                time: new Date().toLocaleTimeString(),
+                message: `${token.name} 自然人挑战次数可能已用完（${consecutiveNoChance} 次），改打宠物补足`,
+                type: "info",
+              });
+            } else {
+              addLog({
+                time: new Date().toLocaleTimeString(),
+                message: `${token.name} 挑战异常: ${err.message || "未知错误"}`,
+                type: "error",
+              });
+            }
           }
         }
 
@@ -622,6 +652,8 @@ export function createTasksCampChallenge(deps) {
         ) {
           petAttempts++;
           try {
+            await new Promise((r) => setTimeout(r, battleDelay));
+            if (shouldStop.value) break;
             const attackRes = await tokenStore.sendMessageWithPromise(
               tokenId,
               "club_attackmonster",
