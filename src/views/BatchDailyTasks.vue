@@ -3163,15 +3163,12 @@ import {
   addTaskSaveLog,
   availableTasks,
   bossTimesOptions,
-  chunkTokens,
-  normalizeBatchDelay,
-  normalizeBatchSize,
-  waitWithStop,
   // Constants
   boxTypeOptions,
   calculateMonthProgress,
   calculateNextExecutionTime,
   calculateNextRuns,
+  chunkTokens,
   createTasksApex,
   createTasksArena,
   createTasksBottle,
@@ -3191,8 +3188,11 @@ import {
   getTodayStartSec,
   isTodayAvailable,
   matchesCronExpression,
+  normalizeBatchDelay,
+  normalizeBatchSize,
   pickArenaTargetId,
   validateCronExpression,
+  waitWithStop,
 } from "@/utils/batch";
 import {
   blackMarketItemCatalog,
@@ -3205,8 +3205,8 @@ import { goldItemsConfig, merchantConfig } from "@/utils/dreamConstants";
 
 import { isSameGameValue } from "@/utils/gameValue.js";
 
-import { DEFAULT_WEIRD_TOWER_MAX_CLIMB } from "@/utils/towerClimbLimit.js";
 import { ScheduledTaskQueue } from "@/utils/scheduledTaskQueue.js";
+import { DEFAULT_WEIRD_TOWER_MAX_CLIMB } from "@/utils/towerClimbLimit.js";
 
 // Initialize token store, message service, and task runner
 const tokenStore = useTokenStore();

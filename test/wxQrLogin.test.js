@@ -1,21 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { bonProtocol, XCrypto } from "../src/utils/bonProtocol.js";
 import {
-  QR_CONFIG,
-  SCAN_STATE,
-  encodePayload,
-  buildQrPageUrl,
-  parseQrPage,
-  buildScanStatusUrl,
-  parseScanStatus,
-  buildLoginPayload,
   buildCombLoginUrl,
-  parseCombUser,
+  buildLoginPayload,
+  buildQrPageUrl,
   buildServerListBin,
   buildServerListUrl,
+  encodePayload,
+  parseCombUser,
+  parseQrPage,
+  parseScanStatus,
   parseServerRoles,
+  QR_CONFIG,
+  SCAN_STATE,
 } from "../src/utils/wxQrLogin.js";
-import { bonProtocol, XCrypto } from "../src/utils/bonProtocol.js";
 
 test("QR config points at the live game/WeChat endpoints", () => {
   assert.equal(QR_CONFIG.gameApi, "https://xxz-xyzw.hortorgames.com");
@@ -27,15 +26,15 @@ test("encodePayload produces stable base64 output", () => {
   const b = encodePayload('{"gameId":"xyzwapp","code":"TESTCODE"}');
   assert.equal(a, b, "encryption must be deterministic");
   assert.ok(a.length > 0);
-  assert.ok(/^[A-Za-z0-9+/=]+$/.test(a), "output is base64");
+  assert.ok(/^[A-Z0-9+/=]+$/i.test(a), "output is base64");
   assert.notEqual(a, '{"gameId":"xyzwapp","code":"TESTCODE"}');
 });
 
 test("QR page URL includes appid, bundleid and worker prefix", () => {
   const url = buildQrPageUrl("https://worker.example.com/");
   assert.ok(url.startsWith("https://worker.example.com/api/weixin/connect/app/qrconnect"));
-  assert.ok(url.includes("appid=" + QR_CONFIG.appid));
-  assert.ok(url.includes("bundleid=" + QR_CONFIG.bundleid));
+  assert.ok(url.includes(`appid=${  QR_CONFIG.appid}`));
+  assert.ok(url.includes(`bundleid=${  QR_CONFIG.bundleid}`));
   assert.ok(!url.includes("//api"));
 });
 

@@ -11,9 +11,9 @@ test("queued tasks run one at a time in FIFO order", async () => {
   const queue = new ScheduledTaskQueue(async (task) => {
     active++;
     maxActive = Math.max(maxActive, active);
-    order.push("start:" + task.id);
+    order.push(`start:${  task.id}`);
     await tick();
-    order.push("end:" + task.id);
+    order.push(`end:${  task.id}`);
     active--;
   });
 
@@ -73,9 +73,9 @@ test("clear removes pending tasks but keeps the running one", async () => {
   let release;
   const gate = new Promise((r) => (release = r));
   const queue = new ScheduledTaskQueue(async (task) => {
-    order.push("start:" + task.id);
+    order.push(`start:${  task.id}`);
     if (task.id === "run") await gate;
-    order.push("end:" + task.id);
+    order.push(`end:${  task.id}`);
   });
 
   queue.enqueue({ id: "run", name: "Run" });
@@ -101,7 +101,7 @@ test("a failing task does not block the queue", async () => {
     order.push(task.id);
     if (task.id === "bad") throw new Error("boom");
   });
-  queue.onChange((event, detail) => events.push(event));
+  queue.onChange((event) => events.push(event));
 
   queue.enqueue({ id: "bad" });
   queue.enqueue({ id: "good" });

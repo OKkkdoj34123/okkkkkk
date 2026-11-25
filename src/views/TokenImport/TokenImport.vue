@@ -791,8 +791,8 @@ import {
 import BinTokenForm from "./BinTokenForm.vue";
 import ManualTokenForm from "./ManualTokenForm.vue";
 import MobileTokenForm from "./MobileTokenForm.vue";
-import SingleBinTokenForm from "./SingleBinTokenForm.vue";
 import QrRoleImportForm from "./QrRoleImportForm.vue";
+import SingleBinTokenForm from "./SingleBinTokenForm.vue";
 import UrlTokenForm from "./UrlTokenForm.vue";
 import WxQrcodeForm from "./WxQrcodeForm.vue";
 // 接收路由参数

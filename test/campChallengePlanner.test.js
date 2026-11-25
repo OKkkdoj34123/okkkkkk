@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   CAMP_DAILY_ATTACK_LIMIT,
+  CAMP_NO_CHANCE_THRESHOLD,
   CAMP_PET_ATTEMPT_LIMIT,
   CAMP_WINS_TARGET,
   decideNextStep,
-  hasEnoughWins,
   hasAttacksLeft,
+  hasEnoughWins,
   isNoChanceError,
   shouldStopNaturalAttacks,
-  CAMP_NO_CHANCE_THRESHOLD,
   sortTargetsByPower,
 } from "../src/utils/batch/campChallengePlanner.js";
 

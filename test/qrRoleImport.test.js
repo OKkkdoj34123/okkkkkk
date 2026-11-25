@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { bonProtocol, XCrypto } from "../src/utils/bonProtocol.js";
 import {
   buildBatchImportPlans,
   buildBinFileName,
@@ -7,7 +8,6 @@ import {
   decodeServerId,
   encodeLoginBin,
 } from "../src/utils/qrRoleImport.js";
-import { bonProtocol, XCrypto } from "../src/utils/bonProtocol.js";
 
 const combUser = { openid: "oTEST123", unionid: "uTEST" };
 

@@ -105,7 +105,6 @@ import useIndexedDB from "@/hooks/useIndexedDB";
 import { useTokenStore } from "@/stores/tokenStore";
 import {
   buildAccountKey,
-  parseBinFileName,
 } from "@/utils/accountIdentity";
 import { getTokenId, transformToken } from "@/utils/token";
 

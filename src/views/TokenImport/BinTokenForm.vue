@@ -96,6 +96,7 @@ import { reactive, ref } from "vue";
 
 import useIndexedDB from "@/hooks/useIndexedDB";
 import { useTokenStore } from "@/stores/tokenStore";
+import { buildAccountKey } from "@/utils/accountIdentity";
 import {
   buildRoleBin,
   downloadBinFile,
@@ -170,15 +171,9 @@ const addSelectedRole = async (roleInfo: any) => {
 
   try {
     const newBinBuffer = buildRoleBin(originalBinData.value, roleInfo.serverId);
-    const tokenId = getTokenId(newBinBuffer);
+    const contentId = getTokenId(newBinBuffer);
     const roleToken = await transformToken(newBinBuffer);
     const roleName = roleInfo.name || `角色_${roleInfo.roleId}`;
-
-    // 刷新indexDB数据库token数据 (保存原始bin)
-    const saved = await storeArrayBuffer(tokenId, newBinBuffer);
-    if (!saved) {
-      throw new Error("保存BIN数据到IndexedDB失败，请检查浏览器存储空间或权限");
-    }
 
     let sid = Number(roleInfo.serverId);
     let roleIndex = 0;
@@ -198,28 +193,50 @@ const addSelectedRole = async (roleInfo: any) => {
       .replace(/\{id\}/g, () => String(roleInfo.roleId))
       .replace(/\{server\}/g, () => `${String(serverNum)}服`);
 
-    // 检查是否已存在相同配置 (根据角色名称和roleId)
-    const exists = roleList.value.some(
-      (r) => r.roleId === roleInfo.roleId && r.name === finalName,
+    // 用稳定身份「服务器:角色ID」匹配已有账号：
+    // 命中则复用旧 id，让定时任务/分组/账号设置里的引用继续有效；
+    // 未命中才用 bin 内容 MD5 作为新 id。
+    // server 参数与账号存储格式统一为「<服务器>服」，保证 legacy 账号也能按 roleId 匹配。
+    const accountKey = buildAccountKey(serverNum, roleInfo.roleId);
+    const serverLabel = `${String(serverNum)}服`;
+    const existingToken = tokenStore.findTokenByAccountKey(
+      accountKey,
+      roleInfo.roleId || null,
+      serverLabel,
+      finalName,
     );
+    const tokenId = existingToken?.id || contentId;
 
+    // 判重按稳定身份 accountKey（不再用会随命名模板变化的 name）
+    const exists = roleList.value.some((r) => r.accountKey === accountKey && accountKey !== null);
     if (exists) {
       message.warning(`角色 ${finalName} 已在待添加列表中`);
       return;
     }
 
+    if (existingToken) {
+      message.warning(
+        `识别到已有角色"${finalName}"，导入后将更新该账号（定时任务等设置保持不变）`,
+      );
+    } else {
+      message.success(`已添加角色: ${finalName}`);
+    }
+
+    // 匹配结果（id / isUpdate）与 bin 一起挂到 role 上，提交阶段统一落库，
+    // 保证 bin 存储位置与 token id 始终一致，也避免取消时提前覆盖旧账号的 bin。
     roleList.value.push({
       id: tokenId,
       roleId: roleInfo.roleId,
       token: roleToken,
       name: finalName,
-      server: `${String(serverNum)}服`,
+      server: serverLabel,
       roleIndex,
-      wsUrl: importForm.wsUrl || "",
+      wsUrl: importForm.wsUrl || existingToken?.wsUrl || "",
       importMethod: "bin",
+      accountKey,
+      isUpdate: Boolean(existingToken),
+      binBuffer: newBinBuffer,
     });
-
-    message.success(`已添加角色: ${finalName}`);
   } catch (e: any) {
     console.error("添加角色失败", e);
     message.error(`添加角色失败: ${e.message}`);
@@ -227,54 +244,56 @@ const addSelectedRole = async (roleInfo: any) => {
 };
 
 const uploadBin = (binFile: File) => {
+  // 必须 await 文件读取完成，否则 PQueue 的 concurrency:1 形同虚设，
+  // 多文件上传时回调乱序会覆盖 currentBinData/originalBinData，导致配错角色。
   tQueue.add(async () => {
     console.log("上传文件数据:", binFile);
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const userToken = e.target?.result as ArrayBuffer;
-      currentBinData.value = userToken;
+    const userToken = await new Promise<ArrayBuffer>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as ArrayBuffer);
+      reader.onerror = () => reject(new Error("读取文件失败"));
+      reader.readAsArrayBuffer(binFile);
+    }).catch((err) => {
+      message.error(err?.message || "读取文件失败，请重试");
+      return null;
+    });
+    if (!userToken) return;
+    currentBinData.value = userToken;
 
-      // 获取服务器角色列表
-      try {
-        const listStr = await getServerList(userToken);
-        const parsedList = JSON.parse(listStr);
-        // 转换为数组
-        if (parsedList && typeof parsedList === "object") {
-          serverListData.value = Object.values(parsedList).sort(
-            (a: any, b: any) => b.power - a.power,
-          );
-        } else {
-          serverListData.value = [];
-        }
-        console.log("Server List:", parsedList);
-        message.success("获取服务器角色列表成功，请选择角色添加");
-      } catch (err) {
-        console.error("Failed to get server list", err);
-        message.warning("获取服务器角色列表失败，请检查文件是否正确");
+    // 获取服务器角色列表
+    try {
+      const listStr = await getServerList(userToken);
+      const parsedList = JSON.parse(listStr);
+      if (parsedList && typeof parsedList === "object") {
+        serverListData.value = Object.values(parsedList).sort(
+          (a: any, b: any) => b.power - a.power,
+        );
+      } else {
         serverListData.value = [];
       }
+      console.log("Server List:", parsedList);
+      message.success("获取服务器角色列表成功，请选择角色添加");
+    } catch (err) {
+      console.error("Failed to get server list", err);
+      message.warning("获取服务器角色列表失败，请检查文件是否正确");
+      serverListData.value = [];
+    }
 
-      // 尝试解析 bin 文件内容
-      try {
-        const binMsg = g_utils.parse(userToken);
-        let binData = binMsg.getData();
-        if (!binData && (binMsg as any)._raw) {
-          console.log("Bin文件 getData() 为空，尝试使用 _raw");
-          binData = { ...(binMsg as any)._raw };
-        }
-
-        console.log("Bin文件解析:", binData);
-        binDecodedResult.value = JSON.stringify(binData, null, 2);
-        originalBinData.value = binData;
-      } catch (err: any) {
-        console.error("Bin文件解析失败", err);
-        binDecodedResult.value = `Bin文件解析失败: ${err.message || err}`;
+    // 尝试解析 bin 文件内容
+    try {
+      const binMsg = g_utils.parse(userToken);
+      let binData = binMsg.getData();
+      if (!binData && (binMsg as any)._raw) {
+        console.log("Bin文件 getData() 为空，尝试使用 _raw");
+        binData = { ...(binMsg as any)._raw };
       }
-    };
-    reader.onerror = () => {
-      message.error("读取文件失败，请重试");
-    };
-    reader.readAsArrayBuffer(binFile);
+      console.log("Bin文件解析:", binData);
+      binDecodedResult.value = JSON.stringify(binData, null, 2);
+      originalBinData.value = binData;
+    } catch (err: any) {
+      console.error("Bin文件解析失败", err);
+      binDecodedResult.value = `Bin文件解析失败: ${err.message || err}`;
+    }
   });
   return false; // 阻止自动上传
 };
@@ -284,23 +303,34 @@ const handleImport = async () => {
     message.error("请先上传bin文件！");
     return;
   }
-  roleList.value.forEach((role) => {
-    // tokenStore.gameTokens中发现已存在的重复名称，则移出token后重新添加
-    const gameToken = tokenStore.gameTokens.find((t) => t.id === role.id);
-    if (gameToken) {
-      console.log("移除同名token:", gameToken);
-      // tokenStore.removeToken(gameToken.id);
-      tokenStore.updateToken(gameToken.id, {
-        ...role,
-      });
-    } else {
-      tokenStore.addToken({
-        ...role,
-      });
+  // 匹配在 addSelectedRole 阶段已完成，id 与 bin 存储位置在此统一落库，
+  // 保证两者一致；命中旧账号则更新（复用 id，定时任务引用不变），否则新增。
+  let succeeded = 0;
+  let failed = 0;
+  for (const role of roleList.value) {
+    const { id, isUpdate, binBuffer } = role;
+    if (binBuffer) {
+      const saved = await storeArrayBuffer(id, binBuffer);
+      if (!saved) {
+        message.error(`保存BIN数据到IndexedDB失败: ${role.name}`);
+        failed++;
+        continue;
+      }
     }
-  });
+    const record = { ...role };
+    delete record.binBuffer; // 不把二进制塞进 token 记录
+    delete record.isUpdate; // 内部标记不写入 token 记录
+    if (isUpdate) {
+      console.log("更新同名token（保留id，定时任务引用不变）:", role.name);
+      tokenStore.updateToken(id, record);
+    } else {
+      tokenStore.addToken(record);
+    }
+    succeeded++;
+  }
   console.log("当前Token列表:", tokenStore.gameTokens);
-  message.success("Token添加成功");
+  if (failed > 0) message.warning(`Token添加完成：成功 ${succeeded}，失败 ${failed}`);
+  else message.success("Token添加成功");
   roleList.value = [];
   $emit("ok");
 };

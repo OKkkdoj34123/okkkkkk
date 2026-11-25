@@ -1,12 +1,13 @@
+/* eslint-disable node/prefer-global/buffer -- Node test environment uses Buffer */
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { bonProtocol, LXCrypto, XCrypto } from "../src/utils/bonProtocol.js";
 import {
   detectScheme,
   formatInspectedData,
   inspectProtocol,
   parseInputBytes,
 } from "../src/utils/protocolInspector.js";
-import { bonProtocol, XCrypto, LXCrypto } from "../src/utils/bonProtocol.js";
 
 const toHex = (u8) => Array.from(u8).map((b) => b.toString(16).padStart(2, "0")).join("");
 
