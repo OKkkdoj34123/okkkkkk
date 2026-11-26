@@ -40,7 +40,9 @@ export default defineConfig({
   },
   presets: [
     presetWind(),
-    presetAttributify({/* preset options */}),
+    presetAttributify({
+      /* preset options */
+    }),
     presetIcons({
       scale: 1.25,
       autoInstall: false,

@@ -15,8 +15,8 @@
 </template>
 
 <script setup>
-import { darkTheme } from "naive-ui";
 import { computed, onMounted, onUnmounted } from "vue";
+import { darkTheme } from "naive-ui";
 import { useTheme } from "@/composables/useTheme";
 
 const { isDark, initTheme, setupSystemThemeListener, updateReactiveState } =

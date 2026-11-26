@@ -1,6 +1,11 @@
 <template>
-  <div class="message-tester">
-    <n-card title="消息加解密测试" class="mb-4">
+  <div class="message-test-page">
+    <div class="message-tester">
+      <header class="page-header">
+        <h1>消息测试</h1>
+        <p>测试游戏消息、解析BIN文件与查看通信记录</p>
+      </header>
+    <n-card title="消息加解密测试" class="message-test-card mb-4">
       <div class="space-y-4">
         <!-- 选择Token -->
         <div>
@@ -142,13 +147,13 @@
         </n-divider>
         <div class="message-history max-h-96 overflow-y-auto">
           <div
-            v-for="(historyMessage, messageIndex) in messageHistory"
-            :key="messageIndex"
+            v-for="(message, index) in messageHistory"
+            :key="index"
             class="message-item p-3 mb-2 rounded border"
             :class="
-              historyMessage.type === 'sent'
+              message.type === 'sent'
                 ? 'bg-blue-50 border-blue-200'
-                : historyMessage.type === 'test'
+                : message.type === 'test'
                   ? 'bg-purple-50 border-purple-200'
                   : 'bg-green-50 border-green-200'
             "
@@ -157,33 +162,33 @@
               <div>
                 <span class="font-semibold">
                   {{
-                    historyMessage.type === "sent"
+                    message.type === "sent"
                       ? "📤 发送"
-                      : historyMessage.type === "test"
+                      : message.type === "test"
                         ? "🧪 测试"
                         : "📨 接收"
                   }}
                   <span class="text-sm text-gray-500 ml-2">{{
-                    formatTime(historyMessage.timestamp)
+                    formatTime(message.timestamp)
                   }}</span>
                 </span>
                 <div
                   class="flex flex-wrap items-center gap-1 mt-1"
-                  v-if="hasSeqAck(historyMessage)"
+                  v-if="hasSeqAck(message)"
                 >
                   <n-tag
                     size="tiny"
                     type="info"
-                    v-if="getMessageSeq(historyMessage) !== undefined"
+                    v-if="getMessageSeq(message) !== undefined"
                   >
-                    SEQ {{ getMessageSeq(historyMessage) }}
+                    SEQ {{ getMessageSeq(message) }}
                   </n-tag>
                   <n-tag
                     size="tiny"
                     type="warning"
-                    v-if="getMessageAck(historyMessage) !== undefined"
+                    v-if="getMessageAck(message) !== undefined"
                   >
-                    ACK {{ getMessageAck(historyMessage) }}
+                    ACK {{ getMessageAck(message) }}
                   </n-tag>
                 </div>
               </div>
@@ -191,7 +196,7 @@
                 <n-button
                   size="tiny"
                   type="tertiary"
-                  @click="copyMessage(historyMessage)"
+                  @click="copyMessage(message)"
                   title="复制消息"
                 >
                   <n-icon size="12">
@@ -206,7 +211,7 @@
                 <n-button
                   size="tiny"
                   type="tertiary"
-                  @click="copyJSON(historyMessage.data)"
+                  @click="copyJSON(message.data)"
                   title="复制JSON数据"
                 >
                   <n-icon size="12">
@@ -221,31 +226,29 @@
               </div>
             </div>
 
-            <div v-if="historyMessage.cmd" class="text-sm mb-2">
+            <div v-if="message.cmd" class="text-sm mb-2">
               <strong>命令:</strong>
-              <n-tag
-                size="small"
-                :type="getCommandTagType(historyMessage.cmd)"
-                >{{ historyMessage.cmd }}</n-tag
-              >
+              <n-tag size="small" :type="getCommandTagType(message.cmd)">{{
+                message.cmd
+              }}</n-tag>
             </div>
 
             <!-- 消息预览 -->
             <div class="mb-2">
               <div class="text-xs text-gray-600 mb-1">
-                消息预览 ({{ getDataSize(historyMessage.data) }}):
+                消息预览 ({{ getDataSize(message.data) }}):
               </div>
               <div
                 class="text-sm bg-gray-50 p-2 rounded border max-h-20 overflow-hidden message-preview"
               >
-                {{ getMessagePreview(historyMessage.data) }}
+                {{ getMessagePreview(message.data) }}
               </div>
             </div>
 
             <div class="mt-2">
               <n-collapse>
                 <n-collapse-item
-                  :title="`详细数据 (${getDataSize(historyMessage.data)})`"
+                  :title="`详细数据 (${getDataSize(message.data)})`"
                   name="detail"
                 >
                   <!-- 原始数据和解码数据的选项卡 -->
@@ -270,7 +273,7 @@
                               size="tiny"
                               type="primary"
                               ghost
-                              @click="copyFormattedJSON(historyMessage.data)"
+                              @click="copyFormattedJSON(message.data)"
                               title="复制格式化JSON"
                             >
                               <n-icon size="12" class="mr-1">
@@ -286,7 +289,7 @@
                           </n-space>
                         </div>
                         <pre class="json-content formatted">{{
-                          formatJSONSmart(historyMessage.data)
+                          formatJSONSmart(message.data)
                         }}</pre>
                       </div>
                     </n-tab-pane>
@@ -310,7 +313,7 @@
                               size="tiny"
                               type="warning"
                               ghost
-                              @click="copyRawJSON(historyMessage.data)"
+                              @click="copyRawJSON(message.data)"
                               title="复制原始JSON"
                             >
                               <n-icon size="12" class="mr-1">
@@ -326,7 +329,7 @@
                           </n-space>
                         </div>
                         <pre class="json-content raw">{{
-                          JSON.stringify(historyMessage.data, null, 2)
+                          JSON.stringify(message.data, null, 2)
                         }}</pre>
                       </div>
                     </n-tab-pane>
@@ -350,7 +353,7 @@
                               size="tiny"
                               type="success"
                               ghost
-                              @click="copyCompactJSON(historyMessage.data)"
+                              @click="copyCompactJSON(message.data)"
                               title="复制紧凑JSON"
                             >
                               <n-icon size="12" class="mr-1">
@@ -366,7 +369,7 @@
                           </n-space>
                         </div>
                         <pre class="json-content compact">{{
-                          JSON.stringify(historyMessage.data)
+                          JSON.stringify(message.data)
                         }}</pre>
                       </div>
                     </n-tab-pane>
@@ -388,13 +391,14 @@
       </div>
     </n-card>
   </div>
+  </div>
 </template>
 
 <script setup>
-import { AlertCircleOutline } from "@vicons/ionicons5";
+import { ref, computed, watch } from "vue";
+import { useTokenStore, selectedTokenId } from "@/stores/tokenStore";
 import { useMessage } from "naive-ui";
-import { computed, ref, watch } from "vue";
-import { selectedTokenId, useTokenStore } from "@/stores/tokenStore";
+import { AlertCircleOutline } from "@vicons/ionicons5";
 
 const tokenStore = useTokenStore();
 const message = useMessage();
@@ -403,7 +407,7 @@ const message = useMessage();
 const customCmd = ref("");
 const customBody = ref("{}");
 const messageHistory = ref([]);
-
+const fileList = ref(0);
 const lastProcessedMessage = ref(null); // 追踪最后处理的消息
 
 const extractPacketMeta = (data) => {
@@ -485,7 +489,7 @@ const connectWebSocket = () => {
       message.success("正在建立WebSocket连接...");
     } catch (error) {
       console.error("❌ MessageTester: WebSocket连接失败", error);
-      message.error(`WebSocket连接失败: ${error.message}`);
+      message.error("WebSocket连接失败: " + error.message);
     }
   } else {
     message.error("找不到选中的token");
@@ -500,11 +504,11 @@ const handleChange = async (e) => {
 
   const reader = new FileReader();
   reader.readAsArrayBuffer(file);
-  reader.onload = () => {
+  reader.onload = (e) => {
     const arrayBuffer = event.target.result; // 得到ArrayBuffer
     // 转换为Uint8Array（便于按字节查看/处理，每个元素是0-255的字节值）
     const uint8Array = new Uint8Array(arrayBuffer);
-    g_utils.bon.decode(uint8Array);
+    const decode = g_utils.bon.decode(uint8Array);
     const respont = g_utils.parse(uint8Array);
     const result = g_utils.bon.decode(respont.body);
     console.log(respont, result);
@@ -574,7 +578,7 @@ const testBONDecoding = async () => {
     }
   } catch (error) {
     console.error("❌ BON解码测试失败:", error);
-    message.error(`BON解码测试失败: ${error.message}`);
+    message.error("BON解码测试失败: " + error.message);
 
     // 添加错误结果到历史
     addToHistory(
@@ -724,7 +728,7 @@ const sendCustomMessage = () => {
       message.error("自定义消息发送失败");
     }
   } catch (error) {
-    message.error(`消息体JSON格式错误: ${error.message}`);
+    message.error("消息体JSON格式错误: " + error.message);
   }
 };
 
@@ -789,7 +793,7 @@ const getMessagePreview = (data) => {
     }
 
     const preview = JSON.stringify(previewData);
-    return preview.length > 150 ? `${preview.substring(0, 150)}...` : preview;
+    return preview.length > 150 ? preview.substring(0, 150) + "..." : preview;
   } catch {
     return "数据解析失败";
   }
@@ -825,7 +829,7 @@ const exportHistory = () => {
 
     message.success("消息历史已导出");
   } catch (error) {
-    message.error(`导出失败: ${error.message}`);
+    message.error("导出失败: " + error.message);
   }
 };
 
@@ -874,7 +878,7 @@ const formatBodyDescription = (body) => {
   if (body instanceof Uint8Array) return `[Uint8Array: ${body.length} bytes]`;
   if (typeof body === "object" && body.constructor === Object) {
     const keys = Object.keys(body);
-    if (keys.every((key) => !Number.isNaN(+Number.parseInt(key)))) {
+    if (keys.every((key) => !isNaN(parseInt(key)))) {
       return `[NumericObject: ${keys.length} entries]`;
     }
   }
@@ -888,10 +892,7 @@ const isRawBodyData = (body) => {
   if (body instanceof Uint8Array) return true;
   if (typeof body === "object" && body.constructor === Object) {
     const keys = Object.keys(body);
-    return (
-      keys.length > 0 &&
-      keys.every((key) => !Number.isNaN(+Number.parseInt(key)))
-    );
+    return keys.length > 0 && keys.every((key) => !isNaN(parseInt(key)));
   }
   return false;
 };
@@ -1001,6 +1002,107 @@ const formatJSONSmart = (data, maxDepth = 10, currentDepth = 0) => {
 };
 
 // 保留原来的formatJSON作为兼容
+const formatJSON = (data) => {
+  try {
+    if (!data) return "null";
+
+    // 处理BON解码数据：优先显示解码后的数据
+    let displayData = data;
+
+    // 检查_raw结构中的解码数据
+    const actualData = data._raw || data;
+
+    // 如果有解码后的数据，优先显示
+    if (actualData.decodedBody || data.decodedBody) {
+      const decodedBody = actualData.decodedBody || data.decodedBody;
+      const originalBody = actualData.body || data.body;
+
+      if (data._raw) {
+        // 如果有_raw结构，更新_raw中的body
+        displayData = {
+          ...data,
+          _raw: {
+            ...data._raw,
+            body: decodedBody,
+            _originalBody: formatBodyDescription(originalBody),
+            _note: "body已自动BON解码",
+          },
+        };
+      } else {
+        // 直接结构，更新body
+        displayData = {
+          ...data,
+          body: decodedBody,
+          _originalBody: formatBodyDescription(originalBody),
+          _note: "body已自动BON解码",
+        };
+      }
+    } else if (actualData.rawData || data.rawData) {
+      // 如果是ProtoMsg格式，使用rawData
+      const rawData = actualData.rawData || data.rawData;
+
+      if (data._raw) {
+        displayData = {
+          ...data,
+          _raw: {
+            ...data._raw,
+            body: rawData,
+            _note: "body已使用rawData解码",
+          },
+        };
+      } else {
+        displayData = {
+          ...data,
+          body: rawData,
+          _note: "body已使用rawData解码",
+        };
+      }
+    } else if (
+      (actualData.body && isRawBodyData(actualData.body)) ||
+      (data.body && isRawBodyData(data.body))
+    ) {
+      // 如果body是原始数据，添加提示
+      displayData = {
+        ...data,
+        _note: "body为原始数据，等待BON解码",
+      };
+    }
+
+    // 处理循环引用和大型对象的JSON序列化
+    const seen = new WeakSet();
+    const replacer = (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) {
+          return "[循环引用]";
+        }
+        seen.add(value);
+      }
+
+      // 限制字符串长度
+      if (typeof value === "string" && value.length > 200) {
+        return value.substring(0, 200) + "...[截断]";
+      }
+
+      // 处理大数组显示
+      if (Array.isArray(value) && value.length > 50) {
+        return `[Array: ${value.length} items] ${JSON.stringify(value.slice(0, 10))}...[显示前10项]`;
+      }
+
+      return value;
+    };
+
+    const jsonString = JSON.stringify(displayData, replacer, 2);
+
+    // 限制总体输出长度
+    if (jsonString.length > 5000) {
+      return jsonString.substring(0, 5000) + "\n...[内容过长已截断]";
+    }
+
+    return jsonString;
+  } catch (error) {
+    return `[JSON序列化错误: ${error.message}]`;
+  }
+};
 
 // 监听WebSocket消息
 watch(
@@ -1036,9 +1138,49 @@ watch(
 </script>
 
 <style scoped>
+.message-test-page {
+  min-height: calc(100vh - 64px);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
 .message-tester {
-  max-width: 800px;
+  width: 100%;
+  max-width: 1400px;
+  min-width: 0;
   margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.message-test-card {
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+}
+
+.message-tester :deep(pre) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .message-test-page { padding: var(--spacing-md); }
+  .message-tester .grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
 }
 
 .message-item {

@@ -1,0 +1,353 @@
+[
+  {
+    "accountAlias": "501",
+    "source": "live-role_getroleinfo-read-only",
+    "role": {
+      "levelId": 6911,
+      "battleTeam": {
+        "0": {
+          "heroId": 107
+        },
+        "1": {
+          "heroId": 108
+        },
+        "2": {
+          "heroId": 112
+        },
+        "3": {
+          "heroId": 120
+        },
+        "4": {
+          "heroId": 116
+        }
+      },
+      "heroes": {
+        "101": {
+          "power": 14703859
+        },
+        "102": {
+          "power": 14875731
+        },
+        "103": {
+          "power": 14704970
+        },
+        "104": {
+          "power": 14875819
+        },
+        "105": {
+          "power": 14676838
+        },
+        "106": {
+          "power": 14703736
+        },
+        "107": {
+          "power": 376286580
+        },
+        "108": {
+          "power": 15387377
+        },
+        "109": {
+          "power": 14703685
+        },
+        "110": {
+          "power": 14705161
+        },
+        "111": {
+          "power": 14705238
+        },
+        "112": {
+          "power": 15975854
+        },
+        "113": {
+          "power": 14705156
+        },
+        "114": {
+          "power": 14703810
+        },
+        "115": {
+          "power": 14704783
+        },
+        "116": {
+          "power": 15844915
+        },
+        "117": {
+          "power": 14704837
+        },
+        "118": {
+          "power": 14704238
+        },
+        "119": {
+          "power": 14894279
+        },
+        "120": {
+          "power": 15374680
+        },
+        "121": {
+          "power": 14703256
+        }
+      },
+      "statistics": {},
+      "statisticsTime": {},
+      "petData": {
+        "pets": {
+          "0": {
+            "petId": 103,
+            "level": 0,
+            "hp": 5000000,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-501-0"
+          },
+          "1": {
+            "petId": 303,
+            "level": 16,
+            "hp": 53000000,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-501-1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "accountAlias": "502",
+    "source": "live-role_getroleinfo-read-only",
+    "role": {
+      "levelId": 6951,
+      "battleTeam": {
+        "0": {
+          "heroId": 107
+        },
+        "1": {
+          "heroId": 108
+        },
+        "2": {
+          "heroId": 120
+        },
+        "3": {
+          "heroId": 112
+        },
+        "4": {
+          "heroId": 116
+        }
+      },
+      "heroes": {
+        "101": {
+          "power": 18054864
+        },
+        "102": {
+          "power": 18226736
+        },
+        "103": {
+          "power": 18055975
+        },
+        "104": {
+          "power": 18226824
+        },
+        "105": {
+          "power": 18068126
+        },
+        "106": {
+          "power": 18054741
+        },
+        "107": {
+          "power": 444788311
+        },
+        "108": {
+          "power": 18822706
+        },
+        "109": {
+          "power": 18054690
+        },
+        "110": {
+          "power": 18228629
+        },
+        "111": {
+          "power": 18056242
+        },
+        "112": {
+          "power": 18730105
+        },
+        "113": {
+          "power": 18056161
+        },
+        "114": {
+          "power": 18054815
+        },
+        "115": {
+          "power": 18055788
+        },
+        "116": {
+          "power": 18747087
+        },
+        "117": {
+          "power": 18055841
+        },
+        "118": {
+          "power": 18016131
+        },
+        "119": {
+          "power": 18068062
+        },
+        "120": {
+          "power": 18725684
+        },
+        "121": {
+          "power": 18054261
+        }
+      },
+      "statistics": {},
+      "statisticsTime": {},
+      "petData": {
+        "pets": {
+          "0": {
+            "petId": 403,
+            "level": 18,
+            "hp": 65599994,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-502-0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "accountAlias": "503",
+    "source": "live-role_getroleinfo-read-only",
+    "role": {
+      "levelId": 6853,
+      "battleTeam": {
+        "0": {
+          "heroId": 107
+        },
+        "1": {
+          "heroId": 108
+        },
+        "2": {
+          "heroId": 112
+        },
+        "3": {
+          "heroId": 120
+        },
+        "4": {
+          "heroId": 116
+        }
+      },
+      "heroes": {
+        "101": {
+          "power": 19114283
+        },
+        "102": {
+          "power": 19188480
+        },
+        "103": {
+          "power": 19189642
+        },
+        "104": {
+          "power": 19188543
+        },
+        "105": {
+          "power": 19201793
+        },
+        "106": {
+          "power": 19188408
+        },
+        "107": {
+          "power": 335296245
+        },
+        "108": {
+          "power": 20055363
+        },
+        "109": {
+          "power": 19188357
+        },
+        "110": {
+          "power": 19150636
+        },
+        "111": {
+          "power": 19189909
+        },
+        "112": {
+          "power": 19974281
+        },
+        "113": {
+          "power": 19115356
+        },
+        "114": {
+          "power": 19188482
+        },
+        "115": {
+          "power": 19189455
+        },
+        "116": {
+          "power": 19880754
+        },
+        "117": {
+          "power": 19189508
+        },
+        "118": {
+          "power": 19477991
+        },
+        "119": {
+          "power": 19201729
+        },
+        "120": {
+          "power": 19759290
+        },
+        "121": {
+          "power": 19187928
+        }
+      },
+      "statistics": {},
+      "statisticsTime": {},
+      "petData": {
+        "pets": {
+          "0": {
+            "petId": 303,
+            "level": 0,
+            "hp": 15000000,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-503-0"
+          },
+          "1": {
+            "petId": 102,
+            "level": 0,
+            "hp": 5000000,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-503-1"
+          },
+          "2": {
+            "petId": 404,
+            "level": 19,
+            "hp": 68133327,
+            "talentHp": 0,
+            "talentId": 0,
+            "starId": 0,
+            "quenches": null,
+            "quenchInfoMap": null,
+            "uId": "fixture-503-2"
+          }
+        }
+      }
+    }
+  }
+]

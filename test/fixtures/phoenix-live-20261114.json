@@ -1,0 +1,5861 @@
+{
+  "provenance": "Authorized live requests on 2026-11-14 Asia/Shanghai using the delivered phoenixPrayer.js core. Names, auth and opponent profiles removed; role IDs replaced. Arena pending protection was added; battle version queried from fight_startlevel. Initial failed experimental request without battleVersion (200750) is not counted as a successful battle. Both final runs and same-day repeats are captured, not synthetic. Read-packet taskClaimed/cumulativeClaimedMap were omitted because the first trace writer retained mutable references. Replay reconstructs these two maps only, from initial read-only inspection and subsequent unmodified claim receipts; command order, args, progress, rewards, timestamps and final counts are captured.",
+  "accounts": [
+    {
+      "alias": "test-1",
+      "roleId": 501,
+      "initialToday": 0,
+      "expectedDraws": [
+        10
+      ],
+      "runs": [
+        [
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650853189,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 821274,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794650863217,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 33,
+                      "261113102": 0,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649314
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650864649,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 33,
+                      "261113102": 0,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650866061,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "fight_startlevel",
+            "args": {},
+            "at": 1794650867497,
+            "code": 0,
+            "data": {
+              "battleData": {
+                "version": 240523
+              }
+            }
+          },
+          {
+            "cmd": "arena_startarea",
+            "args": {},
+            "at": 1794650868937,
+            "code": 0,
+            "data": {}
+          },
+          {
+            "cmd": "arena_getareatarget",
+            "args": {},
+            "at": 1794650870393,
+            "code": 0,
+            "data": {
+              "roleList": [
+                {
+                  "roleId": 80001
+                },
+                {
+                  "roleId": 80002
+                }
+              ]
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650871837,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 33,
+                      "261113102": 0,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "fight_startareaarena",
+            "args": {
+              "targetId": 80001,
+              "battleVersion": 240523
+            },
+            "at": 1794650873274,
+            "code": 0,
+            "data": {}
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650874955,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 33,
+                      "261113102": 1,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650876408,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 821274,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650877940,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794650879386,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 34,
+                      "261113102": 1,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649314
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650880859,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 821274,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650882377,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 35,
+                      "261113102": 1,
+                      "261113103": 0,
+                      "261113104": 0,
+                      "261113105": 0,
+                      "261113141": 0,
+                      "261113142": 0,
+                      "261113143": 0,
+                      "261113144": 0,
+                      "261113145": 0,
+                      "261113146": 0,
+                      "261113147": 0,
+                      "261113148": 0,
+                      "261113149": 0,
+                      "261113150": 0,
+                      "261113151": 0,
+                      "261113152": 0,
+                      "261113153": 0,
+                      "261113154": 0,
+                      "261113155": 0,
+                      "261113156": 0,
+                      "261113157": 0,
+                      "261113158": 0,
+                      "261113159": 0
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650883788,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650885202,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 821274,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 10
+            },
+            "at": 1794650886724,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10
+              },
+              "reward": [
+                {
+                  "type": 1,
+                  "itemId": 0,
+                  "value": 5000000,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 2,
+                  "itemId": 0,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1006,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1006,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 5297,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": null
+                },
+                "diamond": 821340,
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650888227,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650889661,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_claimlotterycumulative",
+            "args": {
+              "id": 68
+            },
+            "at": 1794650891070,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "cumulativeClaimedMap": {
+                  "68": true
+                }
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 1,
+                    "ext": null
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_claimlotterycumulative",
+            "args": {
+              "id": 69
+            },
+            "at": 1794650892490,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "cumulativeClaimedMap": {
+                  "69": true
+                }
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 2
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113101
+            },
+            "at": 1794650893914,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": false,
+                      "261113103": false,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113102
+            },
+            "at": 1794650895337,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": false,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113103
+            },
+            "at": 1794650896760,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113104
+            },
+            "at": 1794650898202,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113105
+            },
+            "at": 1794650899625,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113142
+            },
+            "at": 1794650901043,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 800,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true,
+                      "261113142": true
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderrewardclaim",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650902456,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 10002,
+                  "value": 400,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 7,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 9
+                  }
+                },
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true,
+                      "261113142": true
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650903881,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 821340,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          }
+        ],
+        [
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651042489,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 821340,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794651058065,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649314
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651059590,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651061059,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651062552,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 821340,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651064119,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1075,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 821340,
+                "dailyTask": {
+                  "weekPoint": 465,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "monthPoint": 665,
+                  "monthTime": 1746028800
+                },
+                "roleId": 501
+              }
+            }
+          }
+        ]
+      ],
+      "final": {
+        "items": {
+          "1007": {
+            "itemId": 1007,
+            "quantity": 1075,
+            "ext": null
+          },
+          "5295": {
+            "itemId": 5295,
+            "quantity": 9,
+            "ext": null
+          }
+        },
+        "diamond": 821340,
+        "dailyTask": {
+          "weekPoint": 465,
+          "weekTime": 1794153600,
+          "dailyPoint": 90,
+          "dailyTime": 1794585600,
+          "complete": {
+            "1": -1,
+            "2": -1,
+            "3": -1,
+            "4": -1,
+            "5": -1,
+            "6": -1,
+            "7": -1,
+            "13": 1,
+            "14": -1
+          },
+          "dailyReward": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          },
+          "weekReward": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          },
+          "monthPoint": 665,
+          "monthTime": 1746028800
+        },
+        "roleId": 501
+      },
+      "initialTaskClaimed": {
+        "261113101": false,
+        "261113102": false,
+        "261113103": false,
+        "261113104": false,
+        "261113105": false
+      },
+      "initialCumulativeClaimed": {}
+    },
+    {
+      "alias": "test-2",
+      "roleId": 502,
+      "initialToday": 1,
+      "expectedDraws": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "runs": [
+        [
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650902057,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794650911307,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 0,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649544
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650912762,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 0,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650914188,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 1,
+                "fragProgress": 1,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "fight_startlevel",
+            "args": {},
+            "at": 1794650915648,
+            "code": 0,
+            "data": {
+              "battleData": {
+                "version": 240523
+              }
+            }
+          },
+          {
+            "cmd": "arena_startarea",
+            "args": {},
+            "at": 1794650917078,
+            "code": 0,
+            "data": {}
+          },
+          {
+            "cmd": "arena_getareatarget",
+            "args": {},
+            "at": 1794650918501,
+            "code": 0,
+            "data": {
+              "roleList": [
+                {
+                  "roleId": 80001
+                },
+                {
+                  "roleId": 80002
+                }
+              ]
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650919934,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 0,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "fight_startareaarena",
+            "args": {
+              "targetId": 80001,
+              "battleVersion": 240523
+            },
+            "at": 1794650921345,
+            "code": 0,
+            "data": {}
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650923042,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 36,
+                      "261113102": 1,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650924445,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650925967,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 1,
+                "fragProgress": 1,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794650927379,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 37,
+                      "261113102": 1,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649544
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650928807,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650930334,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 38,
+                      "261113102": 1,
+                      "261113103": 1,
+                      "261113104": 1,
+                      "261113105": 1,
+                      "261113141": 0,
+                      "261113142": 1,
+                      "261113143": 1,
+                      "261113144": 1,
+                      "261113145": 1,
+                      "261113146": 1,
+                      "261113147": 1,
+                      "261113148": 1,
+                      "261113149": 1,
+                      "261113150": 1,
+                      "261113151": 1,
+                      "261113152": 1,
+                      "261113153": 1,
+                      "261113154": 1,
+                      "261113155": 1,
+                      "261113156": 1,
+                      "261113157": 1,
+                      "261113158": 1,
+                      "261113159": 1
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650931742,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 1,
+                "fragProgress": 1,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650933168,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650934723,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 2,
+                "fragProgress": 2
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 1022,
+                  "value": 100,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 8
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650936272,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650937684,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 2,
+                "fragProgress": 2,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113101
+            },
+            "at": 1794650939128,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": false,
+                      "261113103": false,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113102
+            },
+            "at": 1794650940598,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": false,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113103
+            },
+            "at": 1794650942035,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {},
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderrewardclaim",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650943472,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 3,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 10002,
+                  "value": 200,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 11
+                  }
+                },
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 39,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": false,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650944911,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 11,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650946470,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 40,
+                      "261113102": 1,
+                      "261113103": 2,
+                      "261113104": 2,
+                      "261113105": 2,
+                      "261113141": 0,
+                      "261113142": 2,
+                      "261113143": 2,
+                      "261113144": 2,
+                      "261113145": 2,
+                      "261113146": 2,
+                      "261113147": 2,
+                      "261113148": 2,
+                      "261113149": 2,
+                      "261113150": 2,
+                      "261113151": 2,
+                      "261113152": 2,
+                      "261113153": 2,
+                      "261113154": 2,
+                      "261113155": 2,
+                      "261113156": 2,
+                      "261113157": 2,
+                      "261113158": 2,
+                      "261113159": 2
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650947910,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 2,
+                "fragProgress": 2,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650949329,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 11,
+                    "ext": null
+                  }
+                },
+                "diamond": 936574,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650950875,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 3,
+                "fragProgress": 3
+              },
+              "reward": [
+                {
+                  "type": 2,
+                  "itemId": 0,
+                  "value": 88,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 10
+                  }
+                },
+                "diamond": 936662,
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650952301,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 41,
+                      "261113102": 1,
+                      "261113103": 3,
+                      "261113104": 3,
+                      "261113105": 3,
+                      "261113141": 0,
+                      "261113142": 3,
+                      "261113143": 3,
+                      "261113144": 3,
+                      "261113145": 3,
+                      "261113146": 3,
+                      "261113147": 3,
+                      "261113148": 3,
+                      "261113149": 3,
+                      "261113150": 3,
+                      "261113151": 3,
+                      "261113152": 3,
+                      "261113153": 3,
+                      "261113154": 3,
+                      "261113155": 3,
+                      "261113156": 3,
+                      "261113157": 3,
+                      "261113158": 3,
+                      "261113159": 3
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650953730,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 3,
+                "fragProgress": 3,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650955144,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 936662,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650956672,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 42,
+                      "261113102": 1,
+                      "261113103": 3,
+                      "261113104": 3,
+                      "261113105": 3,
+                      "261113141": 0,
+                      "261113142": 3,
+                      "261113143": 3,
+                      "261113144": 3,
+                      "261113145": 3,
+                      "261113146": 3,
+                      "261113147": 3,
+                      "261113148": 3,
+                      "261113149": 3,
+                      "261113150": 3,
+                      "261113151": 3,
+                      "261113152": 3,
+                      "261113153": 3,
+                      "261113154": 3,
+                      "261113155": 3,
+                      "261113156": 3,
+                      "261113157": 3,
+                      "261113158": 3,
+                      "261113159": 3
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650958104,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 3,
+                "fragProgress": 3,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650959516,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 936662,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650961101,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 4,
+                "fragProgress": 4
+              },
+              "reward": [
+                {
+                  "type": 2,
+                  "itemId": 0,
+                  "value": 66,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 9
+                  }
+                },
+                "diamond": 936728,
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650962627,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 43,
+                      "261113102": 1,
+                      "261113103": 4,
+                      "261113104": 4,
+                      "261113105": 4,
+                      "261113141": 0,
+                      "261113142": 4,
+                      "261113143": 4,
+                      "261113144": 4,
+                      "261113145": 4,
+                      "261113146": 4,
+                      "261113147": 4,
+                      "261113148": 4,
+                      "261113149": 4,
+                      "261113150": 4,
+                      "261113151": 4,
+                      "261113152": 4,
+                      "261113153": 4,
+                      "261113154": 4,
+                      "261113155": 4,
+                      "261113156": 4,
+                      "261113157": 4,
+                      "261113158": 4,
+                      "261113159": 4
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650964040,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 4,
+                "fragProgress": 4,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650965477,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650967016,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 44,
+                      "261113102": 1,
+                      "261113103": 4,
+                      "261113104": 4,
+                      "261113105": 4,
+                      "261113141": 0,
+                      "261113142": 4,
+                      "261113143": 4,
+                      "261113144": 4,
+                      "261113145": 4,
+                      "261113146": 4,
+                      "261113147": 4,
+                      "261113148": 4,
+                      "261113149": 4,
+                      "261113150": 4,
+                      "261113151": 4,
+                      "261113152": 4,
+                      "261113153": 4,
+                      "261113154": 4,
+                      "261113155": 4,
+                      "261113156": 4,
+                      "261113157": 4,
+                      "261113158": 4,
+                      "261113159": 4
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650968451,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 4,
+                "fragProgress": 4,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650969941,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650971562,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 5,
+                "fragProgress": 5
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 1033,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 8
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650973056,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 45,
+                      "261113102": 1,
+                      "261113103": 5,
+                      "261113104": 5,
+                      "261113105": 5,
+                      "261113141": 0,
+                      "261113142": 5,
+                      "261113143": 5,
+                      "261113144": 5,
+                      "261113145": 5,
+                      "261113146": 5,
+                      "261113147": 5,
+                      "261113148": 5,
+                      "261113149": 5,
+                      "261113150": 5,
+                      "261113151": 5,
+                      "261113152": 5,
+                      "261113153": 5,
+                      "261113154": 5,
+                      "261113155": 5,
+                      "261113156": 5,
+                      "261113157": 5,
+                      "261113158": 5,
+                      "261113159": 5
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650974479,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 5,
+                "fragProgress": 5,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_claimlotterycumulative",
+            "args": {
+              "id": 68
+            },
+            "at": 1794650975911,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "cumulativeClaimedMap": {
+                  "68": true
+                }
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 9
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113104
+            },
+            "at": 1794650977367,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 45,
+                      "261113102": 1,
+                      "261113103": 5,
+                      "261113104": 5,
+                      "261113105": 5,
+                      "261113141": 0,
+                      "261113142": 5,
+                      "261113143": 5,
+                      "261113144": 5,
+                      "261113145": 5,
+                      "261113146": 5,
+                      "261113147": 5,
+                      "261113148": 5,
+                      "261113149": 5,
+                      "261113150": 5,
+                      "261113151": 5,
+                      "261113152": 5,
+                      "261113153": 5,
+                      "261113154": 5,
+                      "261113155": 5,
+                      "261113156": 5,
+                      "261113157": 5,
+                      "261113158": 5,
+                      "261113159": 5
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {
+                      "1281": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderrewardclaim",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650978822,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 2,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 11
+                  }
+                },
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 45,
+                      "261113102": 1,
+                      "261113103": 5,
+                      "261113104": 5,
+                      "261113105": 5,
+                      "261113141": 0,
+                      "261113142": 5,
+                      "261113143": 5,
+                      "261113144": 5,
+                      "261113145": 5,
+                      "261113146": 5,
+                      "261113147": 5,
+                      "261113148": 5,
+                      "261113149": 5,
+                      "261113150": 5,
+                      "261113151": 5,
+                      "261113152": 5,
+                      "261113153": 5,
+                      "261113154": 5,
+                      "261113155": 5,
+                      "261113156": 5,
+                      "261113157": 5,
+                      "261113158": 5,
+                      "261113159": 5
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": false
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650980300,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 11,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650981831,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 46,
+                      "261113102": 1,
+                      "261113103": 5,
+                      "261113104": 5,
+                      "261113105": 5,
+                      "261113141": 0,
+                      "261113142": 5,
+                      "261113143": 5,
+                      "261113144": 5,
+                      "261113145": 5,
+                      "261113146": 5,
+                      "261113147": 5,
+                      "261113148": 5,
+                      "261113149": 5,
+                      "261113150": 5,
+                      "261113151": 5,
+                      "261113152": 5,
+                      "261113153": 5,
+                      "261113154": 5,
+                      "261113155": 5,
+                      "261113156": 5,
+                      "261113157": 5,
+                      "261113158": 5,
+                      "261113159": 5
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650983279,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 5,
+                "fragProgress": 5,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650984691,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 11,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650986221,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 6,
+                "fragProgress": 6
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 1006,
+                  "value": 66,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 10
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650987704,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 47,
+                      "261113102": 1,
+                      "261113103": 6,
+                      "261113104": 6,
+                      "261113105": 6,
+                      "261113141": 0,
+                      "261113142": 6,
+                      "261113143": 6,
+                      "261113144": 6,
+                      "261113145": 6,
+                      "261113146": 6,
+                      "261113147": 6,
+                      "261113148": 6,
+                      "261113149": 6,
+                      "261113150": 6,
+                      "261113151": 6,
+                      "261113152": 6,
+                      "261113153": 6,
+                      "261113154": 6,
+                      "261113155": 6,
+                      "261113156": 6,
+                      "261113157": 6,
+                      "261113158": 6,
+                      "261113159": 6
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650989191,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 6,
+                "fragProgress": 6,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650990653,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650992265,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 48,
+                      "261113102": 1,
+                      "261113103": 6,
+                      "261113104": 6,
+                      "261113105": 6,
+                      "261113141": 0,
+                      "261113142": 6,
+                      "261113143": 6,
+                      "261113144": 6,
+                      "261113145": 6,
+                      "261113146": 6,
+                      "261113147": 6,
+                      "261113148": 6,
+                      "261113149": 6,
+                      "261113150": 6,
+                      "261113151": 6,
+                      "261113152": 6,
+                      "261113153": 6,
+                      "261113154": 6,
+                      "261113155": 6,
+                      "261113156": 6,
+                      "261113157": 6,
+                      "261113158": 6,
+                      "261113159": 6
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650993792,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 6,
+                "fragProgress": 6,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794650995268,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 10,
+                    "ext": null
+                  }
+                },
+                "diamond": 936728,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794650996938,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 7,
+                "fragProgress": 7
+              },
+              "reward": [
+                {
+                  "type": 2,
+                  "itemId": 0,
+                  "value": 66,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 9
+                  }
+                },
+                "diamond": 936794,
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794650998443,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 49,
+                      "261113102": 1,
+                      "261113103": 7,
+                      "261113104": 7,
+                      "261113105": 7,
+                      "261113141": 0,
+                      "261113142": 7,
+                      "261113143": 7,
+                      "261113144": 7,
+                      "261113145": 7,
+                      "261113146": 7,
+                      "261113147": 7,
+                      "261113148": 7,
+                      "261113149": 7,
+                      "261113150": 7,
+                      "261113151": 7,
+                      "261113152": 7,
+                      "261113153": 7,
+                      "261113154": 7,
+                      "261113155": 7,
+                      "261113156": 7,
+                      "261113157": 7,
+                      "261113158": 7,
+                      "261113159": 7
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794650999902,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 7,
+                "fragProgress": 7,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651001358,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651002916,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 50,
+                      "261113102": 1,
+                      "261113103": 7,
+                      "261113104": 7,
+                      "261113105": 7,
+                      "261113141": 0,
+                      "261113142": 7,
+                      "261113143": 7,
+                      "261113144": 7,
+                      "261113145": 7,
+                      "261113146": 7,
+                      "261113147": 7,
+                      "261113148": 7,
+                      "261113149": 7,
+                      "261113150": 7,
+                      "261113151": 7,
+                      "261113152": 7,
+                      "261113153": 7,
+                      "261113154": 7,
+                      "261113155": 7,
+                      "261113156": 7,
+                      "261113157": 7,
+                      "261113158": 7,
+                      "261113159": 7
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651004399,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 7,
+                "fragProgress": 7,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651005857,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794651007404,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 8,
+                "fragProgress": 8
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 1006,
+                  "value": 66,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 8
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651008918,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 51,
+                      "261113102": 1,
+                      "261113103": 8,
+                      "261113104": 8,
+                      "261113105": 8,
+                      "261113141": 0,
+                      "261113142": 8,
+                      "261113143": 8,
+                      "261113144": 8,
+                      "261113145": 8,
+                      "261113146": 8,
+                      "261113147": 8,
+                      "261113148": 8,
+                      "261113149": 8,
+                      "261113150": 8,
+                      "261113151": 8,
+                      "261113152": 8,
+                      "261113153": 8,
+                      "261113154": 8,
+                      "261113155": 8,
+                      "261113156": 8,
+                      "261113157": 8,
+                      "261113158": 8,
+                      "261113159": 8
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651010361,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 8,
+                "fragProgress": 8,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651011808,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 8,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651013332,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 52,
+                      "261113102": 1,
+                      "261113103": 8,
+                      "261113104": 8,
+                      "261113105": 8,
+                      "261113141": 0,
+                      "261113142": 8,
+                      "261113143": 8,
+                      "261113144": 8,
+                      "261113145": 8,
+                      "261113146": 8,
+                      "261113147": 8,
+                      "261113148": 8,
+                      "261113149": 8,
+                      "261113150": 8,
+                      "261113151": 8,
+                      "261113152": 8,
+                      "261113153": 8,
+                      "261113154": 8,
+                      "261113155": 8,
+                      "261113156": 8,
+                      "261113157": 8,
+                      "261113158": 8,
+                      "261113159": 8
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651014752,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 8,
+                "fragProgress": 8,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651016158,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 8,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794651017725,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 9,
+                "fragProgress": 9
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 1016,
+                  "value": 66,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 7
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651019164,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 53,
+                      "261113102": 1,
+                      "261113103": 9,
+                      "261113104": 9,
+                      "261113105": 9,
+                      "261113141": 0,
+                      "261113142": 9,
+                      "261113143": 9,
+                      "261113144": 9,
+                      "261113145": 9,
+                      "261113146": 9,
+                      "261113147": 9,
+                      "261113148": 9,
+                      "261113149": 9,
+                      "261113150": 9,
+                      "261113151": 9,
+                      "261113152": 9,
+                      "261113153": 9,
+                      "261113154": 9,
+                      "261113155": 9,
+                      "261113156": 9,
+                      "261113157": 9,
+                      "261113158": 9,
+                      "261113159": 9
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651020603,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 9,
+                "fragProgress": 9,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651022160,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 7,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651023830,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 54,
+                      "261113102": 1,
+                      "261113103": 9,
+                      "261113104": 9,
+                      "261113105": 9,
+                      "261113141": 0,
+                      "261113142": 9,
+                      "261113143": 9,
+                      "261113144": 9,
+                      "261113145": 9,
+                      "261113146": 9,
+                      "261113147": 9,
+                      "261113148": 9,
+                      "261113149": 9,
+                      "261113150": 9,
+                      "261113151": 9,
+                      "261113152": 9,
+                      "261113153": 9,
+                      "261113154": 9,
+                      "261113155": 9,
+                      "261113156": 9,
+                      "261113157": 9,
+                      "261113158": 9,
+                      "261113159": 9
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651025372,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 9,
+                "fragProgress": 9,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651026791,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 7,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_lottery",
+            "args": {
+              "times": 1
+            },
+            "at": 1794651028340,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5297,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 6
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651029773,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 55,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651031182,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "activity_claimlotterycumulative",
+            "args": {
+              "id": 69
+            },
+            "at": 1794651032583,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "cumulativeClaimedMap": {
+                  "69": true
+                }
+              },
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 1,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 7
+                  }
+                },
+                "roleId": null
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113105
+            },
+            "at": 1794651034012,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 500,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 55,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warordertaskclaim",
+            "args": {
+              "actId": 2611131,
+              "missionId": 261113142
+            },
+            "at": 1794651035451,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5294,
+                  "value": 800,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {},
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 55,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true,
+                      "261113142": true
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderrewardclaim",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651036908,
+            "code": 0,
+            "data": {
+              "reward": [
+                {
+                  "type": 3,
+                  "itemId": 5295,
+                  "value": 2,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 10002,
+                  "value": 200,
+                  "ext": 0
+                }
+              ],
+              "role": {
+                "items": {
+                  "5295": {
+                    "quantity": 9
+                  }
+                },
+                "roleId": null
+              },
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 55,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "taskClaimed": {
+                      "261113101": true,
+                      "261113102": true,
+                      "261113103": true,
+                      "261113104": true,
+                      "261113105": true,
+                      "261113142": true
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651038332,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          }
+        ],
+        [
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651105853,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "activity_get",
+            "args": {},
+            "at": 1794651115821,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 58,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                },
+                "commonActivityInfo": {
+                  "2611135": {
+                    "record": {
+                      "1": 1794649544
+                    },
+                    "task": {},
+                    "isBought": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_warorderget",
+            "args": {
+              "actId": 2611131
+            },
+            "at": 1794651117295,
+            "code": 0,
+            "data": {
+              "activity": {
+                "warOrderActivityInfo": {
+                  "2611131": {
+                    "purchased": false,
+                    "purchased2": false,
+                    "purchased3": false,
+                    "complete": {
+                      "261113101": 58,
+                      "261113102": 1,
+                      "261113103": 10,
+                      "261113104": 10,
+                      "261113105": 10,
+                      "261113141": 0,
+                      "261113142": 10,
+                      "261113143": 10,
+                      "261113144": 10,
+                      "261113145": 10,
+                      "261113146": 10,
+                      "261113147": 10,
+                      "261113148": 10,
+                      "261113149": 10,
+                      "261113150": 10,
+                      "261113151": 10,
+                      "261113152": 10,
+                      "261113153": 10,
+                      "261113154": 10,
+                      "261113155": 10,
+                      "261113156": 10,
+                      "261113157": 10,
+                      "261113158": 10,
+                      "261113159": 10
+                    },
+                    "rewardClaimed": {
+                      "1281": 1,
+                      "1282": 1,
+                      "1283": 1
+                    },
+                    "newRewardClaimed": null,
+                    "dailyTime": 1794585600,
+                    "weekTime": 1794153600,
+                    "sevenTime": 1794758400,
+                    "itemNum": 0,
+                    "unlockClaimed": false,
+                    "phaseTh": 0,
+                    "phaseEndTime": 0
+                  }
+                }
+              }
+            }
+          },
+          {
+            "cmd": "activity_getlotteryinfo",
+            "args": {},
+            "at": 1794651118741,
+            "code": 0,
+            "data": {
+              "lotteryInfo": {
+                "lotteryNum": 10,
+                "fragProgress": 10,
+                "boxPackIdList": []
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651120182,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          },
+          {
+            "cmd": "role_getroleinfo",
+            "args": {},
+            "at": 1794651121708,
+            "code": 0,
+            "data": {
+              "role": {
+                "items": {
+                  "1007": {
+                    "itemId": 1007,
+                    "quantity": 1104,
+                    "ext": null
+                  },
+                  "5295": {
+                    "itemId": 5295,
+                    "quantity": 9,
+                    "ext": null
+                  }
+                },
+                "diamond": 936794,
+                "dailyTask": {
+                  "weekPoint": 90,
+                  "weekTime": 1794153600,
+                  "dailyPoint": 90,
+                  "dailyTime": 1794585600,
+                  "complete": {
+                    "1": -1,
+                    "2": -1,
+                    "3": -1,
+                    "4": -1,
+                    "5": -1,
+                    "6": -1,
+                    "7": -1,
+                    "13": 1,
+                    "14": -1
+                  },
+                  "dailyReward": {
+                    "1": true,
+                    "2": true,
+                    "3": true,
+                    "4": true
+                  },
+                  "weekReward": {},
+                  "monthPoint": 505,
+                  "monthTime": 1746028800
+                },
+                "roleId": 502
+              }
+            }
+          }
+        ]
+      ],
+      "final": {
+        "items": {
+          "1007": {
+            "itemId": 1007,
+            "quantity": 1104,
+            "ext": null
+          },
+          "5295": {
+            "itemId": 5295,
+            "quantity": 9,
+            "ext": null
+          }
+        },
+        "diamond": 936794,
+        "dailyTask": {
+          "weekPoint": 90,
+          "weekTime": 1794153600,
+          "dailyPoint": 90,
+          "dailyTime": 1794585600,
+          "complete": {
+            "1": -1,
+            "2": -1,
+            "3": -1,
+            "4": -1,
+            "5": -1,
+            "6": -1,
+            "7": -1,
+            "13": 1,
+            "14": -1
+          },
+          "dailyReward": {
+            "1": true,
+            "2": true,
+            "3": true,
+            "4": true
+          },
+          "weekReward": {},
+          "monthPoint": 505,
+          "monthTime": 1746028800
+        },
+        "roleId": 502
+      },
+      "initialTaskClaimed": {
+        "261113101": false,
+        "261113102": false,
+        "261113103": false,
+        "261113104": false,
+        "261113105": false
+      },
+      "initialCumulativeClaimed": {}
+    }
+  ]
+}

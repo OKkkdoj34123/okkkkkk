@@ -1,3 +1,5 @@
+import { runHangUpLegacy, createHangUpTaskContext } from "./hangUpWorkflow.js";
+import { recordTaskResult, taskErrorResult } from "./taskResult.js";
 /**
  * 功法类任务
  * 包含: batchLegacyClaim, batchLegacyGiftSendEnhanced
@@ -5,8 +7,8 @@
 
 /**
  * 创建功法类任务执行器
- * @param {object} deps - 依赖项
- * @returns {object} 任务函数集合
+ * @param {Object} deps - 依赖项
+ * @returns {Object} 任务函数集合
  */
 export function createTasksLegacy(deps) {
   const {
@@ -34,68 +36,59 @@ export function createTasksLegacy(deps) {
    * 批量领取功法残卷
    */
   const batchLegacyClaim = async () => {
-    if (selectedTokens.value.length === 0) return;
+    const ids = [...new Set(selectedTokens.value)];
+    if (!ids.length) return [];
+    const context = deps.bottleTaskContext || createHangUpTaskContext();
     isRunning.value = true;
     shouldStop.value = false;
-
-    selectedTokens.value.forEach((id) => {
-      tokenStatus.value[id] = "waiting";
-    });
-
-    const taskPromises = selectedTokens.value.map(async (tokenId) => {
-      if (shouldStop.value) return;
-      tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
-
-      const token = tokens.value.find((t) => t.id === tokenId);
-      try {
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `=== 开始领取功法残卷: ${token.name} ===`,
-          type: "info",
-        });
-        await ensureConnection(tokenId, 2, (owned) => {
-          ownsSlot = owned;
-        });
-
-        const LegacyClaimHangUpResp = await tokenStore.sendMessageWithPromise(
-          tokenId,
-          "legacy_claimhangup",
-          {},
-          5000,
-        );
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `=== ${token.name} 成功领取功法残卷${LegacyClaimHangUpResp.reward[0].value}，共有${LegacyClaimHangUpResp.role.items[37007].quantity}个`,
-          type: "success",
-        });
-        tokenStatus.value[tokenId] = "completed";
-      } catch (error) {
-        console.error(error);
-        tokenStatus.value[tokenId] = "failed";
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `=== ${token.name} 领取功法残卷失败: ${error.message || "未知错误"}`,
-          type: "error",
-        });
-      } finally {
-        if (ownsSlot) {
-        tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
+    ids.forEach(id => { tokenStatus.value[id] = "waiting"; });
+    try {
+      return await Promise.all(ids.map(async tokenId => {
+        const token = tokens.value.find(item => item.id === tokenId);
+        let result, connectionAttempted = false;
+        try {
+          if (shouldStop.value) throw Object.assign(new Error("手动停止"), { stopped: true });
+          if (!token) result = { status: "unavailable", detail: "账号已移除" };
+          else {
+            tokenStatus.value[tokenId] = "running";
+            result = await runHangUpLegacy({ context, tokenId,
+              stopped: () => shouldStop.value,
+              isDisconnected: () => ["disconnected", "closed", "error"].includes(tokenStore.getWebSocketStatus?.(tokenId)),
+              spacingMs: delayConfig?.command ?? batchSettings.commandDelay,
+              // A cached outcome requires no connection and never sends another claim.
+              send: async (cmd, params, timeout) => {
+                connectionAttempted = true;
+                await ensureConnection(tokenId);
+                if (shouldStop.value) throw Object.assign(new Error("手动停止"), { stopped: true });
+                return tokenStore.sendMessageWithPromise(tokenId, cmd, params, timeout);
+              },
+            });
+          }
+        } catch (error) {
+          result = taskErrorResult(error);
+        } finally {
+          try {
+            if (connectionAttempted) {
+              const close = tokenStore.closeWebSocketConnectionAsync || tokenStore.closeWebSocketConnection;
+              await close.call(tokenStore, tokenId);
+            }
+          } catch (error) {
+            result ||= { status: "warning", detail: "结果待核验" };
+            if (["completed", "skipped"].includes(result.status)) result.status = "partial";
+            result.detail += `；关闭连接失败：${error?.message || "未知原因"}`;
+          } finally { releaseConnectionSlot(tokenId); }
         }
-        addLog({
-          time: new Date().toLocaleTimeString(),
-          message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
-          type: "info",
-        });
-      }
-    });
-
-    await Promise.all(taskPromises);
-
-    isRunning.value = false;
-    currentRunningTokenId.value = null;
-    message.success("批量领取功法残卷结束");
+        const labels = { completed: "完成", skipped: "跳过", warning: "待核验", partial: "部分异常", failed: "失败", stopped: "已停止", unavailable: "不可用" };
+        const recorded = recordTaskResult(tokenStatus, tokenId, result.status, [result.detail], [], result);
+        addLog({ time: new Date().toLocaleTimeString(),
+          message: `[残卷][${token?.name || tokenId}] ${labels[result.status] || result.status}；${result.detail}`,
+          type: ["failed", "partial", "unavailable"].includes(result.status) ? "error" : ["warning", "stopped"].includes(result.status) ? "warning" : "info" });
+        return recorded;
+      }));
+    } finally {
+      isRunning.value = false;
+      currentRunningTokenId.value = null;
+    }
   };
 
   /**
@@ -147,7 +140,6 @@ export function createTasksLegacy(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
 
       const token = tokens.value.find((t) => t.id === tokenId);
       let consecutiveErrors = 0;
@@ -161,9 +153,7 @@ export function createTasksLegacy(deps) {
             type: "info",
           });
 
-          await ensureConnection(tokenId, 2, (owned) => {
-            ownsSlot = owned;
-          });
+          await ensureConnection(tokenId);
 
           const roleInfo = await tokenStore.sendGetRoleInfo(tokenId);
           const legacyFragmentCount =
@@ -229,7 +219,7 @@ export function createTasksLegacy(deps) {
             tokenId,
             "role_commitpassword",
             {
-              password,
+              password: password,
               passwordType: 1,
             },
             5000,
@@ -291,13 +281,16 @@ export function createTasksLegacy(deps) {
           console.error(`赠送失败: ${error.message}`);
 
           let errorMsg = error.message || "未知错误";
+          let errorType = "error";
 
           if (errorMsg.includes("200160")) {
             errorMsg = "模块未开启";
           } else if (errorMsg.includes("timeout")) {
             errorMsg = "请求超时";
+            errorType = "warning";
           } else if (errorMsg.includes("网络")) {
             errorMsg = "网络错误";
+            errorType = "warning";
           }
 
           if (consecutiveErrors <= maxRetries && !shouldStop.value) {
@@ -318,10 +311,8 @@ export function createTasksLegacy(deps) {
             break;
           }
         } finally {
-          if (ownsSlot) {
-        tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-          }
+          tokenStore.closeWebSocketConnection(tokenId);
+          releaseConnectionSlot(tokenId);
           addLog({
             time: new Date().toLocaleTimeString(),
             message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -352,3 +343,4 @@ export function createTasksLegacy(deps) {
     batchLegacyGiftSendEnhanced,
   };
 }
+

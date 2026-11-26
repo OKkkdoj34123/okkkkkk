@@ -70,23 +70,7 @@
             </n-icon>
             <span>消息测试</span>
           </router-link>
-          <!-- Full backup / restore entry -->
-          <router-link
-            to="/admin/backup"
-            class="nav-item"
-            active-class="active"
-          >
-            <n-icon>
-              <Archive />
-            </n-icon>
-            <span>备份恢复</span>
-          </router-link>
-          <router-link
-            to="/admin/legion-war"
-            class="nav-item"
-            active-class="active"
-            v-if="isNowInLegionWarTime()"
-          >
+          <router-link to="/admin/legion-war" class="nav-item" active-class="active"  v-if="isNowInLegionWarTime()" >
             <n-icon>
               <LockOpen />
             </n-icon>
@@ -192,27 +176,12 @@
           </n-icon>
           <span>消息测试</span>
         </router-link>
-        <router-link
-          to="/admin/backup"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
-        >
-          <n-icon>
-            <Archive />
-          </n-icon>
-          <span>备份恢复</span>
-        </router-link>
-        <router-link
-          to="/admin/legion-war"
-          class="nav-item"
-          active-class="active"
-          v-if="isNowInLegionWarTime()"
-        >
-          <n-icon>
-            <LockOpen />
-          </n-icon>
-          <span>实时盐场</span>
-        </router-link>
+          <router-link to="/admin/legion-war" class="nav-item" active-class="active"  v-if="isNowInLegionWarTime()" >
+            <n-icon>
+              <LockOpen />
+            </n-icon>
+            <span>实时盐场</span>
+          </router-link>
         <router-link
           to="/admin/profile"
           class="drawer-item"
@@ -226,38 +195,56 @@
       </div>
     </n-drawer>
     <div class="main">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive :include="cachedViewNames">
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </div>
   </div>
 </template>
 
 <script setup>
 import {
-  Archive,
-  ArrowUpCircle,
-  ChatbubbleEllipsesSharp,
-  ChevronDown,
-  Cube,
-  Home,
-  Layers,
-  LockOpen,
-  Menu,
-  PersonCircle,
-  Settings,
-} from "@vicons/ionicons5";
-import { useMessage } from "naive-ui";
-import { ref } from "vue";
-
-import { useRouter } from "vue-router";
+  useTokenStore,
+  selectedToken,
+  selectedTokenId,
+} from "@/stores/tokenStore";
 import ThemeToggle from "@/components/Common/ThemeToggle.vue";
-import { selectedToken, useTokenStore } from "@/stores/tokenStore";
-import { isNowInLegionWarTime } from "@/utils/clubBattleUtils";
+import {
+  Home,
+  PersonCircle,
+  Cube,
+  Settings,
+  ChevronDown,
+  ChatbubbleEllipsesSharp,
+  LockClosedSharp,LockOpen,
+  Menu,
+  Layers,
+  ArrowUpCircle,
+} from "@vicons/ionicons5";
+
+import { useRoute, useRouter } from 'vue-router'
+import { useMessage } from 'naive-ui'
+import { computed, ref } from 'vue'
+import { isNowInLegionWarTime } from '@/utils/clubBattleUtils'
 
 const tokenStore = useTokenStore();
+const route = useRoute();
 const router = useRouter();
 const message = useMessage();
 
 const isMobileMenuOpen = ref(false);
+const cachedViewNames = computed(() => {
+  // /tokens previously left this layout; preserve task workspace disposal.
+  if (route.name === "TokenImport") return [];
+  const isTaskWorkspace = ["BatchDailyTasks", "PushingLevels"].includes(
+    String(route.name || ""),
+  );
+  return isTaskWorkspace
+    ? ["BatchDailyTasks", "PushingLevels"]
+    : ["BatchDailyTasks"];
+});
 
 const userMenuOptions = [
   {

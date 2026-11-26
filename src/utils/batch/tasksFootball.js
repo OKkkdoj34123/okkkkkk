@@ -5,8 +5,8 @@
 
 /**
  * 创建盐杯竞猜任务执行器
- * @param {object} deps - 依赖项
- * @returns {object} 任务函数集合
+ * @param {Object} deps - 依赖项
+ * @returns {Object} 任务函数集合
  */
 export function createTasksFootball(deps) {
   const {
@@ -43,13 +43,10 @@ export function createTasksFootball(deps) {
       if (shouldStop.value) return;
 
       tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
-        await ensureConnection(tokenId, 2, (owned) => {
-          ownsSlot = owned;
-        });
+        await ensureConnection(tokenId);
 
         addLog({
           time: new Date().toLocaleTimeString(),
@@ -64,6 +61,7 @@ export function createTasksFootball(deps) {
           {},
           8000,
         );
+        const matchList = betInfoResp?.matchList;
         const betRecord = betInfoResp?.roleData?.betRecord || {};
 
         // 2. 通过 betRecord 最后一个 key 获取待竞猜 matchId
@@ -152,10 +150,8 @@ export function createTasksFootball(deps) {
           type: "error",
         });
       } finally {
-        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        }
+        releaseConnectionSlot(tokenId);
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -175,3 +171,4 @@ export function createTasksFootball(deps) {
     batchFootballBet,
   };
 }
+

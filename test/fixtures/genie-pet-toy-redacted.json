@@ -1,0 +1,194 @@
+{
+  "source": "User captures 1793200561797 / 1793200505716",
+  "pets": {
+    "2": {
+      "uId": "fixture-pet-0",
+      "petId": 403,
+      "level": 0,
+      "attack": 1000000,
+      "hp": 20000000,
+      "defense": 0,
+      "speed": 0,
+      "activeSkillConfId": 0,
+      "passiveSkillConfIds": [],
+      "quenches": {},
+      "exp": 0,
+      "isLocked": false,
+      "quenchConsume": 0,
+      "seed": 0,
+      "starId": 0,
+      "talentId": 0,
+      "talentAttack": 0,
+      "talentHp": 0,
+      "talentConsume": 0,
+      "quenchInfoMap": {},
+      "quenchId": 0,
+      "quenchGroupCnt": 0
+    },
+    "8": {
+      "uId": "fixture-pet-1",
+      "petId": 501,
+      "level": 0,
+      "attack": 1500000,
+      "hp": 30000000,
+      "defense": 0,
+      "speed": 0,
+      "activeSkillConfId": 0,
+      "passiveSkillConfIds": [],
+      "quenches": {},
+      "exp": 0,
+      "isLocked": false,
+      "quenchConsume": 0,
+      "seed": 0,
+      "starId": 0,
+      "talentId": 0,
+      "talentAttack": 0,
+      "talentHp": 0,
+      "talentConsume": 0,
+      "quenchInfoMap": {},
+      "quenchId": 0,
+      "quenchGroupCnt": 0
+    },
+    "-1": {
+      "uId": "fixture-pet-2",
+      "petId": 604,
+      "level": 69,
+      "attack": 12488000,
+      "hp": 249760000,
+      "defense": 0,
+      "speed": 0,
+      "activeSkillConfId": 60404,
+      "passiveSkillConfIds": [
+        6040104,
+        6040202
+      ],
+      "quenches": {
+        "0": {
+          "hp": 17600000,
+          "color": 6,
+          "attrs": [
+            {
+              "attrId": 8,
+              "attrNum": 4100,
+              "newAttrNum": 4100
+            },
+            {
+              "attrId": 78,
+              "attrNum": 4150,
+              "newAttrNum": 4150
+            }
+          ],
+          "locked": true
+        },
+        "1": {
+          "hp": 17600000,
+          "color": 6,
+          "attrs": [
+            {
+              "attrId": 301,
+              "attrNum": 5340,
+              "newAttrNum": 5340
+            },
+            {
+              "attrId": 54,
+              "attrNum": 4800,
+              "newAttrNum": 4800
+            }
+          ],
+          "locked": true
+        },
+        "2": {
+          "hp": 12000000,
+          "color": 5,
+          "attrs": [
+            {
+              "attrId": 226,
+              "attrNum": 1650,
+              "newAttrNum": 1650
+            }
+          ],
+          "locked": false
+        },
+        "3": {
+          "hp": 17400000,
+          "color": 6,
+          "attrs": [
+            {
+              "attrId": 71,
+              "attrNum": 5280,
+              "newAttrNum": 5280
+            }
+          ],
+          "locked": true
+        },
+        "4": {
+          "hp": 800000,
+          "color": 1,
+          "attrs": [
+            {
+              "attrId": 230,
+              "attrNum": 90,
+              "newAttrNum": 90
+            }
+          ],
+          "locked": false
+        },
+        "5": {
+          "hp": 2200000,
+          "color": 3,
+          "attrs": [
+            {
+              "attrId": 227,
+              "attrNum": 570,
+              "newAttrNum": 570
+            }
+          ],
+          "locked": false
+        }
+      },
+      "exp": 10350,
+      "isLocked": false,
+      "quenchConsume": 5150,
+      "seed": 0,
+      "starId": 0,
+      "talentId": 0,
+      "talentAttack": 0,
+      "talentHp": 0,
+      "talentConsume": 0,
+      "quenchInfoMap": {},
+      "quenchId": 0,
+      "quenchGroupCnt": 0
+    }
+  },
+  "lordWeapon": {
+    "0": {
+      "weaponId": 0,
+      "level": 1
+    },
+    "1": {
+      "weaponId": 1,
+      "level": 129
+    },
+    "2": {
+      "weaponId": 2,
+      "level": 1
+    }
+  },
+  "powerByWeapon": {
+    "0": 428771275,
+    "1": 1029521223,
+    "2": 454179702
+  },
+  "live501": {
+    "owned": [
+      1
+    ],
+    "power": {
+      "0": 439059685,
+      "1": 439059685
+    },
+    "absentId": 2,
+    "absentCode": 200020,
+    "battleRequests": 0
+  }
+}

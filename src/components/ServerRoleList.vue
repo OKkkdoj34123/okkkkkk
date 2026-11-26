@@ -1,80 +1,68 @@
 <template>
   <div ref="listRootRef">
-    <NCard
-      v-if="data && data.length > 0"
-      :title="title"
-      class="server-role-list-card"
-    >
-      <div class="server-role-list-search">
-        <NInput
-          v-model:value="serverSearchKeyword"
-          placeholder="搜索区服（输入区服号，如 1）"
-          clearable
-          size="small"
-          class="server-role-list-search__input"
-        >
-          <template #prefix>
-            <NIcon :component="SearchIcon" />
-          </template>
-        </NInput>
-      </div>
-      <!-- 移动端：卡片列表 -->
-      <div class="server-role-list server-role-list--mobile">
-        <div
-          v-for="(row, idx) in filteredData"
-          :key="`${row.serverId}-${row.roleId}-${idx}`"
-          class="server-role-card"
-        >
-          <div class="server-role-card__main">
-            <div class="server-role-card__title">
-              {{ row.name || "未命名" }}
-            </div>
-            <div class="server-role-card__meta">
-              <span>{{ getServerIdDisplay(row) }}服</span>
-              <span>序号{{ getRoleIndexDisplay(row) }}</span>
-              <span>战力 {{ formatPower(row.power) }}</span>
-            </div>
-          </div>
-          <div class="server-role-card__actions">
-            <NButton
-              type="primary"
-              size="small"
-              block
-              @click="emit('add', row)"
-            >
-              添加
-            </NButton>
-            <NButton
-              type="info"
-              size="small"
-              block
-              @click="emit('download', row)"
-            >
-              下载
-            </NButton>
+    <n-card v-if="data && data.length > 0" :title="title" class="server-role-list-card">
+    <div class="server-role-list-search">
+      <n-input
+        v-model:value="serverSearchKeyword"
+        placeholder="搜索区服（输入区服号，如 1）"
+        clearable
+        size="small"
+        class="server-role-list-search__input"
+      >
+        <template #prefix>
+          <n-icon :component="SearchIcon" />
+        </template>
+      </n-input>
+    </div>
+    <!-- 移动端：卡片列表 -->
+    <div class="server-role-list server-role-list--mobile">
+      <div
+        v-for="(row, idx) in filteredData"
+        :key="`${row.serverId}-${row.roleId}-${idx}`"
+        class="server-role-card"
+      >
+        <div class="server-role-card__main">
+          <div class="server-role-card__title">{{ row.name || "未命名" }}</div>
+          <div class="server-role-card__meta">
+            <span>{{ getServerIdDisplay(row) }}服</span>
+            <span>序号{{ getRoleIndexDisplay(row) }}</span>
+            <span>战力 {{ formatPower(row.power) }}</span>
           </div>
         </div>
-      </div>
-      <!-- 桌面端：表格 -->
-      <div class="server-role-list server-role-list--desktop">
-        <div class="server-role-list-scroll" :style="scrollStyle">
-          <NDataTable
-            :columns="columns"
-            :data="filteredData"
-            :pagination="{ pageSize: 5 }"
-            :scroll-x="600"
-          />
+        <div class="server-role-card__actions">
+          <n-button type="primary" size="small" block @click="emit('add', row)">
+            添加
+          </n-button>
+          <n-button type="info" size="small" block @click="emit('download', row)">
+            下载
+          </n-button>
         </div>
       </div>
-    </NCard>
+    </div>
+    <!-- 桌面端：表格 -->
+    <div class="server-role-list server-role-list--desktop">
+      <div class="server-role-list-scroll" :style="scrollStyle">
+        <n-data-table
+          :columns="columns"
+          :data="filteredData"
+          :pagination="{ pageSize: 5 }"
+          :scroll-x="600"
+        />
+      </div>
+    </div>
+  </n-card>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { computed, h, ref, watch, nextTick } from "vue";
+import { NCard, NDataTable, NButton, NInput, NIcon } from "naive-ui";
 import { Search } from "@vicons/ionicons5";
-import { NButton, NCard, NDataTable, NIcon, NInput } from "naive-ui";
-import { computed, h, nextTick, ref, watch } from "vue";
 import { formatPower } from "@/utils/legionWar";
+
+const SearchIcon = Search;
+const serverSearchKeyword = ref("");
+const listRootRef = ref<HTMLElement | null>(null);
 
 const props = withDefaults(
   defineProps<{
@@ -87,15 +75,13 @@ const props = withDefaults(
     title: "服务器角色列表",
     serverColumnTitle: "区服",
     maxHeight: "",
-  },
+  }
 );
+
 const emit = defineEmits<{
   add: [row: any];
   download: [row: any];
 }>();
-const SearchIcon = Search;
-const serverSearchKeyword = ref("");
-const listRootRef = ref<HTMLElement | null>(null);
 
 function getServerIdDisplay(row: any) {
   let sid = Number(row.serverId);
@@ -119,11 +105,7 @@ const filteredData = computed(() => {
     const serverNum = String(getServerIdDisplay(row));
     const name = (row.name || "").toLowerCase();
     const roleId = String(row.roleId || "");
-    return (
-      serverNum.includes(keyword) ||
-      name.includes(lower) ||
-      roleId.includes(keyword)
-    );
+    return serverNum.includes(keyword) || name.includes(lower) || roleId.includes(keyword);
   });
 });
 
@@ -145,14 +127,8 @@ function scrollListIntoView(el: HTMLElement) {
     scrollParent.scrollTo({ top: Math.max(0, offsetTop), behavior: "smooth" });
   }
 
-  const modalBody = el.closest?.(
-    "[class*='modal-body' i], [class*='modal-content' i]",
-  );
-  if (
-    modalBody &&
-    modalBody instanceof HTMLElement &&
-    modalBody.scrollHeight > modalBody.clientHeight
-  ) {
+  const modalBody = el.closest?.("[class*='modal-body' i], [class*='modal-content' i]");
+  if (modalBody && modalBody instanceof HTMLElement && modalBody.scrollHeight > modalBody.clientHeight) {
     doScroll(modalBody);
     return;
   }
@@ -161,11 +137,7 @@ function scrollListIntoView(el: HTMLElement) {
   while (p) {
     const style = getComputedStyle(p);
     const overflowY = style.overflowY;
-    const canScroll =
-      p.scrollHeight > p.clientHeight &&
-      (overflowY === "auto" ||
-        overflowY === "scroll" ||
-        overflowY === "overlay");
+    const canScroll = p.scrollHeight > p.clientHeight && (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay");
     if (canScroll) {
       doScroll(p);
       return;
@@ -186,7 +158,7 @@ watch(
         });
       });
     }
-  },
+  }
 );
 
 const columns = computed(() => [
@@ -224,26 +196,30 @@ const columns = computed(() => [
     title: "操作",
     key: "actions",
     render(row: any) {
-      return h("div", { style: "display: flex; gap: 8px;" }, [
-        h(
-          NButton,
-          {
-            size: "small",
-            type: "primary",
-            onClick: () => emit("add", row),
-          },
-          { default: () => "添加" },
-        ),
-        h(
-          NButton,
-          {
-            size: "small",
-            type: "info",
-            onClick: () => emit("download", row),
-          },
-          { default: () => "下载" },
-        ),
-      ]);
+      return h(
+        "div",
+        { style: "display: flex; gap: 8px;" },
+        [
+          h(
+            NButton,
+            {
+              size: "small",
+              type: "primary",
+              onClick: () => emit("add", row),
+            },
+            { default: () => "添加" }
+          ),
+          h(
+            NButton,
+            {
+              size: "small",
+              type: "info",
+              onClick: () => emit("download", row),
+            },
+            { default: () => "下载" }
+          ),
+        ]
+      );
     },
   },
 ]);

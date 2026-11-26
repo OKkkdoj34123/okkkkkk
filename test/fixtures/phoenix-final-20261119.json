@@ -1,0 +1,410 @@
+{
+  "first": {
+    "reset": 1794499200,
+    "signs": [
+      {
+        "patchDay": 0,
+        "record": {
+          "1": 1794576661
+        }
+      }
+    ]
+  },
+  "last": {
+    "reset": 1795017600,
+    "signs": [
+      {
+        "patchDay": 3,
+        "record": {
+          "1": 1794649314,
+          "2": 1794652753,
+          "3": 1795089369
+        }
+      },
+      {
+        "patchDay": 4,
+        "record": {
+          "1": 1794649314,
+          "2": 1794652753,
+          "3": 1795089369,
+          "4": 1795089370
+        }
+      },
+      {
+        "patchDay": 5,
+        "record": {
+          "1": 1794649314,
+          "2": 1794652753,
+          "3": 1795089369,
+          "4": 1795089370,
+          "5": 1795089372
+        }
+      },
+      {
+        "patchDay": 6,
+        "record": {
+          "1": 1794649314,
+          "2": 1794652753,
+          "3": 1795089369,
+          "4": 1795089370,
+          "5": 1795089372,
+          "6": 1795089373
+        }
+      },
+      {
+        "patchDay": 0,
+        "record": {
+          "1": 1794649314,
+          "2": 1794652753,
+          "3": 1795089369,
+          "4": 1795089370,
+          "5": 1795089372,
+          "6": 1795089373,
+          "7": 1795089374
+        }
+      }
+    ]
+  },
+  "samples": [
+    {
+      "commands": 50,
+      "errors": 0,
+      "salt": [
+        {
+          "method": "warOrderGet",
+          "count": 0,
+          "claimed": null
+        },
+        {
+          "method": "warOrderGet",
+          "count": 0,
+          "claimed": null
+        },
+        {
+          "method": "warOrderGet",
+          "count": 0,
+          "claimed": null
+        },
+        {
+          "method": "warOrderGet",
+          "count": 0,
+          "claimed": null
+        },
+        {
+          "method": "warOrderGet",
+          "count": 0,
+          "claimed": null
+        }
+      ],
+      "lotteryQueries": [
+        {
+          "total": 20,
+          "claimed": [
+            68,
+            69
+          ]
+        }
+      ],
+      "cumulativeClaims": [
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "exchange": [
+        {
+          "order": {
+            "activityId": 2611136,
+            "goodsId": 261113609,
+            "quantity": 1
+          },
+          "previous5297": 31,
+          "updatedItems": {
+            "1022": 163015
+          },
+          "reward": [
+            [
+              1022,
+              2500
+            ]
+          ],
+          "record": {
+            "261113609": 1
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113303,
+            "quantity": 1
+          },
+          "previous5297": 31,
+          "updatedItems": {
+            "1017": 1,
+            "5297": 28
+          },
+          "reward": [
+            [
+              1017,
+              1
+            ]
+          ],
+          "record": {
+            "261113303": 1
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113302,
+            "quantity": 5
+          },
+          "previous5297": 28,
+          "updatedItems": {
+            "5297": 3,
+            "15001": 41600
+          },
+          "reward": [
+            [
+              15001,
+              25000
+            ]
+          ],
+          "record": {
+            "261113302": 5,
+            "261113303": 1
+          }
+        }
+      ]
+    },
+    {
+      "commands": 16,
+      "errors": 0,
+      "salt": [
+        {
+          "method": "warOrderGet",
+          "count": 1,
+          "claimed": null
+        },
+        {
+          "method": "warOrderGet",
+          "count": 1,
+          "claimed": null
+        },
+        {
+          "method": "warOrderTaskClaim",
+          "count": 1,
+          "claimed": true
+        }
+      ],
+      "lotteryQueries": [
+        {
+          "total": 81,
+          "claimed": [
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80
+          ]
+        }
+      ],
+      "cumulativeClaims": [
+        81,
+        82
+      ],
+      "exchange": [
+        {
+          "order": {
+            "activityId": 2611136,
+            "goodsId": 261113609,
+            "quantity": 2
+          },
+          "previous5297": 49,
+          "updatedItems": {
+            "1022": 136510
+          },
+          "reward": [
+            [
+              1022,
+              5000
+            ]
+          ],
+          "record": {
+            "261113609": 2
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113303,
+            "quantity": 1
+          },
+          "previous5297": 49,
+          "updatedItems": {
+            "1017": 1,
+            "5297": 46
+          },
+          "reward": [
+            [
+              1017,
+              1
+            ]
+          ],
+          "record": {
+            "261113303": 1
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113302,
+            "quantity": 9
+          },
+          "previous5297": 46,
+          "updatedItems": {
+            "5297": 1,
+            "15001": 48400
+          },
+          "reward": [
+            [
+              15001,
+              45000
+            ]
+          ],
+          "record": {
+            "261113302": 9,
+            "261113303": 1
+          }
+        }
+      ]
+    },
+    {
+      "commands": 6,
+      "errors": 0,
+      "salt": [],
+      "lotteryQueries": [
+        {
+          "total": 111,
+          "claimed": [
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82
+          ]
+        },
+        {
+          "total": 111,
+          "claimed": [
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82
+          ]
+        }
+      ],
+      "cumulativeClaims": [],
+      "exchange": [
+        {
+          "order": {
+            "activityId": 2611136,
+            "goodsId": 261113607,
+            "quantity": 1
+          },
+          "previous5297": null,
+          "updatedItems": {
+            "1033": 61
+          },
+          "reward": [
+            [
+              1033,
+              10
+            ]
+          ],
+          "record": {
+            "261113607": 1
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113303,
+            "quantity": 1
+          },
+          "previous5297": null,
+          "updatedItems": {
+            "1017": 1,
+            "5297": 46
+          },
+          "reward": [
+            [
+              1017,
+              1
+            ]
+          ],
+          "record": {
+            "261113303": 1
+          }
+        },
+        {
+          "order": {
+            "activityId": 2611133,
+            "goodsId": 261113302,
+            "quantity": 9
+          },
+          "previous5297": 46,
+          "updatedItems": {
+            "5297": 1,
+            "15001": 48900
+          },
+          "reward": [
+            [
+              15001,
+              45000
+            ]
+          ],
+          "record": {
+            "261113302": 9,
+            "261113303": 1
+          }
+        }
+      ]
+    }
+  ]
+}

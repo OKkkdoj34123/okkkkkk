@@ -3,12 +3,12 @@
  * 包含: batcharenafight, batchTopUpFish, batchTopUpArena
  */
 
-import { ARENA_TARGET, FISH_TARGET } from "./constants.js";
+import { FISH_TARGET, ARENA_TARGET } from "./constants.js";
 
 /**
  * 创建竞技场、补齐类任务执行器
- * @param {object} deps - 依赖项
- * @returns {object} 任务函数集合
+ * @param {Object} deps - 依赖项
+ * @returns {Object} 任务函数集合
  */
 export function createTasksArena(deps) {
   const {
@@ -27,6 +27,7 @@ export function createTasksArena(deps) {
     currentRunningTokenId,
     currentSettings,
     pickArenaTargetId,
+    getTodayStartSec,
     isTodayAvailable,
     calculateMonthProgress,
     delayConfig,
@@ -48,22 +49,17 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       // 加载该Token的独立配置，如果未找到则回退到currentSettings(虽然可能不准确，但作为最后的兜底)
-      const tokenSettings = loadSettings
-        ? loadSettings(tokenId) || currentSettings
-        : currentSettings;
-
+      const tokenSettings = loadSettings ? (loadSettings(tokenId) || currentSettings) : currentSettings;
+      
       try {
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `=== 开始一键竞技场战斗: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId, 2, (owned) => {
-          ownsSlot = owned;
-        });
+        await ensureConnection(tokenId);
         if (shouldStop.value) return;
 
         // 检查咸神门票 (ID: 1007)
@@ -127,7 +123,7 @@ export function createTasksArena(deps) {
             type: "info",
           });
         }
-
+        
         const fights = Math.min(3, ticketCount);
         if (fights < 3) {
           addLog({
@@ -139,11 +135,7 @@ export function createTasksArena(deps) {
 
         for (let i = 0; i < fights; i++) {
           if (shouldStop.value) break;
-          await tokenStore.sendMessageWithPromise(
-            tokenId,
-            "arena_startarea",
-            {},
-          );
+          await tokenStore.sendMessageWithPromise(tokenId, "arena_startarea", {});
           let targets;
           try {
             targets = await tokenStore.sendMessageWithPromise(
@@ -208,10 +200,8 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
-        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        }
+        releaseConnectionSlot(tokenId);
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -241,7 +231,6 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
       const token = tokens.value.find((t) => t.id === tokenId);
       try {
         addLog({
@@ -249,9 +238,7 @@ export function createTasksArena(deps) {
           message: `=== 开始钓鱼补齐: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId, 2, (owned) => {
-          ownsSlot = owned;
-        });
+        await ensureConnection(tokenId);
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 获取月度任务进度...`,
@@ -416,32 +403,31 @@ export function createTasksArena(deps) {
               type: "info",
             });
             remaining -= batch;
-
+            
             // 每钓鱼5轮（50次）后，重新获取角色信息，校验鱼竿数量
             if (remaining > 0 && batch >= 10 && remaining % 50 === 0) {
-              try {
-                const roleRes = await tokenStore.sendMessageWithPromise(
-                  tokenId,
-                  "role_getroleinfo",
-                  {},
-                  5000,
-                );
-                const currentRole = roleRes?.role || roleRes?.data?.role;
-                if (currentRole) {
-                  const currentRodCount =
-                    currentRole.items?.[1011]?.quantity || 0;
-                  if (currentRodCount < remaining) {
-                    addLog({
-                      time: new Date().toLocaleTimeString(),
-                      message: `${token.name} 同步后发现鱼竿不足 (${currentRodCount} < ${remaining})，调整目标`,
-                      type: "warning",
-                    });
-                    remaining = currentRodCount;
-                  }
-                }
-              } catch (e) {
-                // ignore
-              }
+                 try {
+                     const roleRes = await tokenStore.sendMessageWithPromise(
+                         tokenId,
+                         "role_getroleinfo",
+                         {},
+                         5000,
+                     );
+                     const currentRole = roleRes?.role || roleRes?.data?.role;
+                     if (currentRole) {
+                         const currentRodCount = currentRole.items?.[1011]?.quantity || 0;
+                         if (currentRodCount < remaining) {
+                             addLog({
+                                 time: new Date().toLocaleTimeString(),
+                                 message: `${token.name} 同步后发现鱼竿不足 (${currentRodCount} < ${remaining})，调整目标`,
+                                 type: "warning",
+                             });
+                             remaining = currentRodCount;
+                         }
+                     }
+                 } catch (e) {
+                     // ignore
+                 }
             }
 
             await new Promise((r) => setTimeout(r, delayConfig.battle));
@@ -478,58 +464,58 @@ export function createTasksArena(deps) {
             type: "warning",
           });
         }
-
+        
         // 自动领取鱼竿累计奖励
         try {
-          const roleRes = await tokenStore.sendMessageWithPromise(
-            tokenId,
-            "role_getroleinfo",
-            {},
-            5000,
-          );
-          const currentRole = roleRes?.role || roleRes?.data?.role;
-          if (currentRole) {
-            const points = currentRole.statistics?.["artifact:point"] || 0;
-            const exchangeCount = Math.floor(points / 20);
-
-            if (exchangeCount > 0) {
-              addLog({
-                time: new Date().toLocaleTimeString(),
-                message: `${token.name} 检测到鱼竿累计使用 ${points}，开始领取 ${exchangeCount} 次累计奖励`,
-                type: "info",
-              });
-
-              for (let k = 0; k < exchangeCount && !shouldStop.value; k++) {
-                try {
-                  await tokenStore.sendMessageWithPromise(
-                    tokenId,
-                    "artifact_exchange",
-                    {},
-                    3000,
-                  );
-                  await new Promise((r) => setTimeout(r, 500));
-                } catch (err) {
-                  addLog({
+           const roleRes = await tokenStore.sendMessageWithPromise(
+             tokenId,
+             "role_getroleinfo",
+             {},
+             5000,
+           );
+           const currentRole = roleRes?.role || roleRes?.data?.role;
+           if (currentRole) {
+              const points = currentRole.statistics?.["artifact:point"] || 0;
+              const exchangeCount = Math.floor(points / 20);
+              
+              if (exchangeCount > 0) {
+                 addLog({
                     time: new Date().toLocaleTimeString(),
-                    message: `${token.name} 领取累计奖励失败 (第${k + 1}次): ${err.message}`,
-                    type: "warning",
-                  });
-                  break;
-                }
+                    message: `${token.name} 检测到鱼竿累计使用 ${points}，开始领取 ${exchangeCount} 次累计奖励`,
+                    type: "info",
+                 });
+                 
+                 for (let k = 0; k < exchangeCount && !shouldStop.value; k++) {
+                    try {
+                       await tokenStore.sendMessageWithPromise(
+                         tokenId,
+                         "artifact_exchange",
+                         {},
+                         3000
+                       );
+                       await new Promise((r) => setTimeout(r, 500)); 
+                    } catch (err) {
+                       addLog({
+                          time: new Date().toLocaleTimeString(),
+                          message: `${token.name} 领取累计奖励失败 (第${k+1}次): ${err.message}`,
+                          type: "warning",
+                       });
+                       break;
+                    }
+                 }
+                 addLog({
+                    time: new Date().toLocaleTimeString(),
+                    message: `${token.name} 累计奖励领取结束`,
+                    type: "success",
+                 });
               }
-              addLog({
-                time: new Date().toLocaleTimeString(),
-                message: `${token.name} 累计奖励领取结束`,
-                type: "success",
-              });
-            }
-          }
+           }
         } catch (e) {
-          addLog({
-            time: new Date().toLocaleTimeString(),
-            message: `${token.name} 检查累计奖励失败: ${e.message}`,
-            type: "warning",
-          });
+           addLog({
+              time: new Date().toLocaleTimeString(),
+              message: `${token.name} 检查累计奖励失败: ${e.message}`,
+              type: "warning",
+           });
         }
 
         tokenStatus.value[tokenId] = "completed";
@@ -542,10 +528,8 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
-        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        }
+        releaseConnectionSlot(tokenId);
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -575,12 +559,9 @@ export function createTasksArena(deps) {
     const taskPromises = selectedTokens.value.map(async (tokenId) => {
       if (shouldStop.value) return;
       tokenStatus.value[tokenId] = "running";
-      let ownsSlot = false;
-
+      
       // 加载该Token的独立配置，如果未找到则回退到currentSettings
-      const tokenSettings = loadSettings
-        ? loadSettings(tokenId) || currentSettings
-        : currentSettings;
+      const tokenSettings = loadSettings ? (loadSettings(tokenId) || currentSettings) : currentSettings;
       const token = tokens.value.find((t) => t.id === tokenId);
 
       try {
@@ -589,9 +570,7 @@ export function createTasksArena(deps) {
           message: `=== 开始竞技场补齐: ${token.name} ===`,
           type: "info",
         });
-        await ensureConnection(tokenId, 2, (owned) => {
-          ownsSlot = owned;
-        });
+        await ensureConnection(tokenId);
 
         const teamInfo = await tokenStore.sendMessageWithPromise(
           tokenId,
@@ -716,13 +695,13 @@ export function createTasksArena(deps) {
         let remaining = Math.min(need, ticketsLeft);
 
         if (remaining <= 0) {
-          addLog({
-            time: new Date().toLocaleTimeString(),
-            message: `${token.name} 没有可用的咸神门票`,
-            type: "warning",
-          });
-          tokenStatus.value[tokenId] = "completed";
-          return;
+           addLog({
+             time: new Date().toLocaleTimeString(),
+             message: `${token.name} 没有可用的咸神门票`,
+             type: "warning",
+           });
+           tokenStatus.value[tokenId] = "completed";
+           return;
         }
 
         try {
@@ -756,6 +735,7 @@ export function createTasksArena(deps) {
             type: "info",
           });
 
+          let actualFights = 0;
           for (
             let i = 0;
             i < planFights &&
@@ -797,7 +777,7 @@ export function createTasksArena(deps) {
                 { targetId },
                 15000,
               );
-
+              actualFights++;
               ticketsLeft--;
               addLog({
                 time: new Date().toLocaleTimeString(),
@@ -828,32 +808,32 @@ export function createTasksArena(deps) {
             updatedResult;
           const updatedMyArenaInfo = updatedAct.myArenaInfo || {};
           const updatedArenaNum = Number(updatedMyArenaInfo?.num || 0);
-
+          
           // Re-calculate remaining needed for target, but don't exceed ticketsLeft
           const neededForTarget = Math.max(0, shouldBe - updatedArenaNum);
-
+          
           // 每轮战斗后重新获取角色信息以更新门票数量
           try {
-            const roleRes = await tokenStore.sendMessageWithPromise(
-              tokenId,
-              "role_getroleinfo",
-              {},
-              5000,
-            );
-            const currentRole = roleRes?.role || roleRes?.data?.role;
-            if (currentRole) {
-              const newTickets = currentRole.items?.[1007]?.quantity || 0;
-              if (newTickets !== ticketsLeft) {
-                addLog({
-                  time: new Date().toLocaleTimeString(),
-                  message: `${token.name} 同步最新门票数量: ${newTickets} (原记录: ${ticketsLeft})`,
-                  type: "info",
-                });
-                ticketsLeft = newTickets;
-              }
-            }
+             const roleRes = await tokenStore.sendMessageWithPromise(
+               tokenId,
+               "role_getroleinfo",
+               {},
+               5000,
+             );
+             const currentRole = roleRes?.role || roleRes?.data?.role;
+             if (currentRole) {
+                 const newTickets = currentRole.items?.[1007]?.quantity || 0;
+                 if (newTickets !== ticketsLeft) {
+                    addLog({
+                        time: new Date().toLocaleTimeString(),
+                        message: `${token.name} 同步最新门票数量: ${newTickets} (原记录: ${ticketsLeft})`,
+                        type: "info",
+                    });
+                    ticketsLeft = newTickets;
+                 }
+             }
           } catch (e) {
-            // ignore error, use local calculation
+              // ignore error, use local calculation
           }
 
           remaining = Math.min(neededForTarget, ticketsLeft);
@@ -914,10 +894,8 @@ export function createTasksArena(deps) {
           type: "error",
         });
       } finally {
-        if (ownsSlot) {
         tokenStore.closeWebSocketConnection(tokenId);
-        releaseConnectionSlot();
-        }
+        releaseConnectionSlot(tokenId);
         addLog({
           time: new Date().toLocaleTimeString(),
           message: `${token.name} 连接已关闭  (队列: ${connectionQueue.active}/${batchSettings.maxActive})`,
@@ -938,3 +916,4 @@ export function createTasksArena(deps) {
     batchTopUpArena,
   };
 }
+

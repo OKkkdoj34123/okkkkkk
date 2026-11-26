@@ -1,0 +1,62 @@
+{
+  "provenance": "2026-11-07 uploaded capture; only activity 7 free good retained. afterComplete from authorized account 501 readback.",
+  "activity": {
+    "activity": [
+      {
+        "id": 7,
+        "type": 4,
+        "openTime": 1793937600000,
+        "endTime": 1794499200000,
+        "data": {
+          "buyType": 1,
+          "goodsList": [
+            {
+              "title": "活动福利",
+              "description": "",
+              "limit": 1,
+              "price": 0,
+              "rewardList": [
+                {
+                  "type": 3,
+                  "itemId": 1022,
+                  "value": 100,
+                  "ext": 0
+                },
+                {
+                  "type": 3,
+                  "itemId": 2002,
+                  "value": 10,
+                  "ext": 0
+                }
+              ],
+              "titleId": "100000933",
+              "descriptionId": ""
+            }
+          ]
+        }
+      }
+    ],
+    "myStoreInfo": {
+      "7": {
+        "complete": {}
+      }
+    }
+  },
+  "reward": [
+    {
+      "type": 3,
+      "itemId": 1022,
+      "value": 100,
+      "ext": 0
+    },
+    {
+      "type": 3,
+      "itemId": 2002,
+      "value": 10,
+      "ext": 0
+    }
+  ],
+  "afterComplete": {
+    "0": 1
+  }
+}

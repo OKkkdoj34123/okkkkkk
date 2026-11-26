@@ -1,5 +1,5 @@
 <template>
-  <MyCard class="lineup-saver" :status-class="{ active: state.isRunning }">
+  <MyCard class="lineup-saver" :statusClass="{ active: state.isRunning }">
     <template #icon>
       <img
         src="/icons/Ob7pyorzmHiJcbab2c25af264d0758b527bc1b61cc3b.png"
@@ -71,8 +71,8 @@
           </h4>
           <div class="heroes-grid">
             <div
-              v-for="hero in editingHeroes"
-              :key="`${hero.heroId}-${hero.position}`"
+              v-for="(hero, index) in editingHeroes"
+              :key="hero.heroId + '-' + hero.position"
               class="hero-item"
               :class="{
                 dragging: draggedHeroId === hero.heroId,
@@ -120,12 +120,12 @@
                     class="hero-fish-slots-inline"
                   >
                     <span
-                      v-for="(slotColor, idx) in getSlotColorsByArtifactId(
+                      v-for="(color, idx) in getSlotColorsByArtifactId(
                         hero.artifactId,
                       )"
                       :key="idx"
                       class="slot-dot-small"
-                      :style="{ backgroundColor: slotColor }"
+                      :style="{ backgroundColor: color }"
                     ></span>
                   </span>
                 </div>
@@ -210,10 +210,8 @@
           </div>
           <div class="lineups-list">
             <div
-              v-for="(lineup, lineupIndex) in getLineupsByTeamId(
-                selectedTeamTab,
-              )"
-              :key="lineupIndex"
+              v-for="(lineup, index) in getLineupsByTeamId(selectedTeamTab)"
+              :key="index"
               class="lineup-card"
             >
               <div class="lineup-title-bar" @click="toggleLineupExpand(lineup)">
@@ -312,12 +310,12 @@
                             class="hero-fish-slots"
                           >
                             <span
-                              v-for="(slotColor, idx) in getSlotColors(
+                              v-for="(color, idx) in getSlotColors(
                                 hero.slotMap,
                               )"
                               :key="idx"
                               class="slot-dot"
-                              :style="{ backgroundColor: slotColor }"
+                              :style="{ backgroundColor: color }"
                             ></span>
                           </div>
                         </div>
@@ -466,7 +464,7 @@
               位置 {{ getFirstEmptySlot() + 1 }}
             </n-tag>
           </div>
-          <NInput
+          <n-input
             v-model:value="heroSearchKeyword"
             placeholder="搜索武将名称..."
             clearable
@@ -566,22 +564,23 @@
 </template>
 
 <script setup>
-import { NInput, useDialog, useMessage } from "naive-ui";
-import { computed, h, onMounted, ref, watch } from "vue";
+import { ref, computed, onMounted, watch, h } from "vue";
+import { useMessage, useDialog, NInput } from "naive-ui";
 import { useTokenStore } from "@/stores/tokenStore";
-import {
-  color,
-  FishMap,
-  HERO_DICT,
-  LEGION_TECH_MAX_LEVEL,
-  LEGION_TECH_NAME,
-  LEGION_TECH_RESET_TYPE_MAP,
-  LEGION_TECH_TYPE_MAP,
-  LEGION_TECH_TYPE_NAME,
-  PearlMap,
-  weapon,
-} from "@/utils/HeroList.js";
 import MyCard from "../Common/MyCard.vue";
+import {
+  HERO_DICT,
+  FishMap,
+  PearlMap,
+  LEGION_TECH_MAX_LEVEL,
+  LEGION_TECH_TYPE_MAP,
+  LEGION_TECH_RESET_TYPE_MAP,
+  LEGION_TECH_TYPE_NAME,
+  LEGION_TECH_NAME,
+  getTechType,
+  weapon,
+  color,
+} from "@/utils/HeroList.js";
 
 const tokenStore = useTokenStore();
 const message = useMessage();
@@ -608,10 +607,10 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const formatPower = (power) => {
   if (!power) return "0";
   if (power >= 100000000) {
-    return `${(power / 100000000).toFixed(2)}亿`;
+    return (power / 100000000).toFixed(2) + "亿";
   }
   if (power >= 10000) {
-    return `${(power / 10000).toFixed(2)}万`;
+    return (power / 10000).toFixed(2) + "万";
   }
   return power.toString();
 };
@@ -701,11 +700,13 @@ const syncLegionResearch = async (tokenId, targetResearch) => {
     return { success: true, message: "科技配置已匹配，无需调整" };
   }
 
+  const errors = [];
+
   for (const type of typesToResetResearch) {
     try {
       await tokenStore.sendMessageWithPromise(tokenId, "legion_resetresearch", {
         advanced: false,
-        type,
+        type: type,
       });
     } catch (err) {}
     await delay(COMMAND_DELAY);
@@ -825,6 +826,11 @@ const getFishInfo = (artifactId) => {
   return null;
 };
 
+const getFishNameByArtifactId = (artifactId) => {
+  const fishInfo = getFishInfo(artifactId);
+  return fishInfo ? fishInfo.name : null;
+};
+
 const getFishNameById = (fishId) => {
   if (!fishId) return null;
   const fishData = FishMap[fishId];
@@ -851,7 +857,7 @@ const getSlotColors = (slotMap) => {
 
 const getPearlDataByArtifactId = (artifactId) => {
   if (!artifactId || artifactId === -1) return null;
-  for (const [, pearlData] of Object.entries(pearlMap.value)) {
+  for (const [pearlId, pearlData] of Object.entries(pearlMap.value)) {
     if (pearlData.artifactId === artifactId) {
       return pearlData;
     }
@@ -880,7 +886,7 @@ const getSlotColorsByArtifactId = (artifactId) => {
 };
 
 const allHeroList = computed(() => {
-  const heroes = Object.entries(roleHeroesData.value).map(([, hero]) => {
+  const heroes = Object.entries(roleHeroesData.value).map(([id, hero]) => {
     const heroInfo = HERO_DICT[hero.heroId] || {};
     return {
       id: Number(hero.heroId),
@@ -993,6 +999,23 @@ const toggleLineupExpand = (lineup) => {
     expandedLineup.value = lineup;
   }
 };
+
+const hasEditingChanges = computed(() => {
+  if (Object.keys(editingTeamHeroes.value).length === 0) return false;
+  const current = JSON.stringify(
+    currentTeamHeroes.value
+      .map((h) => `${h.position}:${h.heroId}`)
+      .sort()
+      .join(","),
+  );
+  const editing = JSON.stringify(
+    editingHeroes.value
+      .map((h) => `${h.position}:${h.heroId}`)
+      .sort()
+      .join(","),
+  );
+  return current !== editing;
+});
 
 const getHeroName = (heroId) => {
   if (!heroId) return null;
@@ -1480,9 +1503,9 @@ const saveCurrentLineup = async () => {
         level: teamHeroInfo?.level || null,
         attachmentUid: hero.attachmentUid || null,
         fishId: fishId || null,
-        pearlId,
+        pearlId: pearlId,
         skillId: pearlData?.skillId || null,
-        slotMap,
+        slotMap: slotMap,
         power: heroData?.power || null,
         attack: heroData?.attack || null,
         hp: heroData?.hp || null,
@@ -1497,8 +1520,8 @@ const saveCurrentLineup = async () => {
       teamId: currentTeamId.value,
       savedAt: Date.now(),
       applying: false,
-      legionResearch,
-      weaponId,
+      legionResearch: legionResearch,
+      weaponId: weaponId,
     });
 
     saveLineupsToStorage();
@@ -1753,6 +1776,11 @@ const applyLineup = async (lineup) => {
     };
   };
 
+  const isIgnorableError = (err) => {
+    const msg = err.message || "";
+    return msg.includes("200020");
+  };
+
   try {
     const targetHeroes = [...lineup.heroes];
 
@@ -1918,6 +1946,7 @@ const applyLineup = async (lineup) => {
 
           if (result.success) {
             levelApplied++;
+          } else {
           }
         }
       }
@@ -1959,7 +1988,7 @@ const applyLineup = async (lineup) => {
         if (!targetHero.fishId && !targetHero.pearlId) continue;
 
         let artifactId = null;
-        const pearlId = targetHero.pearlId || 0;
+        let pearlId = targetHero.pearlId || 0;
 
         if (targetHero.fishId) {
           artifactId = fishToArtifact[targetHero.fishId];
@@ -1997,7 +2026,7 @@ const applyLineup = async (lineup) => {
           await tokenStore.sendMessageWithPromise(tokenId, "artifact_load", {
             heroId: targetHero.heroId,
             itemId: artifactId,
-            pearlId,
+            pearlId: pearlId,
           });
           fishApplied++;
         } catch (err) {}
@@ -2032,7 +2061,7 @@ const applyLineup = async (lineup) => {
                 tokenId,
                 "pearl_unloadskill",
                 {
-                  pearlId,
+                  pearlId: pearlId,
                 },
               );
               skillApplied++;
@@ -2074,7 +2103,7 @@ const applyLineup = async (lineup) => {
               tokenId,
               "pearl_replaceskill",
               {
-                pearlId,
+                pearlId: pearlId,
                 skillId: targetSkillId,
               },
             );
@@ -2102,6 +2131,7 @@ const applyLineup = async (lineup) => {
         if (syncResult.message !== "科技配置已匹配，无需调整") {
           message.success(syncResult.message);
         }
+      } else {
       }
     }
 
@@ -2220,7 +2250,7 @@ const exportLineups = async () => {
     }
 
     const exportData = {
-      roleId,
+      roleId: roleId,
       exportTime: Date.now(),
       lineups: savedLineups.value,
     };

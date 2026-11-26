@@ -1,0 +1,375 @@
+[
+  {
+    "source": "server-monitor-main-1793025703424(1).json",
+    "kind": "actual-capture-trimmed-and-redacted",
+    "battles": [
+      {
+        "request": {
+          "battleTeam": {
+            "0": 107,
+            "1": 116,
+            "2": 112,
+            "3": 120,
+            "4": 108
+          },
+          "genieId": 4,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793025649694,
+          "data": {
+            "isWin": false,
+            "role": {
+              "statistics": {
+                "genie:battle": 7
+              },
+              "statisticsTime": {
+                "genie:battle": 1793025649
+              },
+              "genie": {}
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 4008
+              },
+              "result": {
+                "isWin": false
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 106,
+            "1": 121,
+            "2": 105,
+            "3": 111,
+            "4": 115
+          },
+          "genieId": 3,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793025662611,
+          "data": {
+            "isWin": true,
+            "role": {
+              "statistics": {
+                "genie:battle": 8
+              },
+              "statisticsTime": {
+                "genie:battle": 1793025662
+              },
+              "genie": {
+                "3": 0
+              }
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 3001
+              },
+              "result": {
+                "isWin": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 104,
+            "1": 103,
+            "2": 110,
+            "3": 118,
+            "4": 114
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793025673667,
+          "data": {
+            "isWin": true,
+            "role": {
+              "statistics": {
+                "genie:battle": 9
+              },
+              "statisticsTime": {
+                "genie:battle": 1793025673
+              },
+              "genie": {
+                "2": 0
+              }
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2001
+              },
+              "result": {
+                "isWin": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 102,
+            "1": 117,
+            "2": 113,
+            "3": 109,
+            "4": 101
+          },
+          "genieId": 1,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793025684194,
+          "data": {
+            "isWin": true,
+            "role": {
+              "statistics": {
+                "genie:battle": 10
+              },
+              "statisticsTime": {
+                "genie:battle": 1793025684
+              },
+              "genie": {
+                "1": 0
+              }
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 1001
+              },
+              "result": {
+                "isWin": true
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "source": "server-monitor-main-1793026952354.json",
+    "kind": "actual-capture-trimmed-and-redacted",
+    "battles": [
+      {
+        "request": {
+          "battleTeam": {
+            "0": 103,
+            "1": 104,
+            "2": 110,
+            "3": 114,
+            "4": 118
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793026928602,
+          "data": {
+            "isWin": true,
+            "role": {
+              "statistics": {
+                "genie:battle": 6
+              },
+              "statisticsTime": {
+                "genie:battle": 1793026928
+              },
+              "genie": {
+                "2": 0
+              }
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2001
+              },
+              "result": {
+                "isWin": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 103,
+            "1": 104,
+            "2": 110,
+            "3": 114,
+            "4": 118
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793026933409,
+          "data": {
+            "isWin": true,
+            "role": {
+              "statistics": {
+                "genie:battle": 7
+              },
+              "statisticsTime": {
+                "genie:battle": 1793026933
+              },
+              "genie": {
+                "2": 1
+              }
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2002
+              },
+              "result": {
+                "isWin": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 103,
+            "1": 104,
+            "2": 110,
+            "3": 114,
+            "4": 118
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793026937286,
+          "data": {
+            "isWin": false,
+            "role": {
+              "statistics": {
+                "genie:battle": 8
+              },
+              "statisticsTime": {
+                "genie:battle": 1793026937
+              },
+              "genie": {}
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2003
+              },
+              "result": {
+                "isWin": false
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 103,
+            "1": 104,
+            "2": 110,
+            "3": 114,
+            "4": 118
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793026942140,
+          "data": {
+            "isWin": false,
+            "role": {
+              "statistics": {
+                "genie:battle": 9
+              },
+              "statisticsTime": {
+                "genie:battle": 1793026942
+              },
+              "genie": {}
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2003
+              },
+              "result": {
+                "isWin": false
+              }
+            }
+          }
+        }
+      },
+      {
+        "request": {
+          "battleTeam": {
+            "0": 103,
+            "1": 104,
+            "2": 110,
+            "3": 114,
+            "4": 118
+          },
+          "genieId": 2,
+          "lordWeaponId": 0,
+          "petUId": "fixture-pet"
+        },
+        "response": {
+          "cmd": "fight_startgenieresp",
+          "code": 0,
+          "serverTime": 1793026945986,
+          "data": {
+            "isWin": false,
+            "role": {
+              "statistics": {
+                "genie:battle": 10
+              },
+              "statisticsTime": {
+                "genie:battle": 1793026945
+              },
+              "genie": {}
+            },
+            "battleData": {
+              "options": {
+                "genieLevelId": 2003
+              },
+              "result": {
+                "isWin": false
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+]

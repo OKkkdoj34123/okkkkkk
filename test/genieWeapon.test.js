@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {ownedGenieWeapons,selectGenieWeapon} from '../src/utils/batch/genieWeapon.js';
+import {selectHighestHpPet} from '../src/utils/batch/genieChallengePolicy.js';
+const f=JSON.parse(readFileSync(new URL('./fixtures/genie-pet-toy-redacted.json',import.meta.url)));
+test('real quenched pet ranks server hp without double adding',()=>{const p=selectHighestHpPet(f.pets);assert.equal(p.petId,604);assert.equal(p.maxHp,249760000);assert.equal(p.compared,3);});
+test('missing optional fields allowed; invalid health still blocks',()=>{assert.equal(selectHighestHpPet({0:{uId:'pet-x',petId:403,hp:200}}).maxHp,200);assert.throws(()=>selectHighestHpPet({0:{uId:'pet-x',hp:0}}));});
+test('real power comparison enumerates only owned toys and zero',async()=>{const calls=[],battleTeam={0:101},petUId='fixture';const r=await selectGenieWeapon({role:f,battleTeam,petUId,send:async(cmd,b)=>{calls.push(b.lordWeaponId);assert.equal(cmd,'hero_calcpowerbyteam');assert.deepEqual(b.battleTeam,battleTeam);assert.equal(b.petUId,petUId);return {power:f.powerByWeapon[b.lordWeaponId]};}});assert.deepEqual(calls,[0,1,2]);assert.equal(r.lordWeaponId,1);assert.equal(r.power,1029521223);});
+test('empty inventory never probes unknown ids',async()=>{for(const role of [{},{lordWeapon:{}},{lordWeapon:{0:{weaponId:0}}}]){let n=0;assert.equal((await selectGenieWeapon({role,send:()=>n++})).lordWeaponId,0);assert.equal(n,0);}});
+test('inventory mismatch stops',()=>{assert.throws(()=>ownedGenieWeapons({lordWeapon:{1:{weaponId:2}}}));});
+test('ties choose owned toy; failed queries cannot choose incomplete result',async()=>{const role={lordWeapon:{1:{weaponId:1}}};assert.equal((await selectGenieWeapon({role,send:async()=>({power:5})})).lordWeaponId,1);for(const resp of [{},{power:-1},{power:'100'},{code:99,power:100}])await assert.rejects(selectGenieWeapon({role,send:async()=>resp}));});
+test('stop during comparison prevents further queries',async()=>{let n=0;await assert.rejects(selectGenieWeapon({role:f,stopped:()=>n>0,send:async()=>{n++;return {power:1};}}));assert.equal(n,1);});

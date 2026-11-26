@@ -1,0 +1,629 @@
+{
+  "before": {
+    "activity": {
+      "activity": [
+        {
+          "id": 9,
+          "openTime": 1792728000000,
+          "endTime": 1793289600000,
+          "data": {
+            "buyType": 3,
+            "goodsList": [
+              {
+                "title": "黑市福利",
+                "description": "",
+                "limit": 1,
+                "price": 0,
+                "rewardList": [
+                  {
+                    "type": 2,
+                    "itemId": 2,
+                    "value": 500,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "黑市见面礼",
+                "description": "",
+                "limit": 1,
+                "price": 600,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 5,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1006,
+                    "value": 1000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "黑市惊喜礼",
+                "description": "",
+                "limit": 1,
+                "price": 1200,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1003,
+                    "value": 2000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "初级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 2500,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1003,
+                    "value": 6000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "中级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 5000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 2004,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2003,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2002,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2001,
+                    "value": 10,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "高级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 8000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 40,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 3007,
+                    "value": 50,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "顶级鱼竿包",
+                "description": "",
+                "limit": 1,
+                "price": 12000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1011,
+                    "value": 30,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1012,
+                    "value": 30,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "白玉黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 2000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1022,
+                    "value": 2000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "特级灵贝包",
+                "description": "",
+                "limit": 1,
+                "price": 25000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1033,
+                    "value": 10,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "100000711",
+                "descriptionId": ""
+              },
+              {
+                "title": "养成补给包",
+                "description": "",
+                "limit": 4,
+                "price": 8000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1016,
+                    "value": 2000,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1026,
+                    "value": 3000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "100000945",
+                "descriptionId": ""
+              }
+            ]
+          }
+        }
+      ],
+      "myStoreInfo": {
+        "9": {
+          "complete": {
+            "0": 1
+          }
+        }
+      }
+    }
+  },
+  "after": {
+    "activity": {
+      "activity": [
+        {
+          "id": 9,
+          "openTime": 1792728000000,
+          "endTime": 1793289600000,
+          "data": {
+            "buyType": 3,
+            "goodsList": [
+              {
+                "title": "黑市福利",
+                "description": "",
+                "limit": 1,
+                "price": 0,
+                "rewardList": [
+                  {
+                    "type": 2,
+                    "itemId": 2,
+                    "value": 500,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "黑市见面礼",
+                "description": "",
+                "limit": 1,
+                "price": 600,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 5,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1006,
+                    "value": 1000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "黑市惊喜礼",
+                "description": "",
+                "limit": 1,
+                "price": 1200,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1003,
+                    "value": 2000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "初级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 2500,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1003,
+                    "value": 6000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "中级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 5000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 2004,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2003,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2002,
+                    "value": 10,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 2001,
+                    "value": 10,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "高级黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 8000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1001,
+                    "value": 40,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 3007,
+                    "value": 50,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "顶级鱼竿包",
+                "description": "",
+                "limit": 1,
+                "price": 12000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1011,
+                    "value": 30,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1012,
+                    "value": 30,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "白玉黑市包",
+                "description": "",
+                "limit": 1,
+                "price": 2000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1022,
+                    "value": 2000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "",
+                "descriptionId": ""
+              },
+              {
+                "title": "特级灵贝包",
+                "description": "",
+                "limit": 1,
+                "price": 25000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1033,
+                    "value": 10,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "100000711",
+                "descriptionId": ""
+              },
+              {
+                "title": "养成补给包",
+                "description": "",
+                "limit": 4,
+                "price": 8000,
+                "rewardList": [
+                  {
+                    "type": 3,
+                    "itemId": 1016,
+                    "value": 2000,
+                    "ext": 0
+                  },
+                  {
+                    "type": 3,
+                    "itemId": 1026,
+                    "value": 3000,
+                    "ext": 0
+                  }
+                ],
+                "titleId": "100000945",
+                "descriptionId": ""
+              }
+            ]
+          }
+        }
+      ],
+      "myStoreInfo": {
+        "9": {
+          "complete": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "6": 1,
+            "8": 1
+          }
+        }
+      }
+    }
+  },
+  "buys": [
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 1,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 1001,
+            "value": 5,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 1006,
+            "value": 1000,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 199839
+        }
+      }
+    },
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 2,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 1001,
+            "value": 10,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 1003,
+            "value": 2000,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 198639
+        }
+      }
+    },
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 3,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 1003,
+            "value": 6000,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 196139
+        }
+      }
+    },
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 4,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 2004,
+            "value": 10,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 2003,
+            "value": 10,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 2002,
+            "value": 10,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 2001,
+            "value": 10,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 191139
+        }
+      }
+    },
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 6,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 1011,
+            "value": 30,
+            "ext": 0
+          },
+          {
+            "type": 3,
+            "itemId": 1012,
+            "value": 30,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 179139
+        }
+      }
+    },
+    {
+      "request": {
+        "activityId": 9,
+        "goodsIndex": 8,
+        "buyNum": 1
+      },
+      "response": {
+        "reward": [
+          {
+            "type": 3,
+            "itemId": 1033,
+            "value": 10,
+            "ext": 0
+          }
+        ],
+        "role": {
+          "diamond": 154139
+        }
+      }
+    }
+  ],
+  "source": "Three user captures 1793276162372 / 1793276231400 / 1793276295867; personal fields removed"
+}

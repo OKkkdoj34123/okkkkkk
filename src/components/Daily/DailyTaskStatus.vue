@@ -226,15 +226,10 @@
               <CheckmarkCircle v-if="task.completed" />
               <EllipseOutline v-else />
             </n-icon>
-            <span class="task-name"
-              >{{ task.name
-              }}<template v-if="task.required"
-                >（{{ task.progress }}/{{ task.required }}）</template
-              ></span
-            >
+            <span class="task-name">{{ task.name }}</span>
           </div>
           <n-tag :type="task.completed ? 'success' : 'default'" size="small">
-            {{ task.statusText || "状态未知" }}
+            {{ task.completed ? "已完成" : "未完成" }}
           </n-tag>
         </div>
       </div>
@@ -281,29 +276,25 @@
 
 <script setup>
 import {
-  Calendar,
-  CheckmarkCircle,
-  DocumentText,
-  EllipseOutline,
-  Refresh,
-  Settings,
-} from "@vicons/ionicons5";
-import { useMessage } from "naive-ui";
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
   ref,
+  reactive,
+  computed,
   watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
 } from "vue";
 import { useTokenStore } from "@/stores/tokenStore";
 import { DailyTaskRunner } from "@/utils/dailyTaskRunner";
+import { useMessage } from "naive-ui";
 import {
-  getDailyTaskStates,
-  loadDailyTaskConfig,
-} from "@/utils/dailyTaskState";
+  Settings,
+  Calendar,
+  CheckmarkCircle,
+  EllipseOutline,
+  DocumentText,
+  Refresh,
+} from "@vicons/ionicons5";
 
 const tokenStore = useTokenStore();
 const message = useMessage();
@@ -333,20 +324,21 @@ const settings = reactive({
 
 // 每日任务列表
 const tasks = ref([
-  { id: 1, name: "登录一次游戏", completed: false },
-  { id: 2, name: "分享一次游戏", completed: false },
-  { id: 3, name: "赠送好友3次金币", completed: false },
-  { id: 4, name: "进行2次招募", completed: false },
-  { id: 5, name: "领取5次挂机奖励", completed: false },
-  { id: 6, name: "进行3次点金", completed: false },
-  { id: 7, name: "开启3次宝箱", completed: false },
+  { id: 1, name: "登录一次游戏", completed: false, loading: false },
+  { id: 2, name: "分享一次游戏", completed: false, loading: false },
+  { id: 3, name: "赠送好友3次金币", completed: false, loading: false },
+  { id: 4, name: "进行2次招募", completed: false, loading: false },
+  { id: 5, name: "领取5次挂机奖励", completed: false, loading: false },
+  { id: 6, name: "进行3次点金", completed: false, loading: false },
+  { id: 7, name: "开启3次宝箱", completed: false, loading: false },
   {
     id: 12,
-    name: "黑市购买1次物品（请设置采购清单）",
+    name: "黑市购买1次物品（低关卡按整组限价采购）",
     completed: false,
+    loading: false,
   },
-  { id: 13, name: "进行1场竞技场战斗", completed: false },
-  { id: 14, name: "收获1个任意盐罐", completed: false },
+  { id: 13, name: "进行1场竞技场战斗", completed: false, loading: false },
+  { id: 14, name: "收获1个任意盐罐", completed: false, loading: false },
 ]);
 
 // 选项配置
@@ -399,53 +391,51 @@ const log = (message, type = "info") => {
 };
 
 // 同步服务器任务完成状态
-let configRequest = null;
-let configTokenId = null;
-let statusSyncVersion = 0;
-
-// Configuration is versioned public data; completion always comes from a live response.
-const syncCompleteFromServer = async (resp, { silent = false } = {}) => {
-  const tokenId = tokenStore.selectedToken?.id;
-  if (!tokenId) return;
-  const version = ++statusSyncVersion;
-  try {
-    if (!isConnected.value) throw new Error("WebSocket 已断开，任务状态未知");
-    if (configTokenId !== tokenId || !configRequest) {
-      configTokenId = tokenId;
-      configRequest = loadDailyTaskConfig(tokenStore, tokenId);
-    }
-    const config = await configRequest;
-    if (
-      version !== statusSyncVersion ||
-      tokenStore.selectedToken?.id !== tokenId
-    )
-      return;
-    if (!isConnected.value) throw new Error("WebSocket 已断开，任务状态未知");
-    const states = getDailyTaskStates(resp?.role, config);
-    const labels = {
-      pending: "未完成",
-      claimable: "已完成·待领奖",
-      claimed: "已领奖",
-    };
-    for (const task of tasks.value) {
-      const state = states.find((state) => state.condition === task.id);
-      task.completed = state ? state.status !== "pending" : false;
-      task.statusText = state ? labels[state.status] : "状态未知";
-      task.progress = state?.progress;
-      task.required = state?.required;
-    }
-    if (!silent) log("服务器任务状态已同步，完成与领奖分开显示", "success");
-  } catch (error) {
-    if (version !== statusSyncVersion) return;
-    configRequest = null;
-    for (const task of tasks.value) {
-      task.completed = false;
-      task.statusText = "状态未知";
-      task.progress = null;
-      task.required = null;
-    }
-    log(`无法判断服务器任务状态: ${error.message}`, "warning");
+const syncCompleteFromServer = (resp) => {
+  if (!resp?.role?.dailyTask?.complete) {
+    log("角色信息中无任务完成数据", "warning");
+    return;
   }
+
+  const complete = resp.role.dailyTask.complete;
+  const isDone = (v) => v === -1;
+
+  log("开始同步任务完成状态...");
+  log(`服务器返回的任务完成数据: ${JSON.stringify(complete)}`);
+
+  let syncedCount = 0;
+  let completedCount = 0;
+
+  // 先重置所有任务为未完成，然后根据服务器数据更新
+  tasks.value.forEach((task) => {
+    task.completed = false;
+  });
+
+  // 同步服务器返回的完成状态
+  Object.keys(complete).forEach((k) => {
+    const id = Number(k);
+    const idx = tasks.value.findIndex((t) => t.id === id);
+
+    if (idx >= 0) {
+      const isCompleted = isDone(complete[k]);
+      tasks.value[idx].completed = isCompleted;
+      syncedCount++;
+
+      if (isCompleted) {
+        completedCount++;
+      }
+
+      log(
+        `任务${id} "${tasks.value[idx].name}": ${isCompleted ? "已完成" : "未完成"}`,
+        isCompleted ? "success" : "info",
+      );
+    } else {
+      log(`服务器返回未知任务ID: ${id} (完成值: ${complete[k]})`, "warning");
+    }
+  });
+
+  log(`任务状态同步完成: ${completedCount}/${syncedCount} 已完成`);
+  log(`当前进度: ${roleDailyPoint.value}/100`);
 };
 
 // 刷新角色信息
@@ -463,7 +453,7 @@ const refreshRoleInfo = async () => {
 
     // 同步任务状态
     if (response) {
-      await syncCompleteFromServer(response);
+      syncCompleteFromServer(response);
     }
 
     return response;
@@ -498,25 +488,29 @@ const runDailyFix = async () => {
       taskDelay: settings.taskDelay,
     });
 
-    const result = await runner.run(
+    await runner.run(
       tokenStore.selectedToken.id,
       {
         onLog: (logItem) => log(logItem.message, logItem.type),
         onProgress: (progress) => {
-          log(`服务器每日任务完成并领奖: ${progress}%`);
+          log(`任务进度: ${progress}%`);
         },
       },
       settings,
     ); // 传入当前组件的响应式 settings
 
-    const incomplete = result.incomplete;
-    if (incomplete) {
-      log(`=== 本轮结束，${incomplete} 个步骤待继续 ===`, "warning");
-      message.warning("仍有未完成步骤，再次补差将重新读取服务器任务状态");
-    } else {
-      log("=== 任务执行完成 ===", "success");
-      message.success("每日任务补差执行完成");
-    }
+    log("=== 任务执行完成 ===", "success");
+    message.success("每日任务补差执行完成");
+
+    // 最终刷新角色信息
+    setTimeout(async () => {
+      try {
+        await refreshRoleInfo();
+        log("最终角色信息刷新完成", "success");
+      } catch (error) {
+        log(`最终刷新失败: ${error.message}`, "warning");
+      }
+    }, 3000);
   } catch (error) {
     log(`任务执行失败: ${error.message}`, "error");
     console.error("详细错误信息:", error);
@@ -543,6 +537,13 @@ const handleRefreshTaskStatus = async () => {
   }
 };
 
+// 辅助函数
+const getCurrentRole = () => {
+  return tokenStore.selectedToken
+    ? { roleId: tokenStore.selectedToken.id }
+    : null;
+};
+
 const loadSettings = (roleId) => {
   try {
     const raw = localStorage.getItem(`daily-settings:${roleId}`);
@@ -565,8 +566,8 @@ const saveSettings = (roleId, s) => {
 watch(
   settings,
   (cur) => {
-    const tokenId = tokenStore.selectedToken?.id;
-    if (tokenId) saveSettings(tokenId, cur);
+    const role = getCurrentRole();
+    if (role) saveSettings(role.roleId, cur);
   },
   { deep: true },
 );
@@ -595,33 +596,38 @@ watch(
   { immediate: true },
 );
 
-// A disconnected page cannot present its last snapshot as current server truth.
-watch(isConnected, (connected) => {
-  if (!connected) {
-    statusSyncVersion++;
-    for (const task of tasks.value) {
-      task.completed = false;
-      task.statusText = "状态未知";
-      task.progress = null;
-      task.required = null;
-    }
-  }
-});
-
 // 监听角色信息变化，自动同步任务状态
 watch(
   () => tokenStore.selectedTokenRoleInfo,
   (newRoleInfo) => {
     if (newRoleInfo?.role?.dailyTask?.complete) {
-      syncCompleteFromServer(newRoleInfo, { silent: true });
+      log("角色信息更新，同步任务状态");
+      syncCompleteFromServer(newRoleInfo);
     }
   },
   { immediate: true, deep: true },
 );
 
 // 生命周期
-onMounted(() => {
+onMounted(async () => {
   log("组件初始化完成");
+
+  // 首次拉取角色信息（如果有选中的token且已连接）
+  if (tokenStore.selectedToken && isConnected.value) {
+    try {
+      await refreshRoleInfo();
+    } catch (error) {
+      console.warn("初始化时获取角色信息失败:", error.message);
+    }
+  }
+
+  const role = getCurrentRole();
+  if (role) {
+    const saved = loadSettings(role.roleId);
+    if (saved) Object.assign(settings, saved);
+  }
+
+  // 初始化时的任务状态同步会通过 watch selectedTokenRoleInfo 自动处理
 });
 
 onBeforeUnmount(() => {

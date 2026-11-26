@@ -1,0 +1,99 @@
+{
+  "provenance": "Catalogue: authorized account readback 2026-11-13; claim rewards and diamond balances: uploaded 2026-11-14 log. Post-claim store counts in tests are simulated, not captured.",
+  "benefits": {
+    "5": {
+      "activity": {
+        "activity": [
+          {
+            "id": 5,
+            "type": 4,
+            "openTime": "2026-11-13T04:00:00.000Z",
+            "endTime": "2026-11-19T16:00:00.000Z",
+            "data": {
+              "buyType": 1,
+              "goodsList": [
+                {
+                  "title": "金砖回馈",
+                  "description": "",
+                  "limit": 1,
+                  "price": 0,
+                  "rewardList": [
+                    {
+                      "type": 2,
+                      "itemId": 2,
+                      "value": 200,
+                      "ext": 0
+                    }
+                  ],
+                  "titleId": "100000948",
+                  "descriptionId": ""
+                }
+              ]
+            }
+          }
+        ],
+        "myStoreInfo": {
+          "5": {
+            "complete": {}
+          }
+        }
+      },
+      "reward": [
+        {
+          "type": 2,
+          "itemId": 2,
+          "value": 200,
+          "ext": 0
+        }
+      ],
+      "diamond": 11548
+    },
+    "9": {
+      "activity": {
+        "activity": [
+          {
+            "id": 9,
+            "type": 4,
+            "openTime": "2026-11-13T04:00:00.000Z",
+            "endTime": "2026-11-19T16:00:00.000Z",
+            "data": {
+              "buyType": 3,
+              "goodsList": [
+                {
+                  "title": "黑市福利",
+                  "description": "",
+                  "limit": 1,
+                  "price": 0,
+                  "rewardList": [
+                    {
+                      "type": 2,
+                      "itemId": 2,
+                      "value": 500,
+                      "ext": 0
+                    }
+                  ],
+                  "titleId": "",
+                  "descriptionId": ""
+                }
+              ]
+            }
+          }
+        ],
+        "myStoreInfo": {
+          "9": {
+            "complete": {}
+          }
+        }
+      },
+      "reward": [
+        {
+          "type": 2,
+          "itemId": 2,
+          "value": 500,
+          "ext": 0
+        }
+      ],
+      "diamond": 12048
+    }
+  }
+}

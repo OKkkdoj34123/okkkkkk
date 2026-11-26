@@ -1,0 +1,106 @@
+{
+  "entrypoints": [
+    "src/views/BatchDailyTasks.vue",
+    "src/utils/batch/index.js",
+    "src/utils/batch/constants.js",
+    "src/utils/autoSchedule/scheduler.js",
+    "src/utils/saltField/model.js",
+    "src/utils/saltField/runner.js",
+    "src/utils/saltField/session.js",
+    "src/utils/saltField/debug.js",
+    "src/utils/batch/tasksSaltOnce.js",
+    "src/utils/batch/bottleWorkflow.js",
+    "src/utils/batch/hangUpWorkflow.js",
+    "src/utils/batch/taskResult.js",
+    "src/utils/dailyTaskRunner.js",
+    "src/utils/pushPlusNotifier.js",
+    "src/utils/batch/boxPointsRuntime.js",
+    "src/utils/batch/tasksItem.js",
+    "src/utils/batch/tasksStore.js",
+    "src/utils/batch/dailyBlackMarket.js",
+    "src/utils/dreamTeam.js",
+    "src/utils/dreamStatePolicy.js",
+    "src/utils/batch/tasksDungeon.js",
+    "src/stores/tokenStore.ts",
+    "src/utils/xyzwWebSocket.js",
+    "src/views/LegionWar.vue",
+    "src/utils/legionWar.js",
+    "vite.config.js",
+    "worker.js",
+    "render-backend/server.js",
+    "src/utils/batch/tasksGenieChallenge.js",
+    "src/utils/batch/genieChallengePolicy.js",
+    "src/components/Batch/GenieChallengeModal.vue",
+    "src/stores/events/study.ts",
+    "src/utils/studyQuestionsFromJSON.js",
+    "src/utils/batch/tasksApex.js",
+    "src/utils/autoSchedule/batchResolver.js",
+    "src/utils/autoSchedule/weeklyPlan.js",
+    "src/components/Batch/AutoWeeklyPanel.vue",
+    "src/utils/batch/tasksToken.js",
+    "src/utils/batch/tasksBonfire.js",
+    "src/components/Batch/ConfigExportDialog.vue",
+    "src/utils/binConfigArchive.js",
+    "src/utils/tokenRefreshSource.js",
+    "src/router/index.js",
+    "src/layout/DefaultLayout.vue",
+    "src/views/TokenImport/index.vue",
+    "src/components/Test/MessageTester.vue",
+    "src/utils/saltField/diagnostics.js",
+    "src/components/Batch/SaltDiagnosticsPanel.vue",
+    "src/utils/apexStageMap.js",
+    "src/utils/apexRules.js",
+    "src/utils/batch/scheduledTaskAdapters.js",
+    "src/utils/batch/tasksPhoenixPrayer.js",
+    "src/utils/batch/tasksJianghuMarket.js"
+  ],
+  "groups": {
+    "salt": [
+      "test/saltDynamicEvidence.test.js",
+      "test/saltNavigation.test.js",
+      "test/saltOnce.test.js",
+      "test/saltOnceDiagnostics.test.js",
+      "test/saltOnceTransport.test.js",
+      "test/saltJsonDiagnostics.test.js"
+    ],
+    "schedule": [
+      "test/autoSchedule.test.js",
+      "test/autoScheduleRuntime.test.js",
+      "test/tokenRefreshRuntime.test.js",
+      "test/scheduledTaskAdapters.test.js",
+      "test/retiredActivities.test.js"
+    ],
+    "dream": [
+      "test/dreamTeam.test.js",
+      "test/dreamRetryRuntime.test.js",
+      "test/gameFeatureUnlocks.test.js"
+    ],
+    "boxes": [
+      "test/boxPointsRuntime.test.js"
+    ],
+    "genie": [
+      "test/genieChallenge.test.js",
+      "test/genieTransport.test.js"
+    ],
+    "daily-market": [
+      "test/dailyBlackMarket.test.js"
+    ],
+    "study": [
+      "test/studyFlow.test.js"
+    ],
+    "apex": [
+      "test/apexGuess.test.js",
+      "test/apexRules.test.js"
+    ],
+    "bonfire": [
+      "test/bonfireSignup.test.js"
+    ],
+    "token-config": [
+      "test/tokenConfigTransfer.test.js",
+      "test/tokenRefreshRuntime.test.js"
+    ],
+    "box-benefit": [
+      "test/boxWeekBenefit.test.js"
+    ]
+  }
+}

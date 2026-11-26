@@ -1,86 +1,69 @@
 /**
- * 将Canvas导出为图片并下载
- * 兼容处理移动端大图导出问题
- * @param {HTMLCanvasElement} canvas - canvas元素
- * @param {string} filename - 文件名
+ * 将 Canvas 导出为 PNG，通过浏览器下载保存。
+ * 保持现有调用方式；异步编码失败由本工具提示，调用方无需改动。
+ * @param {HTMLCanvasElement} canvas - canvas 元素
+ * @param {string} filename - PNG 文件名
  */
 export const downloadCanvasAsImage = (canvas, filename) => {
+  // DIRECT_PNG_DOWNLOAD_V1: 导出按钮只触发下载，不调用系统分享。
   try {
-    // 优先尝试使用 toBlob，因为它处理大文件更有效率且不容易崩溃
-    if (canvas.toBlob) {
+    if (typeof canvas.toBlob === "function") {
       canvas.toBlob((blob) => {
         if (!blob) {
-          console.error("Canvas转换Blob失败");
           fallbackToDataURL(canvas, filename);
           return;
         }
 
-        // 尝试使用 navigator.share (主要针对移动端)
-        // 注意：navigator.share 需要在 HTTPS 环境下，且必须由用户手势触发
-        // 这里作为一种尝试，如果失败则回退到下载链接
-        if (
-          navigator.share &&
-          navigator.canShare &&
-          navigator.canShare({
-            files: [new File([blob], filename, { type: blob.type })],
-          })
-        ) {
-          const file = new File([blob], filename, { type: blob.type });
-          navigator
-            .share({
-              files: [file],
-              title: "分享图片",
-              text: filename,
-            })
-            .catch((err) => {
-              console.log("分享失败，尝试下载:", err);
-              downloadBlob(blob, filename);
-            });
-        } else {
+        // toBlob 回调异步执行，必须在回调内部捕获下载异常。
+        try {
           downloadBlob(blob, filename);
+        } catch (error) {
+          console.error("Blob 下载失败，尝试 PNG 数据链接:", error);
+          fallbackToDataURL(canvas, filename);
         }
       }, "image/png");
     } else {
       fallbackToDataURL(canvas, filename);
     }
-  } catch (e) {
-    console.error("导出图片出错:", e);
+  } catch (error) {
+    console.error("Canvas 编码失败，尝试 PNG 数据链接:", error);
     fallbackToDataURL(canvas, filename);
+  }
+};
+
+const downloadUrl = (url, filename) => {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  try {
+    link.click();
+  } finally {
+    document.body.removeChild(link);
   }
 };
 
 const downloadBlob = (blob, filename) => {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-
-  // 兼容某些移动端浏览器，添加到body
-  document.body.appendChild(link);
-
   try {
-    link.click();
-  } catch (e) {
-    console.error("Link click failed", e);
+    downloadUrl(url, filename);
+  } finally {
+    // 给浏览器读取大图的时间，避免原先 100ms 后过早释放链接。
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
-
-  // 清理
-  document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(url), 100);
 };
 
 const fallbackToDataURL = (canvas, filename) => {
   try {
     const imgUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = imgUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (e) {
-    console.error("DataURL导出失败:", e);
-    // eslint-disable-next-line no-alert -- Preserve the existing native notification or confirmation flow.
-    alert("导出图片失败，图片可能过大");
+    // 零尺寸或超过浏览器尺寸上限时可能得到 data:,，不能当作 PNG 下载。
+    if (!imgUrl.startsWith("data:image/png")) {
+      throw new Error("Canvas 未生成有效的 PNG 数据");
+    }
+    downloadUrl(imgUrl, filename);
+  } catch (error) {
+    console.error("PNG 导出失败:", error);
+    alert("导出图片失败，图片可能过大或含无法导出的跨域图片，请重试");
   }
 };

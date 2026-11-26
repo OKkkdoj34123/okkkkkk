@@ -15,8 +15,7 @@
           v-for="teamId in availableTeams"
           :key="teamId"
           :disabled="loading || switching"
-          class="team-button"
-          :class="[{ active: currentTeam === teamId }]"
+          :class="['team-button', { active: currentTeam === teamId }]"
           @click="selectTeam(teamId)"
         >
           {{ teamId }}
@@ -111,9 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { useMessage } from "naive-ui";
-import { computed, onMounted, ref, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useTokenStore } from "@/stores/tokenStore";
+import { useMessage } from "naive-ui";
 import { HERO_DICT } from "@/utils/HeroList.js";
 
 const tokenStore = useTokenStore();
@@ -123,6 +122,8 @@ const loading = ref(false);
 const switching = ref(false);
 const currentTeam = ref(1);
 const availableTeams = ref<number[]>([1, 2, 3, 4]);
+
+
 
 const wsStatus = computed(() => {
   if (!tokenStore.selectedToken) return "disconnected";

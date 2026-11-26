@@ -19,7 +19,7 @@
       <div class="right">
         <NButton
           size="small"
-          :disabled="currentMemberList.length === 0 || exporting"
+          :disabled="currentMemberList.length === 0 || exporting || loading"
           :loading="exporting"
           @click="handleExportImage"
           class="action-btn"
@@ -45,6 +45,12 @@
       </div>
     </div>
 
+    <div class="camp-query-status" role="status">
+      <span>{{ statusHint }}</span>
+      <span v-if="loading">查询中：请求成功 {{ queryProgress.success }}，请求失败 {{ queryProgress.failed }}；阵容 {{ progressText }}</span>
+      <NButton v-if="loading" size="small" @click="stopCampQuery">停止查询</NButton>
+      <NButton size="small" @click="copyDiagnosticLog">复制调试日志</NButton>
+    </div>
     <!-- 双方俱乐部 VS 对决卡片 (参考蟠桃园科技倾角风) -->
     <div class="header-section" v-if="battleInfo">
       <div class="club-vs-container">
@@ -312,13 +318,13 @@
         <n-tab name="battleMap">
           <div class="tab-item-content">
             <n-icon><ShieldOutline /></n-icon>
-            <span>⚔️ 今日据点沙盘 (击破图表)</span>
+            <span>⚔️ 据点沙盘 (击破图表)</span>
           </div>
         </n-tab>
         <n-tab name="todayDetails">
           <div class="tab-item-content">
             <n-icon><FlameOutline /></n-icon>
-            <span>🎯 今日公会对战详细 (催刀督战)</span>
+            <span>🎯 所选比赛日战报 (出刀统计)</span>
           </div>
         </n-tab>
         <n-tab name="weekRoster">
@@ -497,7 +503,7 @@
         </div>
       </div>
 
-      <!-- ================= 视图 2：今日公会对战详细 (催刀督战) ================= -->
+      <!-- ================= 视图 2：所选比赛日战报 (出刀统计) ================= -->
       <div
         v-else-if="activeViewTab === 'todayDetails'"
         class="today-details-section"
@@ -675,11 +681,11 @@
           <div class="attendance-header">
             <div class="att-title-group">
               <n-icon class="att-icon"><FlameOutline /></n-icon>
-              <span class="att-title">公会今日出刀督促台</span>
+              <span class="att-title">所选比赛日出刀统计</span>
               <NTag
                 size="small"
                 :type="
-                  attendanceStats.unattackedCount === 0 &&
+                  statsCoverage.attackComplete && selectedMatchDay === gameDay() && attendanceStats.unattackedCount === 0 &&
                   attendanceStats.incompleteCount === 0
                     ? 'success'
                     : 'warning'
@@ -781,12 +787,12 @@
             <div
               class="all-attacked-box"
               v-if="
-                attendanceStats.unattackedCount === 0 &&
+                statsCoverage.attackComplete && selectedMatchDay === gameDay() && attendanceStats.unattackedCount === 0 &&
                 attendanceStats.incompleteCount === 0
               "
             >
               <NTag size="medium" type="success" :bordered="false">
-                🎉 太强了！我方 30 名成员今日免费挑战次数已全部出战打满！
+                🎉 太强了！我方真实成员在所选比赛日的免费挑战次数已全部出战打满！
               </NTag>
             </div>
           </div>
@@ -1276,7 +1282,9 @@ import {
 } from "@vicons/ionicons5";
 import html2canvas from "html2canvas";
 import { NAvatar, NButton, NSelect, NTag, useMessage } from "naive-ui";
-import { computed, h, onMounted, ref, watch } from "vue";
+import { computed, h, onBeforeUnmount, ref, watch } from "vue";
+import { downloadCanvasAsImage } from "@/utils/imageExport";
+import { aggregateCampRecords, createCampReader, entityKey, gameDay, gameDateKey, inMatchDay, isCampCancelled, matchDayRange, normalizeCampDefenseResponse, recordCount, safeError, winFlag } from "@/utils/campReadOnly";
 import { useTokenStore } from "@/stores/tokenStore";
 import {
   formatWeapon,
@@ -1308,6 +1316,25 @@ const formatPower = (val: number | string | undefined | null) => {
 const tokenStore = useTokenStore();
 const message = useMessage();
 const exportDom = ref<HTMLElement | null>(null);
+// CAMP_STAGE1_V1: 此页面只发查询命令，日志不含 Token、BIN 或完整报文。
+const queryProgress = ref({ requested: 0, success: 0, failed: 0 });
+const reader = createCampReader(tokenStore, (v: any) => { queryProgress.value = v; });
+const statsCoverage = ref<any>({ attackComplete: false, defenseComplete: false });
+const statusHint = ref("请选择已连接账号，再点击刷新战况");
+const stopCampQuery = () => { reader.stop(); currentFetchToken++; loading.value = false; statusHint.value = "查询已停止，保留的结果可能不完整，请刷新后再核对"; };
+const copyDiagnosticLog = async () => {
+  try { await navigator.clipboard.writeText(reader.exportLog()); message.success("营地调试日志已复制"); }
+  catch { message.warning("复制失败，请在 F12 控制台筛选 [营地调试] 后复制"); }
+};
+const campSend = (tokenId: string, cmd: string, params: any = {}, timeout = 8000) => reader.send(tokenId, cmd, params, timeout, currentFetchToken);
+const requireScope = (scope: number, tokenId: string) => reader.assert(scope, tokenId);
+const resetCampData = () => {
+  battleInfo.value = null; ownMembers.value = []; opponentMembers.value = []; matchDayList.value = [];
+  rawClubData.value = null; rawSiegeData.value = null; cachedAttackRecords.value = []; groupRankData.value = [];
+  memberAttackStatsMap.value = new Map(); memberDefenseRecordsMap.value = new Map(); weeklyDefenseStatsMap.value = new Map();
+  statsCoverage.value = { attackComplete: false, defenseComplete: false }; todayCombatStats.value.loaded = false;
+  showDuelModal.value = false; targetPlayer.value = null;
+};
 
 // 界面状态与视图切换
 const selectedSide = ref<"own" | "opponent">("own");
@@ -1410,10 +1437,10 @@ const memberAttackStatsMap = ref<
 >(new Map());
 
 // 全员防守战报映射 (roleId -> 遭遇敌方攻击流水列表)
-const memberDefenseRecordsMap = ref<Map<number, any[]>>(new Map());
+const memberDefenseRecordsMap = ref<Map<string | number, any[]>>(new Map());
 
 // 当周防守统计映射 (roleId -> 防守统计对象)
-const weeklyDefenseStatsMap = ref<Map<number, any>>(new Map());
+const weeklyDefenseStatsMap = ref<Map<string | number, any>>(new Map());
 
 /**
  * 进攻流水（我方主动进攻敌方成员，attackType === 1）
@@ -1492,11 +1519,11 @@ const targetPlayerDefenseWinRate = computed(() => {
 const formatCombatTime = (timestamp: number | undefined | null) => {
   if (!timestamp) return "—";
   const ms = timestamp > 10000000000 ? timestamp : timestamp * 1000;
-  const d = new Date(ms);
+  const d = new Date(ms + 8 * 60 * 60 * 1000);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(
+    d.getUTCHours(),
+  )}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 };
 
 // 当前成员列表（根据单选框切换敌方/我方）
@@ -1508,12 +1535,12 @@ const currentMemberList = computed(() => {
 
 // 日程判断：当前星期几是否在营地挑战日程列表中
 const isMatchDay = computed(() => {
-  const day = new Date().getDay();
+  const day = gameDay();
   return matchDayList.value.some((d) => d.day === day);
 });
 
 const scheduleText = computed(() => {
-  const day = new Date().getDay();
+  const day = gameDay();
   const dayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   const currentDayName = dayNames[day];
   if (isMatchDay.value) {
@@ -1560,22 +1587,22 @@ const weeklyStats = computed(() => {
     const y = 2000 + Number.parseInt(phaseStr.slice(0, 2), 10);
     const m = Number.parseInt(phaseStr.slice(2, 4), 10) - 1;
     const d = Number.parseInt(phaseStr.slice(4, 6), 10);
-    const monDate = new Date(y, m, d);
-    const sunDate = new Date(y, m, d + 6);
+    const monDate = new Date(Date.UTC(y, m, d));
+    const sunDate = new Date(Date.UTC(y, m, d + 6));
     const fmt = (dt: Date) =>
-      `${dt.getFullYear()}/${String(dt.getMonth() + 1).padStart(
+      `${dt.getUTCFullYear()}/${String(dt.getUTCMonth() + 1).padStart(
         2,
         "0",
-      )}/${String(dt.getDate()).padStart(2, "0")}`;
+      )}/${String(dt.getUTCDate()).padStart(2, "0")}`;
     cycleRange = `${fmt(monDate)} ~ ${fmt(sunDate)}`;
 
     // 动态提取本周已排定的对战日期（按 oppoMap 实际包含的各比赛日偏移推算）
     for (const item of matchDayList.value) {
       const offset = item.day >= 1 ? item.day - 1 : item.day + 6;
-      const matchDt = new Date(y, m, d + offset);
-      const k = `${String(matchDt.getFullYear()).slice(-2)}${String(
-        matchDt.getMonth() + 1,
-      ).padStart(2, "0")}${String(matchDt.getDate()).padStart(2, "0")}`;
+      const matchDt = new Date(Date.UTC(y, m, d + offset));
+      const k = `${String(matchDt.getUTCFullYear()).slice(-2)}${String(
+        matchDt.getUTCMonth() + 1,
+      ).padStart(2, "0")}${String(matchDt.getUTCDate()).padStart(2, "0")}`;
       phaseDates.push(k);
     }
   }
@@ -1592,9 +1619,9 @@ const weeklyStats = computed(() => {
 
   // 个人本周战功：取 club.members 中自己 roleId 对应条目的 score（周累计值，Σmembers.score === club.weekScore 已实测证实）；
   // siege.score 是另一套口径（实测 siege.score=89 而成员条目 score=28），不能作为本周战功
-  let personalScore = siege.score || 0;
+  let personalScore: number | string = "—";
   for (const m of Object.values(club.members || {}) as any[]) {
-    if (Number(m.roleId) === Number(siege.roleId)) {
+    if (!m.mirror && Number(m.roleId) === Number(siege.roleId)) {
       personalScore = m.score || 0;
       break;
     }
@@ -1616,10 +1643,10 @@ const weeklyStats = computed(() => {
     weekAttackCnt > 0 ? ((weekWinCnt / weekAttackCnt) * 100).toFixed(1) : "0.0";
 
   // 个人今日统计
-  const now = new Date();
-  const todayKey = `${String(now.getFullYear()).slice(-2)}${String(
-    now.getMonth() + 1,
-  ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const todayKey = `${String(now.getUTCFullYear()).slice(-2)}${String(
+    now.getUTCMonth() + 1,
+  ).padStart(2, "0")}${String(now.getUTCDate()).padStart(2, "0")}`;
   const todayData = attackMap[todayKey] || {};
   const todayAttackCnt = todayData.attackCnt || 0;
   const todayWinCnt = todayData.aSuccessCnt || 0;
@@ -1710,8 +1737,8 @@ const currentOppoDayScore = computed(() => {
 
 // 督战催刀统计（按真实出刀 0/3次未动刀 与 1~2/3次未打满 精确统计）
 const attendanceStats = computed(() => {
-  const members = ownMembers.value;
-  const total = members.length || 30;
+  const members = (statsCoverage.value.attackComplete && selectedMatchDay.value === gameDay()) ? ownMembers.value.filter((m: any) => !m.mirror) : [];
+  const total = ownMembers.value.filter((m: any) => !m.mirror).length;
 
   // 1. 完全未动刀 (真实出刀 0 次，不论得分如何，必须催刀)
   const unattacked = members.filter((m: any) => (m.realAttackCnt || 0) === 0);
@@ -1757,6 +1784,7 @@ const copyToClipboard = (text: string, successMsg: string) => {
 
 // 一键复制未动刀名单 (0/3次)
 const copyUnattackedList = () => {
+  if (!statsCoverage.value.attackComplete || selectedMatchDay.value !== gameDay()) { message.warning("今日战报未查全，不能判断未出战名单"); return; }
   const unattacked = attendanceStats.value.unattacked;
   if (!unattacked.length) {
     message.success("太棒了！我方全员今日均已出战动刀！");
@@ -1772,6 +1800,7 @@ const copyUnattackedList = () => {
 
 // 一键复制未打满补刀名单 (1~2/3次)
 const copyIncompleteList = () => {
+  if (!statsCoverage.value.attackComplete || selectedMatchDay.value !== gameDay()) { message.warning("今日战报未查全，不能判断未打满名单"); return; }
   const incomplete = attendanceStats.value.incomplete;
   if (!incomplete.length) {
     message.success("太棒了！我方出战成员均已打满 3 刀！");
@@ -1798,11 +1827,10 @@ const weeklyRosterRanked = computed(() => {
   const members = [...ownMembers.value];
   return members.map((m) => {
     const w =
-      weeklyDefenseStatsMap.value.get(`${Number(m.id)}_${!!m.mirror}`) ||
-      weeklyDefenseStatsMap.value.get(Number(m.id)) ||
-      weeklyDefenseStatsMap.value.get(m.id as any);
+      weeklyDefenseStatsMap.value.get(entityKey(m));
     return {
       ...m,
+      weeklyAvailable: !!w?.available,
       challengeCnt: w ? w.challengeCnt : 0,
       defWins: w ? w.defWins : 0,
       defLosses: w ? w.defLosses : 0,
@@ -1965,7 +1993,7 @@ const todayTableColumns = [
       ),
   },
   {
-    title: "今日战功贡献",
+    title: "今日贡献（接口未提供时为—）",
     key: "todayScore",
     width: 110,
     align: "center",
@@ -1979,7 +2007,7 @@ const todayTableColumns = [
             fontSize: "14px",
           },
         },
-        row.todayScore > 0 ? `+${row.todayScore}分` : "0分",
+        row.todayScore == null ? "—" : row.todayScore > 0 ? `+${row.todayScore}分` : "0分",
       ),
   },
   {
@@ -2015,11 +2043,12 @@ const todayTableColumns = [
       ),
   },
   {
-    title: "今日出刀状态",
+    title: "所选日出刀状态",
     key: "participation",
     width: 120,
     align: "center",
     render: (row: any) => {
+      if (row.mirror || !statsCoverage.value.attackComplete) return h(NTag, { size: "small", type: "warning" }, { default: () => row.attackStatusText });
       const cnt = row.realAttackCnt;
       if (cnt === undefined || cnt === 0) {
         return h(
@@ -2050,11 +2079,12 @@ const todayTableColumns = [
     },
   },
   {
-    title: "今日出刀实绩",
+    title: "所选日可查出刀实绩",
     key: "realAttackRecord",
     width: 140,
     align: "center",
     render: (row: any) => {
+      if (!statsCoverage.value.attackComplete && !(row.realAttackCnt > 0)) return h("span", { style: { color: "#b7791f" } }, "明细未查全");
       if ((row.realAttackCnt || 0) > 0) {
         return h(
           "span",
@@ -2215,7 +2245,7 @@ const weeklyRosterColumns = [
     key: "challengeCnt",
     width: 90,
     align: "center",
-    render: (row: any) => h("span", `${row.challengeCnt || 0}次`),
+    render: (row: any) => h("span", row.weeklyAvailable ? `${row.challengeCnt || 0}次` : "—"),
   },
   {
     title: "本周防守守住",
@@ -2226,7 +2256,7 @@ const weeklyRosterColumns = [
       h(
         "span",
         { style: { color: "#10b981", fontWeight: "600" } },
-        `${row.defWins || 0}次`,
+        row.weeklyAvailable ? `${row.defWins || 0}次` : "—",
       ),
   },
   {
@@ -2280,14 +2310,15 @@ const fetchMemberRealLineup = async (
     // 1. 优先调用 club_gettargetteam 获取营地挑战专属布阵阵容 (0..4 站位)
     let targetTeamRes: any = null;
     try {
-      targetTeamRes = await tokenStore.sendMessageWithPromise(
+      targetTeamRes = await campSend(
         tokenId,
         "club_gettargetteam",
         { targetId: roleId },
         4000,
       );
     } catch (e) {
-      targetTeamRes = await tokenStore.sendMessageWithPromise(
+      if (isCampCancelled(e)) throw e;
+      targetTeamRes = await campSend(
         tokenId,
         "role_gettargetteam",
         { targetId: roleId },
@@ -2300,6 +2331,7 @@ const fetchMemberRealLineup = async (
     const role = roleBattleTeam?.role || teamInfo;
     const battleTeam = roleBattleTeam?.battleTeam || teamInfo?.team;
 
+    if (!battleTeam || typeof battleTeam !== "object") throw new Error("阵容响应缺少 roleBattleTeam.battleTeam / teamInfo.team");
     let totalRedCount = 0;
     const heroesInTeam: any[] = [];
 
@@ -2354,12 +2386,15 @@ const fetchMemberRealLineup = async (
       heroList: heroesInTeam,
       lineupType: getLineupType(heroesInTeam),
       score: baseInfo?.score || 0,
+      dayScore: recordCount(baseInfo?.dayScore),
       defeated: baseInfo?.defeated || false,
       challengeCnt: baseInfo?.challengeCnt || 0,
       failCnt: baseInfo?.failCnt || 0,
       mirror: !!baseInfo?.mirror,
     };
   } catch (e: any) {
+    if (isCampCancelled(e)) throw e;
+    reader.log("阵容未查全", { roleId, mirror: !!baseInfo?.mirror, reason: safeError(e) }, "warn");
     return {
       slot: baseInfo?.slot || 1,
       id: roleId,
@@ -2373,6 +2408,7 @@ const fetchMemberRealLineup = async (
       heroList: [],
       lineupType: "未知",
       score: baseInfo?.score || 0,
+      dayScore: recordCount(baseInfo?.dayScore),
       defeated: baseInfo?.defeated || false,
       challengeCnt: baseInfo?.challengeCnt || 0,
       failCnt: baseInfo?.failCnt || 0,
@@ -2394,6 +2430,7 @@ const fetchMembersInChunks = async (
   items: { id: number; base: any }[],
   chunkSize = 5,
 ) => {
+  const scope = currentFetchToken;
   const results: any[] = [];
   const total = items.length;
   for (let i = 0; i < total; i += chunkSize) {
@@ -2402,6 +2439,7 @@ const fetchMembersInChunks = async (
     const chunkResults = await Promise.all(
       chunk.map((it) => fetchMemberRealLineup(tokenId, it.id, it.base)),
     );
+    requireScope(scope, tokenId);
     results.push(...chunkResults);
   }
   return results;
@@ -2410,18 +2448,27 @@ const fetchMembersInChunks = async (
 /**
  * 获取营地挑战完整对战与阵容数据
  */
-const fetchCampChallengeData = async () => {
+const fetchCampChallengeData = async (requestedDay?: unknown) => {
   if (!tokenStore.selectedToken) {
     message.warning("请先在上方选择一个已连接账号");
     return;
   }
   const tokenId = tokenStore.selectedToken.id;
+  const desiredDay = typeof requestedDay === "number" ? requestedDay : undefined;
+  const scope = reader.begin(tokenId, desiredDay === undefined ? "刷新战况" : `切换比赛日${desiredDay}`);
+  currentFetchToken = scope;
+  resetCampData();
+  if (tokenStore.getWebSocketStatus(tokenId) !== "connected") {
+    loading.value = false; statusHint.value = "账号尚未连接，请连接后刷新"; emptyHint.value = statusHint.value;
+    reader.log("等待连接", {}); return;
+  }
   loading.value = true;
+  statusHint.value = "正在加载营地数据，请稍候；可随时停止查询";
   emptyHint.value = "正在加载营地对阵信息...";
 
   try {
     // 1. 查询当前我方公会基础信息
-    const ownClubRes: any = await tokenStore.sendMessageWithPromise(
+    const ownClubRes: any = await campSend(
       tokenId,
       "legion_getinfo",
       {},
@@ -2432,13 +2479,15 @@ const fetchCampChallengeData = async () => {
     const ownLegionId = ownClubData.id;
 
     // 2. 调用 club_getinfo 获取营地挑战全量活动数据
-    const clubInfoRes: any = await tokenStore.sendMessageWithPromise(
+    const clubInfoRes: any = await campSend(
       tokenId,
       "club_getinfo",
       {},
       8000,
     );
-    const clubData = clubInfoRes?.club || {};
+    requireScope(scope, tokenId);
+    if (!clubInfoRes?.club || typeof clubInfoRes.club !== "object") throw new Error("club_getinfo 响应缺少 club 字段，请发送调试日志核对");
+    const clubData = clubInfoRes.club;
     rawClubData.value = clubData;
     rawSiegeData.value = clubInfoRes?.siege || {};
 
@@ -2468,8 +2517,10 @@ const fetchCampChallengeData = async () => {
     matchDayList.value = days;
 
     // 确定当前选中的对战日（默认匹配今日星期几，不在列表中则选第一个）
-    const currentDay = new Date().getDay();
-    if (days.some((d) => d.day === currentDay)) {
+    const currentDay = gameDay();
+    if (desiredDay !== undefined && days.some((d) => d.day === desiredDay)) {
+      selectedMatchDay.value = desiredDay;
+    } else if (days.some((d) => d.day === currentDay)) {
       selectedMatchDay.value = currentDay;
     } else if (
       days.length > 0 &&
@@ -2519,6 +2570,7 @@ const fetchCampChallengeData = async () => {
         headImg: d.headImg || "/icons/xiaoyugan.png",
         power: 0,
         score: d.score || 0,
+        dayScore: recordCount(d.dayScore),
         defeated: d.defeated || false,
         challengeCnt: d.challengeCnt || 0,
         failCnt: d.failCnt || 0,
@@ -2545,6 +2597,7 @@ const fetchCampChallengeData = async () => {
         headImg: m.headImg || "/icons/xiaoyugan.png",
         power: 0,
         score: m.score || 0,
+        dayScore: recordCount(m.dayScore),
         defeated: m.defeated || false,
         challengeCnt: m.challengeCnt || 0,
         failCnt: m.failCnt || 0,
@@ -2559,7 +2612,7 @@ const fetchCampChallengeData = async () => {
       }),
     );
 
-    selectedSide.value = "own";
+    if (desiredDay === undefined) selectedSide.value = "own";
     rankText.value = `营地挑战对决 · VS ${displayOppName}`;
 
     // 7. 分批并发拉取真实布阵
@@ -2568,6 +2621,7 @@ const fetchCampChallengeData = async () => {
         tokenId,
         opponentMembers.value.map((o) => ({ id: o.id, base: o })),
       );
+      requireScope(scope, tokenId);
       opponentMembers.value = oppDetailed;
       const totalOppRed = oppDetailed.reduce(
         (s, m) => s + (m.redQuench || 0),
@@ -2585,6 +2639,7 @@ const fetchCampChallengeData = async () => {
         tokenId,
         ownMembers.value.map((o) => ({ id: o.id, base: o })),
       );
+      requireScope(scope, tokenId);
       ownMembers.value = ownDetailed;
       const totalOwnRed = ownDetailed.reduce(
         (s, m) => s + (m.redQuench || 0),
@@ -2599,7 +2654,7 @@ const fetchCampChallengeData = async () => {
 
     // 8. 预拉取个人进攻战报
     try {
-      const atkRes: any = await tokenStore.sendMessageWithPromise(
+      const atkRes: any = await campSend(
         tokenId,
         "club_getattackrecord",
         {},
@@ -2609,12 +2664,13 @@ const fetchCampChallengeData = async () => {
         cachedAttackRecords.value = atkRes.records;
       }
     } catch (e) {
-      console.warn("未能拉取个人进攻战报:", e);
+      if (isCampCancelled(e)) throw e;
+      reader.log("个人战报不可用", { reason: safeError(e) }, "warn");
     }
 
     // 9. 拉取本组 4 俱乐部排位天梯榜
     try {
-      const grpRes: any = await tokenStore.sendMessageWithPromise(
+      const grpRes: any = await campSend(
         tokenId,
         "club_getgrouprank",
         {},
@@ -2624,22 +2680,34 @@ const fetchCampChallengeData = async () => {
         groupRankData.value = grpRes.rankList;
       }
     } catch (e) {
-      console.warn("未能拉取排位天梯榜:", e);
+      if (isCampCancelled(e)) throw e;
+      reader.log("小组排名不可用", { reason: safeError(e) }, "warn");
     }
 
     // 10. 汇总全员出刀与防守战报
     try {
       await aggregateAllMemberAttacks(tokenId, selectedMatchDay.value);
     } catch (e) {
-      console.warn("未能聚合全员进攻战报:", e);
+      if (isCampCancelled(e)) throw e;
+      reader.log("全员战报不可用", { reason: safeError(e) }, "warn");
     }
 
-    message.success(`营地挑战(${displayOppName})数据加载完成`);
+    requireScope(scope, tokenId);
+    const c = statsCoverage.value;
+    const noMatch = days.length === 0;
+    statusHint.value = noMatch ? "当前没有营地对阵数据" :
+      `${c.attackComplete ? "出刀明细核对完成" : "出刀明细不完整，暂不生成未出战名单"}；我方防守据点 ${c.ownLoaded || 0}/${ownMembers.value.length}，对手据点 ${c.opponentLoaded || 0}/${opponentMembers.value.length}。我方据点阵容与存活状态为最新快照；当周防守为接口可查战报统计，仅确认当日零战斗时周明细显示—；成员今日贡献缺失时显示—。`;
+    emptyHint.value = noMatch ? statusHint.value : "";
+    reader.log("查询完成", { ...reader.snapshot(), selectedDay: selectedMatchDay.value, ownCount: ownMembers.value.length,
+      oppCount: opponentMembers.value.length, lineupUnknown: [...ownMembers.value, ...opponentMembers.value].filter(m => m.lineupType === "未知").length, ...c });
+    if (c.attackComplete) message.success("营地数据加载完成"); else message.warning(statusHint.value);
   } catch (err: any) {
-    emptyHint.value = `查询失败: ${err.message || "网络异常"}`;
-    message.error(emptyHint.value);
+    if (!reader.current(scope, tokenId) || isCampCancelled(err)) return;
+    emptyHint.value = `查询失败: ${safeError(err)}`;
+    statusHint.value = emptyHint.value;
+    reader.log("查询失败", { reason: safeError(err) }, "warn"); message.error(emptyHint.value);
   } finally {
-    loading.value = false;
+    if (reader.current(scope, tokenId)) loading.value = false;
   }
 };
 
@@ -2651,39 +2719,8 @@ const fetchCampChallengeData = async () => {
  * @param {number} day 比赛日星期编号 (周日=0, 周一=1 ...)
  * @returns {{startMs: number, endMs: number} | null} 当日毫秒时间窗口；phase 缺失时返回 null（不过滤）
  */
-const getMatchDayRange = (
-  day: number,
-): { startMs: number; endMs: number } | null => {
-  const phaseStr = String(rawClubData.value?.phase || "");
-  if (phaseStr.length !== 6) return null;
-  const y = 2000 + Number.parseInt(phaseStr.slice(0, 2), 10);
-  const m = Number.parseInt(phaseStr.slice(2, 4), 10) - 1;
-  const d = Number.parseInt(phaseStr.slice(4, 6), 10);
-  const offset = day >= 1 ? day - 1 : day + 6; // 周一为周期起点，周日跨到周末尾
-  const matchDt = new Date(y, m, d + offset);
-  const startMs = new Date(
-    matchDt.getFullYear(),
-    matchDt.getMonth(),
-    matchDt.getDate(),
-  ).getTime();
-  return { startMs, endMs: startMs + 24 * 60 * 60 * 1000 };
-};
-
-/**
- * 判断战报 created 时间戳是否落在指定比赛日的当日时间窗口内（秒级/毫秒级均兼容）
- * 服务器接口不按查询日过滤历史记录，客户端按窗口过滤，避免历史数据累计到当天统计。
- *
- * @param {number|string} ts 战报 created 时间戳
- * @param {number} day 比赛日星期编号 (周日=0)
- * @returns {boolean} 是否属于该比赛日；phase 缺失时恒为 true（不过滤）
- */
-const isRecordInMatchDay = (ts: any, day: number): boolean => {
-  const range = getMatchDayRange(day);
-  if (!range) return true;
-  const n = Number(ts);
-  const ms = n > 10000000000 ? n : n * 1000;
-  return ms >= range.startMs && ms < range.endMs;
-};
+const getMatchDayRange = (day: number) => matchDayRange(rawClubData.value?.phase, day);
+const isRecordInMatchDay = (ts: any, day: number): boolean => inMatchDay(ts, rawClubData.value?.phase, day);
 
 /**
  * 并发汇总双方公会出刀战报与防守数据
@@ -2697,258 +2734,58 @@ const isRecordInMatchDay = (ts: any, day: number): boolean => {
  * @param {number} day 比赛日编号
  */
 const aggregateAllMemberAttacks = async (tokenId: string, day: number) => {
-  const oppo = matchDayList.value.find((d) => d.day === day);
-  if (!oppo || !oppo.defenders) return;
-
-  const oppDefenders = Object.values(oppo.defenders) as any[];
-  const ourDefenders = ownMembers.value;
-
-  // 全实时策略：每次聚合前清空上一轮的当周防守统计
-  weeklyDefenseStatsMap.value = new Map();
-
-  const ourStats = new Map<
-    number,
-    {
-      roleId: number;
-      name: string;
-      attackCnt: number;
-      winCnt: number;
-      lossCnt: number;
-      attacks: any[];
+  const scope = currentFetchToken;
+  const oppo = matchDayList.value.find(d => d.day === day);
+  if (!oppo) return;
+  const opponentResponses: any[] = [], ownResponses: any[] = [];
+  const querySide = async (members: any[], output: any[], side: "own" | "opponent", historicalOpponent = false) => {
+    let unavailable = false;
+    let emptyConfirmed = 0, emptyUnconfirmed = 0;
+    const emptySamples: any[] = [];
+    for (const member of members) {
+      requireScope(scope, tokenId);
+      if (unavailable) { output.push({ member, records: null }); continue; }
+      try {
+        const res: any = await campSend(tokenId, "club_getdefenserecord", { targetId: member.id || member.roleId, targetIsMirror: !!member.mirror }, 8000);
+        requireScope(scope, tokenId);
+        // 用原始据点计数核对，不能使用展示层给缺失字段补出的默认0。
+        let rawMember: any = member;
+        if (side === "own") {
+          const candidate = rawClubData.value?.members?.[String(member.slot)];
+          rawMember = candidate && String(candidate.roleId) === String(member.id || member.roleId) && !!candidate.mirror === !!member.mirror ? candidate : null;
+        }
+        const normalized = normalizeCampDefenseResponse(res, { member: rawMember, phase: rawClubData.value?.phase, day });
+        if (normalized.inferredEmpty) emptyConfirmed++;
+        if (normalized.records === null) emptyUnconfirmed++;
+        if (!Array.isArray(res?.records) && emptySamples.length < 5) emptySamples.push({ targetId: member.id || member.roleId, mirror: !!member.mirror, challengeCnt: normalized.challengeCnt, failCnt: normalized.failCnt, result: normalized.reason });
+        if (normalized.records === null) {
+          reader.log("空战报待核对", { side, targetId: member.id || member.roleId, mirror: !!member.mirror, day, ...normalized }, "warn");
+        }
+        output.push({ member, ...normalized });
+      } catch (e: any) {
+        if (isCampCancelled(e)) throw e;
+        reader.log("据点战报未查全", { targetId: member.id || member.roleId, mirror: !!member.mirror, day, reason: safeError(e) }, "warn");
+        output.push({ member, records: null });
+        if (historicalOpponent && /200020/.test(safeError(e))) {
+          unavailable = true; reader.log("历史对手明细不可查", { day, reason: safeError(e), remainingSkipped: members.length - output.length }, "warn");
+        }
+      }
     }
-  >();
-
-  const defRecordsMap = new Map<number, any[]>();
-
-  let ourTotalAttacks = 0;
-  let ourTotalWins = 0;
-  let ourTotalLosses = 0;
-
-  let oppTotalAttacks = 0;
-  let oppTotalWins = 0;
-  let oppTotalLosses = 0;
-
-  // 1. 统计我方出手：读取对手据点 challengeCnt 与 failCnt 计算出刀与胜负
-  //    failCnt 语义已用 100 条今日战报逐成员比对钉死：failCnt = 攻击方挑战失败次数 = 该据点防守成功次数；
-  //    故我方挑战成功(胜) = challengeCnt - failCnt，我方挑战失败 = failCnt
-  for (const d of oppDefenders as any[]) {
-    const cnt = d.challengeCnt || 0;
-    const defSucc = d.failCnt || 0; // 对手据点防守成功次数 = 我方挑战失败次数
-    ourTotalAttacks += cnt;
-    ourTotalWins += Math.max(0, cnt - defSucc);
-    ourTotalLosses += defSucc;
-  }
-
-  // 1b. 并发拉取对手防守据点战报（即我方出刀战报）：仅当前比赛日可查（往日返回 200020），
-  //     用于补充每刀明细与成员归属，不重复累加总出手数（总数已由 challengeCnt 真值提供）
-  const seenOppDefRecords = new Set<string>();
-  const oppDefPromise = Promise.all(
-    oppDefenders.map(async (d: any) => {
-      try {
-        const defRes: any = await tokenStore.sendMessageWithPromise(
-          tokenId,
-          "club_getdefenserecord",
-          { targetId: d.roleId, targetIsMirror: !!d.mirror },
-          5000,
-        );
-        if (Array.isArray(defRes?.records)) {
-          for (const r of defRes.records) {
-            // 过滤非指定比赛日的战报
-            if (!isRecordInMatchDay(r.created, day)) continue;
-
-            // 全局战报去重（根据全局唯一 recordName 或 特征键，避免镜像据点或同角色复用导致战报重复累计）
-            const recordKey =
-              r.recordName ||
-              `${r.created}_${r.roleId}_${r.nodeId ?? d.slot ?? ""}_${r.isWin}`;
-            if (seenOppDefRecords.has(recordKey)) continue;
-            seenOppDefRecords.add(recordKey);
-
-            // 挑战方攻破判定：对手据点记录中 isWin 为 false 表示攻破成功
-            const attackerWon = r.isWin === false;
-
-            const attackerRoleId = r.roleId;
-            let cur = ourStats.get(attackerRoleId);
-            if (!cur) {
-              cur = {
-                roleId: attackerRoleId,
-                name: r.name,
-                attackCnt: 0,
-                winCnt: 0,
-                lossCnt: 0,
-                attacks: [],
-              };
-              ourStats.set(attackerRoleId, cur);
-            }
-            cur.attackCnt++;
-            if (attackerWon) cur.winCnt++;
-            else cur.lossCnt++;
-
-            cur.attacks.push({
-              attackType: 1,
-              winFlag: attackerWon, // 我方进攻成功
-              timestamp: r.created,
-              difficulty: r.difficulty,
-              nodeId: r.nodeId,
-              targetRoleInfo: {
-                roleId: d.roleId,
-                name: d.name,
-                legionName: oppo.name || "敌方俱乐部",
-                headImg: d.headImg || "/icons/xiaoyugan.png",
-                power: d.power,
-              },
-            });
-          }
-        }
-      } catch (e) {
-        // 忽略单据点拉取失败
-      }
-    }),
-  );
-
-  // 2. 并发拉取我方防守据点战报
-  const seenOurDefRecords = new Set<string>();
-  const ourDefPromise = Promise.all(
-    ourDefenders.map(async (m: any) => {
-      try {
-        const defRes: any = await tokenStore.sendMessageWithPromise(
-          tokenId,
-          "club_getdefenserecord",
-          { targetId: m.id || m.roleId, targetIsMirror: !!m.mirror },
-          5000,
-        );
-        if (Array.isArray(defRes?.records)) {
-          const list: any[] = [];
-          // 累加当周防守数据
-          const w = {
-            challengeCnt: 0,
-            defWins: 0,
-            defLosses: 0,
-            defWinRate: "—",
-            defWinRateNum: -1,
-          };
-          for (const r of defRes.records) {
-            // 当周防守统计累加
-            w.challengeCnt++;
-            if (r.isWin === true) w.defWins++;
-            else w.defLosses++;
-
-            // 过滤非指定比赛日的战报
-            if (!isRecordInMatchDay(r.created, day)) continue;
-
-            // 全局战报去重（避免镜像据点或同角色复用导致对手出刀数据被多次翻倍累计）
-            const recordKey =
-              r.recordName ||
-              `${r.created}_${r.roleId}_${r.nodeId ?? m.slot ?? ""}_${r.isWin}`;
-            if (!seenOurDefRecords.has(recordKey)) {
-              seenOurDefRecords.add(recordKey);
-              oppTotalAttacks++;
-              // 防守记录判定：isWin 为 true 代表防守守住，false 代表失守
-              const oppAttackerWon = r.isWin === false;
-              if (oppAttackerWon) oppTotalWins++;
-              else oppTotalLosses++;
-            }
-
-            const defenderWon = r.isWin === true;
-            list.push({
-              attackType: 0,
-              winFlag: defenderWon, // 我方防守成功（对方挑战失败）
-              timestamp: r.created,
-              difficulty: r.difficulty,
-              nodeId: r.nodeId,
-              targetRoleInfo: {
-                roleId: r.roleId,
-                name: r.name,
-                legionName: r.legionName || oppo.name || "敌方俱乐部",
-                headImg: r.headImg || "/icons/xiaoyugan.png",
-                power: r.power,
-              },
-            });
-          }
-          list.sort((a, b) => b.timestamp - a.timestamp);
-          const memberRoleId = m.id || m.roleId;
-          defRecordsMap.set(`${memberRoleId}_${!!m.mirror}`, list);
-          if (!m.mirror || !defRecordsMap.has(memberRoleId)) {
-            defRecordsMap.set(memberRoleId, list);
-          }
-          // 计算当周防守胜率并写入周统计
-          w.defWinRate =
-            w.challengeCnt > 0
-              ? `${((w.defWins / w.challengeCnt) * 100).toFixed(1)}%`
-              : "—";
-          w.defWinRateNum =
-            w.challengeCnt > 0 ? (w.defWins / w.challengeCnt) * 100 : -1;
-          weeklyDefenseStatsMap.value.set(`${memberRoleId}_${!!m.mirror}`, w);
-          if (!m.mirror || !weeklyDefenseStatsMap.value.has(memberRoleId)) {
-            weeklyDefenseStatsMap.value.set(memberRoleId, w);
-          }
-        }
-      } catch (e) {
-        // 忽略单据点拉取失败
-      }
-    }),
-  );
-
-  await Promise.all([oppDefPromise, ourDefPromise]);
-
-  // 对每个成员的主动出刀记录按时间倒序排序
-  ourStats.forEach((entry) => {
-    entry.attacks.sort((a, b) => b.timestamp - a.timestamp);
-  });
-
-  memberAttackStatsMap.value = ourStats;
-  memberDefenseRecordsMap.value = defRecordsMap;
-
-  // 计算双方总体出手胜率
-  const ourWinRate =
-    ourTotalAttacks > 0
-      ? ((ourTotalWins / ourTotalAttacks) * 100).toFixed(1)
-      : "0.0";
-  const oppWinRate =
-    oppTotalAttacks > 0
-      ? ((oppTotalWins / oppTotalAttacks) * 100).toFixed(1)
-      : "0.0";
-
-  // 防守维度：从我方据点拉到的战报是"对手出手"，从对手据点拉到的战报是"我方出手"
-  // 我方防守胜率 = 对手进攻失败(oppTotalLosses) / 对手进攻总次数(oppTotalAttacks)
-  // 敌方防守胜率 = 我方进攻失败(ourTotalLosses) / 我方进攻总次数(ourTotalAttacks)
-  const ourDefWinRate =
-    oppTotalAttacks > 0
-      ? ((oppTotalLosses / oppTotalAttacks) * 100).toFixed(1)
-      : "0.0";
-  const oppDefWinRate =
-    ourTotalAttacks > 0
-      ? ((ourTotalLosses / ourTotalAttacks) * 100).toFixed(1)
-      : "0.0";
-
-  todayCombatStats.value = {
-    loaded: true,
-    ourClub: {
-      name: battleInfo.value?.ownClub?.name || "我方俱乐部",
-      totalAttacks: ourTotalAttacks,
-      wins: ourTotalWins,
-      losses: ourTotalLosses,
-      winRate: ourWinRate,
-      // 我方防守维度（对手打我方据点的战报）
-      defTotal: oppTotalAttacks,
-      defWins: oppTotalLosses, // 对手进攻失败 = 我方守住
-      defLosses: oppTotalWins, // 对手进攻成功 = 我方失守
-      defWinRate: ourDefWinRate,
-    },
-    oppClub: {
-      name: oppo.name || "匹配俱乐部",
-      totalAttacks: oppTotalAttacks,
-      wins: oppTotalWins,
-      losses: oppTotalLosses,
-      winRate: oppWinRate,
-      // 敌方防守维度（我方打对手据点的战报）
-      defTotal: ourTotalAttacks,
-      defWins: ourTotalLosses, // 我方进攻失败 = 敌方守住
-      defLosses: ourTotalWins, // 我方进攻成功 = 敌方失守
-      defWinRate: oppDefWinRate,
-    },
+    reader.log("空战报汇总", { side, emptyConfirmed, emptyUnconfirmed, samples: emptySamples });
   };
-
-  // 将精确出手信息与防守信息完整注入到 ownMembers 每一个成员对象中
+  const opponents = Object.entries(oppo.defenders || {}).map(([slot, m]: any) => ({ ...m, slot: Number(slot) }));
+  await querySide(opponents, opponentResponses, "opponent", day !== gameDay());
+  await querySide(ownMembers.value, ownResponses, "own");
+  requireScope(scope, tokenId);
+  const result = aggregateCampRecords({ phase: rawClubData.value?.phase, day, ownMembers: ownMembers.value, opponent: oppo, ownResponses, opponentResponses });
+  statsCoverage.value = result.meta;
+  memberAttackStatsMap.value = result.attackStats;
+  memberDefenseRecordsMap.value = result.defenseRecords;
+  weeklyDefenseStatsMap.value = result.weeklyDefense;
+  todayCombatStats.value = { loaded: true,
+    ourClub: { name: battleInfo.value?.ownClub?.name || "我方俱乐部", ...result.ourClub },
+    oppClub: { name: oppo.name || "匹配俱乐部", ...result.oppClub } };
+  reader.log("统计核对", result.meta);
   injectAttackStatsIntoOwnMembers();
 };
 
@@ -2958,10 +2795,10 @@ const aggregateAllMemberAttacks = async (tokenId: string, day: number) => {
  * 检查当前用户出刀数以及双方据点被挑战次数。
  */
 const todayBattleStarted = computed(() => {
-  const now = new Date();
-  const todayKey = `${String(now.getFullYear()).slice(-2)}${String(
-    now.getMonth() + 1,
-  ).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const todayKey = `${String(now.getUTCFullYear()).slice(-2)}${String(
+    now.getUTCMonth() + 1,
+  ).padStart(2, "0")}${String(now.getUTCDate()).padStart(2, "0")}`;
   if ((rawSiegeData.value?.attackMap?.[todayKey]?.attackCnt || 0) > 0) {
     return true;
   }
@@ -3009,18 +2846,22 @@ const injectAttackStatsIntoOwnMembers = () => {
       attackStatusType = "info";
     }
 
+    if (isMirror) { attackStatusText = "镜像无主动出刀"; attackStatusType = "info"; }
+    else if (!statsCoverage.value.attackComplete) { attackStatusText = `明细不完整（已查${realAttackCnt}次）`; attackStatusType = "warning"; }
     // 2. 防守信息：计算防守守住次数、失守次数与防守胜率
     //    failCnt 语义已用 100 条今日战报逐成员比对钉死：failCnt = 攻击方挑战失败次数 = 我方防守成功(守住)次数；
     //    我方失守次数 = 遭遇挑战次数 - failCnt
-    const challengeCnt = m.challengeCnt || 0;
-    const defWins = m.failCnt || 0;
+    const historyRecords = memberDefenseRecordsMap.value.get(entityKey(m));
+    const isHistorical = selectedMatchDay.value !== gameDay();
+    const challengeCnt = isHistorical ? (historyRecords?.length || 0) : (m.challengeCnt || 0);
+    const defWins = isHistorical ? (historyRecords?.filter((r: any) => r.winFlag === true).length || 0) : (m.failCnt || 0);
     const defLosses = Math.max(0, challengeCnt - defWins);
     const defWinRateNum =
       challengeCnt > 0 ? (defWins / challengeCnt) * 100 : -1;
     const defWinRate = challengeCnt > 0 ? `${defWinRateNum.toFixed(1)}%` : "—";
 
     // 3. 今日未开战时将今日战功归 0，开战后读取各自据点的 score
-    const todayScore = todayBattleStarted.value ? m.score || 0 : 0;
+    const todayScore = selectedMatchDay.value === gameDay() ? recordCount(m.dayScore) : null;
 
     return {
       ...m,
@@ -3047,108 +2888,7 @@ const injectAttackStatsIntoOwnMembers = () => {
  *
  * @param {number} day 比赛日编号 (2, 3, 4)
  */
-const handleMatchDayChange = async (day: number) => {
-  selectedMatchDay.value = day;
-
-  const oppo = matchDayList.value.find((d) => d.day === day);
-  if (!oppo || !oppo.defenders) return;
-
-  const tokenId = tokenStore.selectedToken?.id;
-  if (!tokenId) return;
-
-  const fetchId = ++currentFetchToken;
-  loading.value = true;
-
-  try {
-    // 1. 实时重拉 club_getinfo，刷新我方成员当日 challengeCnt/failCnt/score/defeated
-    const clubInfoRes: any = await tokenStore.sendMessageWithPromise(
-      tokenId,
-      "club_getinfo",
-      {},
-      8000,
-    );
-    if (currentFetchToken !== fetchId || selectedMatchDay.value !== day) return;
-    const clubData = clubInfoRes?.club || {};
-    rawClubData.value = clubData;
-    rawSiegeData.value = clubInfoRes?.siege || {};
-    const freshOwn = clubData.members || {};
-    ownMembers.value = ownMembers.value.map((m: any) => {
-      const fresh = freshOwn[m.id] || freshOwn[String(m.id)];
-      if (!fresh) return m;
-      return {
-        ...m,
-        score: fresh.score ?? m.score,
-        defeated: fresh.defeated ?? m.defeated,
-        challengeCnt: fresh.challengeCnt ?? 0,
-        failCnt: fresh.failCnt ?? 0,
-        mirror: fresh.mirror !== undefined ? !!fresh.mirror : m.mirror,
-      };
-    });
-
-    // 2. 实时重建对手据点列表
-    const oppDefendersEntries = Object.entries(oppo.defenders || {}) as [
-      string,
-      any,
-    ][];
-    const initialMembers = oppDefendersEntries.map(
-      ([slotKey, d]: [string, any], idx: number) => ({
-        slot: Number(slotKey) || idx + 1,
-        id: d.roleId,
-        name: d.name || `对手成员${idx + 1}`,
-        headImg: d.headImg || "/icons/xiaoyugan.png",
-        power: 0,
-        score: d.score || 0,
-        defeated: d.defeated || false,
-        challengeCnt: d.challengeCnt || 0,
-        failCnt: d.failCnt || 0,
-        mirror: !!d.mirror,
-        heroList: [],
-        lineupType: "常规",
-        redQuench: 0,
-        legacy: 0,
-        toyName: "",
-        petId: d.petId || 0,
-        legionName: oppo.name,
-      }),
-    );
-    const oppClubObj = {
-      id: oppo.legionId || "未知",
-      name: oppo.name,
-      serverId: oppo.viewId ? `${oppo.viewId}` : "跨服",
-      logo: oppo.logo || "/icons/xiaoyugan.png",
-      quenchNum: 0,
-      power: oppo.power || 0,
-      announcement: "营地挑战匹配对战俱乐部",
-    };
-    battleInfo.value.opponentClub = oppClubObj;
-    opponentMembers.value = initialMembers;
-    rankText.value = `营地挑战对决 · VS ${oppo.name}`;
-
-    // 3. 实时拉取对手据点布阵与全量战报聚合
-    if (initialMembers.length > 0) {
-      const detailed = await fetchMembersInChunks(
-        tokenId,
-        initialMembers.map((o) => ({ id: o.id, base: o })),
-      );
-      if (currentFetchToken !== fetchId || selectedMatchDay.value !== day)
-        return;
-      const totalOppRed = detailed.reduce((s, m) => s + (m.redQuench || 0), 0);
-      const totalOppPower = detailed.reduce((s, m) => s + (m.power || 0), 0);
-      oppClubObj.quenchNum = totalOppRed;
-      if (totalOppPower > 0) {
-        oppClubObj.power = totalOppPower;
-      }
-      opponentMembers.value = detailed;
-    }
-    await aggregateAllMemberAttacks(tokenId, day);
-  } catch (e) {
-    console.warn("切换比赛日加载失败:", e);
-  } finally {
-    if (currentFetchToken === fetchId) {
-      loading.value = false;
-    }
-  }
-};
+const handleMatchDayChange = async (day: number) => { await fetchCampChallengeData(day); };
 
 /**
  * 呼出成员对战战报流水对话框
@@ -3156,6 +2896,9 @@ const handleMatchDayChange = async (day: number) => {
  * @param {object} player 目标玩家对象
  */
 const openDuelModal = async (player: any) => {
+  if (loading.value) { message.warning("请等待查询完成后查看流水"); return; }
+  const scope = currentFetchToken;
+  const playerKey = entityKey(player);
   targetPlayer.value = player;
   showDuelModal.value = true;
   modalLoading.value = true;
@@ -3171,12 +2914,19 @@ const openDuelModal = async (player: any) => {
     if (isOpponent) {
       // 目标是匹配敌方据点守军：
       // 其防守流水：拉取 club_getdefenserecord 查看我方哪些成员攻打了他
-      const defRes: any = await tokenStore.sendMessageWithPromise(
+      const defRes: any = await campSend(
         tokenId,
         "club_getdefenserecord",
         { targetId: player.id, targetIsMirror: !!player.mirror },
         5000,
       );
+      requireScope(scope, tokenId);
+      if (entityKey(targetPlayer.value || {}) !== playerKey) return;
+      if (!Array.isArray(defRes?.records)) {
+        const rawMember = matchDayList.value.find(d => d.day === selectedMatchDay.value)?.defenders?.[String(player.slot)];
+        const checked = normalizeCampDefenseResponse(defRes, { member: rawMember, phase: rawClubData.value?.phase, day: selectedMatchDay.value });
+        if (checked.records === null) message.warning("此据点战报返回空响应，暂不能确认为零条");
+      }
       if (Array.isArray(defRes?.records)) {
         playerDefenseRecords.value = defRes.records
           .filter((r: any) =>
@@ -3184,7 +2934,7 @@ const openDuelModal = async (player: any) => {
           )
           .map((r: any) => ({
             attackType: 0,
-            winFlag: r.isWin === true, // 严格事实（isWin 为记录归属者=防守方视角）：true=对手守军防守成功
+            winFlag: winFlag(r.isWin) === true, // 严格事实（isWin 为记录归属者=防守方视角）：true=对手守军防守成功
             timestamp: r.created,
             difficulty: r.difficulty,
             nodeId: r.nodeId,
@@ -3222,7 +2972,7 @@ const openDuelModal = async (player: any) => {
             )
             .map((r: any) => ({
               attackType: 1,
-              winFlag: r.isWin === true, // 进攻信息：挑战成功就是挑战成功！
+              winFlag: winFlag(r.isWin) === true, // 进攻信息：挑战成功就是挑战成功！
               timestamp: r.created,
               difficulty: r.difficulty,
               nodeId: r.nodeId,
@@ -3244,18 +2994,19 @@ const openDuelModal = async (player: any) => {
 
       // 2. 防守信息（匹配俱乐部打我们）：防守信息中对方挑战成功我们就是失败了！
       const cachedDef =
-        memberDefenseRecordsMap.value.get(`${roleIdNum}_${!!player.mirror}`) ||
-        memberDefenseRecordsMap.value.get(roleIdNum) ||
-        memberDefenseRecordsMap.value.get(player.id);
-      if (cachedDef && cachedDef.length > 0) {
+        memberDefenseRecordsMap.value.get(entityKey(player));
+      if (cachedDef !== undefined) {
         playerDefenseRecords.value = cachedDef;
       } else {
-        const defRes: any = await tokenStore.sendMessageWithPromise(
+        const defRes: any = await campSend(
           tokenId,
           "club_getdefenserecord",
           { targetId: player.id, targetIsMirror: !!player.mirror },
           5000,
         );
+        requireScope(scope, tokenId);
+        if (entityKey(targetPlayer.value || {}) !== playerKey) return;
+        if (!Array.isArray(defRes?.records)) message.warning("此成员防守明细尚未确认，请刷新战况后核对");
         if (Array.isArray(defRes?.records)) {
           playerDefenseRecords.value = defRes.records
             .filter((r: any) =>
@@ -3263,7 +3014,7 @@ const openDuelModal = async (player: any) => {
             )
             .map((r: any) => ({
               attackType: 0,
-              winFlag: r.isWin === true, // 严格事实（isWin 为记录归属者=防守方视角）：true=我方守军防守成功
+              winFlag: winFlag(r.isWin) === true, // 严格事实（isWin 为记录归属者=防守方视角）：true=我方守军防守成功
               timestamp: r.created,
               difficulty: r.difficulty,
               nodeId: r.nodeId,
@@ -3282,9 +3033,9 @@ const openDuelModal = async (player: any) => {
       }
     }
   } catch (e) {
-    console.warn("拉取对战战报流水异常:", e);
+    if (!isCampCancelled(e)) { reader.log("成员流水失败", { reason: safeError(e) }, "warn"); message.warning("成员流水未查全，请复制调试日志"); }
   } finally {
-    modalLoading.value = false;
+    if (reader.current(scope) && entityKey(targetPlayer.value || {}) === playerKey) modalLoading.value = false;
   }
 };
 
@@ -3304,14 +3055,10 @@ const handleExportImage = async () => {
       logging: false,
     });
 
-    const url = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `营地挑战阵容_${
-      selectedSide.value === "opponent" ? "敌方" : "我方"
-    }.png`;
-    link.click();
-    message.success("长图导出成功！");
+    const filename = `营地挑战阵容_${selectedSide.value === "opponent" ? "敌方" : "我方"}.png`;
+    reader.log("图片导出", { width: canvas.width, height: canvas.height, side: selectedSide.value });
+    downloadCanvasAsImage(canvas, filename);
+    message.success("已发起 PNG 下载，请核对浏览器下载结果");
   } catch (err: any) {
     message.error(`导出长图失败: ${err.message}`);
   } finally {
@@ -3487,22 +3234,17 @@ const columns = [
   },
 ];
 
-// 监听 Token 切换自动查询
-watch(
-  () => tokenStore.selectedToken?.id,
-  (newId) => {
-    if (newId) fetchCampChallengeData();
-  },
-);
-
-onMounted(() => {
-  if (tokenStore.selectedToken) {
-    fetchCampChallengeData();
-  }
-});
+// 监听账号和连接状态：失去连接/离开页面只停止查询，不关闭共享 WebSocket。
+watch(() => [tokenStore.selectedToken?.id, tokenStore.selectedToken ? tokenStore.getWebSocketStatus(tokenStore.selectedToken.id) : "disconnected"], ([id, connected]) => {
+  reader.stop("账号或连接状态变化"); currentFetchToken++; resetCampData(); loading.value = false;
+  if (id && connected === "connected") void fetchCampChallengeData();
+  else { statusHint.value = "请选择已连接账号，再点击刷新战况"; emptyHint.value = statusHint.value; }
+}, { immediate: true });
+onBeforeUnmount(() => { reader.dispose(); currentFetchToken++; });
 </script>
 
 <style scoped>
+.camp-query-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px; margin-bottom: 12px; background: #fff8e6; color: #714a00; border-radius: 8px; }
 .camp-challenge-container {
   padding: 16px;
   background: var(--n-color);
@@ -4353,7 +4095,7 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* ================= 视图 2：今日公会对战详细 (催刀督战) ================= */
+/* ================= 视图 2：所选比赛日战报 (出刀统计) ================= */
 .today-details-section {
   display: flex;
   flex-direction: column;

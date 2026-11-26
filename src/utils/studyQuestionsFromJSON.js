@@ -1,149 +1,118 @@
 /**
- * 从 answer.json 文件加载题目数据的答题工具
- * 用于一键答题功能，从公共目录读取题目数据
+ * 从 public/answer.json 加载一键答题数据。
+ * 只接受规范化后的完整题目文本匹配；重复记录答案冲突时返回 null。
  */
 
-const queryPromise = (async () => {
-  // Try loading from the app base URL first (supports Vite `base` config / GitHub Pages subpaths),
-  // then fall back to common locations.
-  const base =
-    typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.BASE_URL
-      ? import.meta.env.BASE_URL
-      : "/";
+let questionsPromise = null;
 
+const fetchQuestionsData = async () => {
+  const base = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL)
+    ? import.meta.env.BASE_URL
+    : "/";
   const candidates = [
     `${base.replace(/\/$/, "")}/answer.json`,
-    `/answer.json`,
-    `answer.json`,
+    "/answer.json",
+    "answer.json",
   ];
 
-  for (let i = 0; i < candidates.length; i++) {
-    const url = candidates[i];
+  for (const url of candidates) {
     try {
       const response = await fetch(url);
-      if (!response.ok) {
-        // try next
-        continue;
-      }
-
+      if (!response.ok) continue;
       const contentType = response.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
-        // If server returned HTML (like a 404 page), skip
         try {
           const text = await response.text();
-          console.warn(
-            `studyQuestionsFromJSON: ${url} returned non-JSON response (length ${text.length})`,
-          );
-        } catch (e) {
-          // ignore
-        }
+          console.warn(`studyQuestionsFromJSON: ${url} returned non-JSON response (length ${text.length})`);
+        } catch {}
         continue;
       }
-
       const data = await response.json();
-
-      return data;
+      return Array.isArray(data) ? data : [];
     } catch (error) {
-      // try next candidate
       console.warn(`studyQuestionsFromJSON: failed to fetch ${url}:`, error);
-      continue;
     }
   }
 
-  console.error("❌ 加载答题数据失败: 无法找到 answer.json（尝试了多个路径）");
+  console.error("加载答题数据失败：无法找到有效的 answer.json");
   return [];
-})();
+};
 
-/**
- * 异步加载答题数据
- * @returns {Promise<Array>} 题目数据数组
- */
+/** 异步加载并缓存题库数据。 */
 export async function loadQuestionsData() {
-  return queryPromise;
+  if (!questionsPromise) questionsPromise = fetchQuestionsData();
+  return questionsPromise;
 }
 
-/**
- * 模糊匹配函数 - 查找题目中的关键词
- * @param {string} questionFromDB - 数据库中的题目
- * @param {string} actualQuestion - 实际收到的题目
- * @param {number} threshold - 匹配阈值（1表示包含匹配）
- * @returns {boolean} - 是否匹配
- */
+/** 统一全半角形式并去除空白；不做包含匹配，避免短题误命中长题。 */
+export function normalizeQuestionText(value) {
+  if (typeof value !== "string") return "";
+  return value.normalize("NFKC").replace(/\s+/gu, "").toLowerCase();
+}
+
+/** 仅完整匹配；保留 threshold 参数以兼容旧调用方。 */
 export function matchQuestion(questionFromDB, actualQuestion, threshold = 1) {
-  if (!questionFromDB || !actualQuestion) return false;
-
-  // 简单的包含匹配
-  if (threshold === 1) {
-    // 去除空格和特殊字符进行匹配
-    const cleanDB = questionFromDB.replace(/\s+/g, "").toLowerCase();
-    const cleanActual = actualQuestion.replace(/\s+/g, "").toLowerCase();
-
-    return cleanActual.includes(cleanDB) || cleanDB.includes(cleanActual);
-  }
-
-  return false;
+  if (threshold !== 1) return false;
+  const databaseText = normalizeQuestionText(questionFromDB);
+  const actualText = normalizeQuestionText(actualQuestion);
+  return Boolean(databaseText && actualText && databaseText === actualText);
 }
 
-/**
- * 查找题目答案
- * @param {string} question - 题目文本
- * @returns {Promise<number|null>} - 答案选项(1-4)，未找到返回null
- */
+const isValidAnswer = (value) =>
+  Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 4;
+
+/** 诊断和提交共用一次严格匹配；仅记录题库中的题干和选项序号。 */
+export function diagnoseQuestion(question, questions, questionIndex = null, questionId = null) {
+  const normalizedQuestionText = normalizeQuestionText(question);
+  const rows = Array.isArray(questions) ? questions : [];
+  const databaseEntries = normalizedQuestionText
+    ? rows.filter(row => row && normalizeQuestionText(row.name) === normalizedQuestionText)
+      .map(({ name, value }) => ({ name, value }))
+    : [];
+  const valid = databaseEntries.filter(row => isValidAnswer(row.value));
+  const answers = [...new Set(valid.map(row => row.value))];
+  let reason = "matched";
+  if (!rows.length) reason = "database_empty";
+  else if (!databaseEntries.length) reason = "not_found";
+  else if (!valid.length) reason = "invalid_answer";
+  else if (answers.length > 1) reason = "conflicting_answers";
+  return {
+    questionIndex, questionId, questionText: question ?? null, normalizedQuestionText, reason,
+    databaseSize: rows.length, matchedRecordCount: databaseEntries.length,
+    validRecordCount: valid.length, answerValues: [...new Set(databaseEntries.map(row => row.value))],
+    databaseEntries, answer: reason === "matched" ? answers[0] : null,
+  };
+}
+
+export function findAnswerInQuestions(question, questions) {
+  return diagnoseQuestion(question, questions).answer;
+}
+
 export async function findAnswer(question) {
-  try {
-    const questions = await loadQuestionsData();
-
-    if (!questions || questions.length === 0) {
-      // 降噪
-      return null;
-    }
-
-    // 遍历所有题目寻找匹配
-    for (let i = 0; i < questions.length; i++) {
-      const item = questions[i];
-      if (!item.name || !item.value) continue;
-
-      if (matchQuestion(item.name, question, 1)) {
-        // 降噪
-        return item.value;
-      }
-    }
-
-    // 降噪
-    return null; // 未找到匹配的题目
-  } catch (error) {
-    console.error("❌ 查找答案时出错:", error);
-    return null;
-  }
+  return findAnswerInQuestions(question, await loadQuestionsData());
 }
 
-/**
- * 获取已加载的题目数量
- * @returns {Promise<number>} 题目数量
- */
+/** 返回可用且答案无冲突的唯一题目数量。 */
 export async function getQuestionCount() {
   const questions = await loadQuestionsData();
-  return questions ? questions.length : 0;
-}
-
-/**
- * 预加载答题数据（可选，用于提前加载）
- * @returns {Promise<void>}
- */
-export async function preloadQuestions() {
-  try {
-    await loadQuestionsData();
-    // 降噪
-  } catch (error) {
-    console.error("❌ 答题数据预加载失败:", error);
+  const answersByQuestion = new Map();
+  for (const item of questions) {
+    if (!item || !isValidAnswer(item.value)) continue;
+    const key = normalizeQuestionText(item.name);
+    if (!key) continue;
+    const answers = answersByQuestion.get(key) || new Set();
+    answers.add(item.value);
+    answersByQuestion.set(key, answers);
   }
+  return [...answersByQuestion.values()].filter((answers) => answers.size === 1).length;
 }
 
-/**
- * 清除缓存，强制重新加载（用于调试）
- */
+/** 预加载题库。 */
+export async function preloadQuestions() {
+  await loadQuestionsData();
+}
+
+/** 清除实际使用的Promise缓存，下次调用重新加载。 */
 export function clearCache() {
-  // 降噪
+  questionsPromise = null;
 }

@@ -1,5 +1,5 @@
 <template>
-  <MyCard class="dream-helper" :status-class="{ active: isRunning }">
+  <MyCard class="dream-helper" :statusClass="{ active: isRunning }">
     <template #icon>
       <img :src="iconPath" alt="梦境图标" />
     </template>
@@ -90,11 +90,7 @@
                 {{ merchantConfig[merchantId].name }}
               </div>
               <div class="items-list">
-                <div
-                  class="item"
-                  v-for="(item, itemIndex) in items"
-                  :key="itemIndex"
-                >
+                <div class="item" v-for="(item, index) in items" :key="index">
                   <div
                     class="item-name"
                     :style="{ color: getItemColor(parseInt(merchantId), item) }"
@@ -124,21 +120,26 @@
 </template>
 
 <script setup>
+import { ref, computed, watch, onMounted, onUnmounted, watchEffect } from "vue";
 import { useMessage } from "naive-ui";
-import { computed, ref } from "vue";
 import { useTokenStore } from "@/stores/tokenStore";
+import MyCard from "../Common/MyCard.vue";
 import {
+  merchantConfig,
   goldItemsConfig,
   isDungeonOpen,
-  merchantConfig,
 } from "@/utils/dreamConstants";
-import MyCard from "../Common/MyCard.vue";
 
+import { DREAM_UNLOCK_LEVEL, getMainStageLevel } from "@/utils/gameFeatureUnlocks";
+
+// DREAM_LOGS_V8
+// DREAM_SAFE_V7
+// DREAM_PRODUCTION_V5
 const tokenStore = useTokenStore();
 const message = useMessage();
 
 const iconPath = computed(
-  () => `${import.meta.env.BASE_URL}174061875626614.png`,
+  () => import.meta.env.BASE_URL + "174061875626614.png",
 );
 
 // 状态管理
@@ -148,11 +149,12 @@ const isLoading = ref(false);
 const hasDefaultInfo = ref(false);
 const teamHeroes = ref([]);
 const continuousBattles = ref({});
+const battleInterval = ref(null);
 
 // 购买模块状态
 const merchantData = ref({ 1: [], 2: [], 3: [] });
 const levelId = ref(0);
-
+const selectedItems = ref(new Set());
 const merchantDataLoaded = ref(false);
 
 // 英雄数据映射
@@ -299,11 +301,9 @@ async function selectDreamTeam() {
 
     for (let i = 0; i < 5; i++) {
       const hero = teamHeroes.value.find((h) => h.position === i);
-      if (hero) {
-        battleTeam[i.toString()] = hero.id;
+      if (hero && Number.isSafeInteger(Number(hero.id)) && Number(hero.id) > 0) {
+        battleTeam[i.toString()] = Number(hero.id);
         hasHero = true;
-      } else {
-        battleTeam[i.toString()] = 0;
       }
     }
 
@@ -316,7 +316,7 @@ async function selectDreamTeam() {
       tokenId,
       "dungeon_selecthero",
       {
-        battleTeam,
+        battleTeam: battleTeam,
       },
       15000,
     );
@@ -345,7 +345,7 @@ async function startSingleBattle(heroId) {
       tokenId,
       "fight_startdungeon",
       {
-        heroId: Number.parseInt(heroId),
+        heroId: parseInt(heroId),
       },
       15000,
     );
@@ -472,27 +472,47 @@ async function getRoleInfo() {
       15000,
     );
 
-    if (response && response && response.role) {
-      // 获取商品列表
-      if (response.role.dungeon && response.role.dungeon.merchant) {
-        merchantData.value = response.role.dungeon.merchant;
-      }
 
-      // 获取关卡ID
-      if (response.role.levelId) {
-        levelId.value = response.role.levelId;
-      }
-
-      return { merchantData: merchantData.value, levelId: levelId.value };
-    }
+    merchantData.value = { 1: [], 2: [], 3: [] };
+    merchantDataLoaded.value = false;
+    const merchants = dreamV7CheckShop(response);
+    merchantData.value = merchants ?? { 1: [], 2: [], 3: [] };
+    const body = response?._rawData ?? response?.data ?? response;
+    levelId.value = getMainStageLevel(body?.role ?? body) ?? 0;
+    return { merchantData: merchantData.value, levelId: levelId.value };
   } catch (error) {
     console.error("获取角色信息失败:", error);
     throw error;
   }
 }
 
+// V7：每次购买读取新状态；失败锁存到本次批量结束，禁止后续写请求。
+let dreamV7PurchaseBlocked = false;
+function dreamV7CheckShop(response) {
+  const body = response?._rawData ?? response?.data ?? response;
+  if (!body || (body.code !== undefined && Number(body.code) !== 0)) throw new Error("读取梦境商店失败");
+  const role = body.role ?? body;
+  const level = getMainStageLevel(role);
+  if (level === null || level < DREAM_UNLOCK_LEVEL) throw new Error(`主线未确认达到${DREAM_UNLOCK_LEVEL}关`);
+  const timeMs = (raw) => {
+    if (raw === undefined || raw === null || raw === "") return null;
+    const n = Number(raw), ms = n >= 1e12 ? n : n * 1000;
+    return Number.isFinite(ms) && ms >= Date.UTC(2010, 0, 1) && ms < Date.UTC(2100, 0, 1) ? ms : null;
+  };
+  const now = timeMs(response?.__dreamDiagnostic?.serverTime) ?? Date.now();
+  const china = new Date(now + 28800000), day = china.getUTCDay();
+  const start = Date.UTC(china.getUTCFullYear(), china.getUTCMonth(), china.getUTCDate()) - 28800000 - ([1, 4].includes(day) ? 86400000 : 0);
+  const begin = timeMs(role?.dungeon?.beginTime);
+  const team = Object.values(role?.dungeon?.battleTeam ?? {}).some(h => Number(h?.heroId ?? h) > 0);
+  if (![0, 1, 3, 4].includes(day) || begin === null || begin < start || begin >= start + 172800000 || begin > now + 300000 || !team) {
+    throw new Error(`本轮梦境尚未初始化或状态未确认；beginTime=${role?.dungeon?.beginTime ?? "未返回"}`);
+  }
+  return role.dungeon.merchant;
+}
+
 // 购买商品
 async function buyItem(merchantId, index, pos) {
+  if (dreamV7PurchaseBlocked) return false;
   if (!tokenStore.selectedToken) {
     return false;
   }
@@ -500,35 +520,108 @@ async function buyItem(merchantId, index, pos) {
   const tokenId = tokenStore.selectedToken.id;
 
   try {
+    const fresh = await tokenStore.sendMessageWithPromise(tokenId, "role_getroleinfo", {}, 15000);
+    const merchants = dreamV7CheckShop(fresh);
+    if (Number(merchants?.[merchantId]?.[pos]) !== Number(index) || merchants?.[merchantId]?.[pos] == null) {
+      throw new Error("商品位置已变化或已购买，请刷新商店后重新选择");
+    }
+    if (tokenStore.selectedToken?.id !== tokenId) throw new Error("账号已切换，停止购买");
     const response = await tokenStore.sendMessageWithPromise(
       tokenId,
       "dungeon_buymerchant",
       {
         id: merchantId,
-        index,
-        pos,
+        index: index,
+        pos: pos,
       },
       15000,
     );
 
-    return response && response.code === 0;
+    const body = response?._rawData ?? response?.data ?? response;
+    if (!body || (body.code !== undefined && Number(body.code) !== 0)) throw new Error(`购买响应异常 code=${body?.code ?? "未返回"}`);
+    if (!(response?.__dreamDiagnostic?.code === 0 || body.code === 0 || body.reward !== undefined)) throw new Error("购买结果未确认；未重试");
+    return true;
   } catch (error) {
-    console.error("购买商品失败:", error);
+    dreamV7PurchaseBlocked = true;
+    message.warning(`[梦境购买] 本次购买已停止：${error.message}`);
+    console.error("[梦境购买] 购买停止:", error.message);
     return false;
   }
 }
 
 // 批量购买选中的商品
+async function batchBuySelected() {
+  if (isRunning.value) return;
+  dreamV7PurchaseBlocked = false;
+  if (selectedItems.value.size === 0) {
+    message.warning("请先选择要购买的商品");
+    return;
+  }
 
-// 一键购买所有金币商品
-async function buyAllGoldItems() {
   if (!isDungeonOpen()) {
     message.warning("当前不是梦境开放时间（周三/周四/周日/周一）");
     return;
   }
 
-  if (levelId.value < 4000) {
-    message.warning("关卡数小于4000，无法购买金币商品");
+  if (levelId.value < DREAM_UNLOCK_LEVEL) {
+    message.warning(`梦境购买需达到${DREAM_UNLOCK_LEVEL}关`);
+    return;
+  }
+
+  isRunning.value = true;
+  const items = Array.from(selectedItems.value);
+  let successCount = 0;
+  let failCount = 0;
+
+  // 按商人ID和位置排序，从大到小购买
+  items.sort((a, b) => {
+    const [aMerchant, aIndex, aPos] = a.split("-").map(Number);
+    const [bMerchant, bIndex, bPos] = b.split("-").map(Number);
+
+    if (aMerchant !== bMerchant) return bMerchant - aMerchant;
+    return bPos - aPos;
+  });
+
+  for (const itemKey of items) {
+    if (dreamV7PurchaseBlocked) break;
+    const [merchantId, index, pos] = itemKey.split("-").map(Number);
+
+    try {
+      const success = await buyItem(merchantId, index, pos);
+      if (success) {
+        selectedItems.value.delete(itemKey);
+        successCount++;
+      } else {
+        failCount++;
+      }
+    } catch (error) {
+      failCount++;
+    }
+
+    // 延迟避免请求过快
+    await delay(0.5);
+  }
+
+  // 重新获取商品列表更新界面
+  try { await refreshMerchantList(); } finally { isRunning.value = false; }
+
+  message.success(
+    `批量购买完成: 成功 ${successCount} 件, 失败 ${failCount} 件`,
+  );
+  isRunning.value = false;
+}
+
+// 一键购买所有金币商品
+async function buyAllGoldItems() {
+  if (isRunning.value) return;
+  dreamV7PurchaseBlocked = false;
+  if (!isDungeonOpen()) {
+    message.warning("当前不是梦境开放时间（周三/周四/周日/周一）");
+    return;
+  }
+
+  if (levelId.value < DREAM_UNLOCK_LEVEL) {
+    message.warning(`梦境购买需达到${DREAM_UNLOCK_LEVEL}关`);
     return;
   }
 
@@ -538,11 +631,13 @@ async function buyAllGoldItems() {
 
   // 遍历所有商人的商品
   for (const merchantId in merchantData.value) {
+    if (dreamV7PurchaseBlocked) break;
     const items = merchantData.value[merchantId];
-    const numId = Number.parseInt(merchantId);
+    const numId = parseInt(merchantId);
 
     // 从后往前购买（pos从大到小）
     for (let pos = items.length - 1; pos >= 0; pos--) {
+      if (dreamV7PurchaseBlocked) break;
       const index = items[pos];
 
       if (isGoldItem(numId, index)) {
@@ -564,7 +659,7 @@ async function buyAllGoldItems() {
   }
 
   // 重新获取商品列表更新界面
-  await refreshMerchantList();
+  try { await refreshMerchantList(); } finally { isRunning.value = false; }
 
   message.success(
     `一键购买完成: 成功 ${successCount} 件, 失败 ${failCount} 件`,
@@ -574,13 +669,15 @@ async function buyAllGoldItems() {
 
 // 一键购买所有高级商人鱼竿
 async function buyAllGoldFishItems() {
+  if (isRunning.value) return;
+  dreamV7PurchaseBlocked = false;
   if (!isDungeonOpen()) {
     message.warning("当前不是梦境开放时间（周三/周四/周日/周一）");
     return;
   }
 
-  if (levelId.value < 4000) {
-    message.warning("关卡数小于4000，无法购买金币商品");
+  if (levelId.value < DREAM_UNLOCK_LEVEL) {
+    message.warning(`梦境购买需达到${DREAM_UNLOCK_LEVEL}关`);
     return;
   }
 
@@ -591,6 +688,7 @@ async function buyAllGoldFishItems() {
   const items = merchantData.value[3];
   // 从后往前购买（pos从大到小）
   for (let pos = items.length - 1; pos >= 0; pos--) {
+    if (dreamV7PurchaseBlocked) break;
     const index = items[pos];
 
     if (index === 2) {
@@ -611,7 +709,7 @@ async function buyAllGoldFishItems() {
   }
 
   // 重新获取商品列表更新界面
-  await refreshMerchantList();
+  try { await refreshMerchantList(); } finally { isRunning.value = false; }
 
   message.success(
     `一键购买完成: 成功 ${successCount} 件, 失败 ${failCount} 件`,
@@ -619,7 +717,7 @@ async function buyAllGoldFishItems() {
   isRunning.value = false;
 }
 
-// 获取商品列表（包含自动获取阵容）
+// 获取商品列表：只读，不自动重发已锁定的梦境阵容
 async function refreshMerchantList() {
   if (!isDungeonOpen()) {
     message.warning("当前不是梦境开放时间（周三/周四/周日/周一）");
@@ -632,15 +730,9 @@ async function refreshMerchantList() {
   }
 
   try {
-    message.info("开始自动获取商品列表流程...");
+    message.info("读取本轮梦境商品列表...");
 
-    // 第一步：获取默认队伍信息
-    await getDefaultTeam();
-
-    // 第二步：选择梦境阵容
-    await selectDreamTeam();
-
-    // 第三步：获取商品列表
+    // 刷新仅进行只读请求；本轮未初始化时由用户执行选阵容。
     await getRoleInfo();
     merchantDataLoaded.value = true;
 

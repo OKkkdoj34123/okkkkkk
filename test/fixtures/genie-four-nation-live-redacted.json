@@ -1,0 +1,3244 @@
+{
+  "source": "Authorized real requests on 2026-10-28, trimmed and identities removed; not synthetic outcomes",
+  "accounts": [
+    {
+      "accountAlias": "501",
+      "attemptsByNation": {
+        "1": 1,
+        "2": 1,
+        "3": 0,
+        "4": 0
+      },
+      "reads": [
+        {
+          "role": {
+            "levelId": 6911,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "1": 0,
+              "4": 2
+            },
+            "statistics": {
+              "genie:battle": 4
+            },
+            "statisticsTime": {
+              "genie:battle": 1793069255
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 14703859
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 14875731
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 14704970
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 14875819
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 14676838
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 14703736
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 376286580
+              },
+              "108": {
+                "heroId": 108,
+                "level": 700,
+                "power": 15577656
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 14779759
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 14705161
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 14705238
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 15975854
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 14705156
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 14703810
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 14704783
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 15844915
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 14704837
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 14704238
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 15004954
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 15374680
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 14779145
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 14704990
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 14567433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 14656032
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 14597693
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 14597394
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 14597268
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 14692888
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 14653670
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 14566906
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 14597819
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 14597256
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 14567547
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 14629072
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 14597465
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 14630227
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 14877117
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 14596011
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 14596617
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 14596771
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 14567220
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 14618741
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 14597773
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 14596813
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 14417023
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 14618646
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 14567235
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 14628615
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 14630149
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 14874802
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 14934963
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 14933441
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 14404460
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 14933825
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 14935601
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 15051919
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 14934123
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 15051548
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 14934835
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 14596295
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 14628937
+              }
+            },
+            "petData": {
+              "pets": {
+                "7": {
+                  "petId": 103,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-0"
+                },
+                "-1": {
+                  "petId": 303,
+                  "hp": 53000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "role": {
+            "levelId": 6911,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "1": 0,
+              "4": 2
+            },
+            "statistics": {
+              "genie:battle": 1
+            },
+            "statisticsTime": {
+              "genie:battle": 1793190430
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 14703859
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 14875731
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 14704970
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 14875819
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 14676838
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 14703736
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 376286580
+              },
+              "108": {
+                "heroId": 108,
+                "level": 700,
+                "power": 15577656
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 14779759
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 14705161
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 14705238
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 15975854
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 14705156
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 14703810
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 14704783
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 15844915
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 14704837
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 14704238
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 15004954
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 15374680
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 14779145
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 14704990
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 14567433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 14656032
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 14597693
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 14597394
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 14597268
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 14692888
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 14653670
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 14566906
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 14597819
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 14597256
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 14567547
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 14629072
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 14597465
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 14630227
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 14877117
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 14596011
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 14596617
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 14596771
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 14567220
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 14618741
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 14597773
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 14596813
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 14417023
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 14618646
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 14567235
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 14628615
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 14630149
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 14874802
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 14934963
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 14933441
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 14404460
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 14933825
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 14935601
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 15051919
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 14934123
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 15051548
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 14934835
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 14596295
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 14628937
+              }
+            },
+            "petData": {
+              "pets": {
+                "7": {
+                  "petId": 103,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-0"
+                },
+                "-1": {
+                  "petId": 303,
+                  "hp": 53000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "role": {
+            "levelId": 6911,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "1": 0,
+              "4": 2
+            },
+            "statistics": {
+              "genie:battle": 1
+            },
+            "statisticsTime": {
+              "genie:battle": 1793190430
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 14703859
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 14875731
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 14704970
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 14875819
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 14676838
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 14703736
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 376286580
+              },
+              "108": {
+                "heroId": 108,
+                "level": 700,
+                "power": 15577656
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 14779759
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 14705161
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 14705238
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 15975854
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 14705156
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 14703810
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 14704783
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 15844915
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 14704837
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 14704238
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 15004954
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 15374680
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 14779145
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 14704990
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 14567433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 14656032
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 14597693
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 14597394
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 14597268
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 14692888
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 14653670
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 14566906
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 14597819
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 14597256
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 14567547
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 14629072
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 14597465
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 14630227
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 14877117
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 14596011
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 14596617
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 14596771
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 14567220
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 14618741
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 14597773
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 14596813
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 14417023
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 14618646
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 14567235
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 14628615
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 14630149
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 14874802
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 14934963
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 14933441
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 14404460
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 14933825
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 14935601
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 15051919
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 14934123
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 15051548
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 14934835
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 14596295
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 14628937
+              }
+            },
+            "petData": {
+              "pets": {
+                "7": {
+                  "petId": 103,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-0"
+                },
+                "-1": {
+                  "petId": 303,
+                  "hp": 53000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "role": {
+            "levelId": 6911,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "1": 0,
+              "2": 0,
+              "4": 2
+            },
+            "statistics": {
+              "genie:battle": 2
+            },
+            "statisticsTime": {
+              "genie:battle": 1793190434
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 14703859
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 14875731
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 14704970
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 14875819
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 14676838
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 14703736
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 376286580
+              },
+              "108": {
+                "heroId": 108,
+                "level": 700,
+                "power": 15577656
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 14779759
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 14705161
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 14705238
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 15975854
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 14705156
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 14703810
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 14704783
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 15844915
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 14704837
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 14704238
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 15004954
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 15374680
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 14779145
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 14704990
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 14567433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 14656032
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 14597693
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 14597394
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 14597268
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 14692888
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 14653670
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 14566906
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 14597819
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 14597256
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 14567547
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 14629072
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 14597465
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 14630227
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 14877117
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 14596011
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 14596617
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 14596771
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 14567220
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 14618741
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 14597773
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 14596813
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 14417023
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 14618646
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 14567235
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 14628615
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 14630149
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 14874802
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 14934963
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 14933441
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 14404460
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 14933825
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 14935601
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 15051919
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 14934123
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 15051548
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 14934835
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 14596295
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 14628937
+              }
+            },
+            "petData": {
+              "pets": {
+                "7": {
+                  "petId": 103,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-0"
+                },
+                "-1": {
+                  "petId": 303,
+                  "hp": 53000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-501-pet-1"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "battles": [
+        {
+          "battleData": {
+            "options": {
+              "genieLevelId": 1002
+            },
+            "result": {
+              "type": 9,
+              "totalFrame": 5399,
+              "round": 15,
+              "id": 1,
+              "sponsor": {
+                "teamInfo": [
+                  {
+                    "heroId": 101,
+                    "index": 0,
+                    "hp": 13943419
+                  },
+                  {
+                    "heroId": 102,
+                    "index": 1,
+                    "hp": 25468975
+                  },
+                  {
+                    "heroId": 117,
+                    "index": 2,
+                    "hp": 31506849
+                  },
+                  {
+                    "heroId": 113,
+                    "index": 3,
+                    "hp": 47537947
+                  },
+                  {
+                    "heroId": 109,
+                    "index": 4,
+                    "hp": 36595838
+                  }
+                ]
+              },
+              "accept": {
+                "teamInfo": [
+                  {
+                    "heroId": 7101,
+                    "index": 10,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7101,
+                    "index": 11,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7102,
+                    "index": 12,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7103,
+                    "index": 13,
+                    "hp": 66020127
+                  },
+                  {
+                    "heroId": 7102,
+                    "index": 14,
+                    "hp": 11987589
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "battleData": {
+            "options": {
+              "genieLevelId": 2001
+            },
+            "result": {
+              "type": 9,
+              "totalFrame": 2772,
+              "round": 9,
+              "isWin": true,
+              "id": 1,
+              "sponsor": {
+                "teamInfo": [
+                  {
+                    "heroId": 103,
+                    "index": 0,
+                    "hp": 45679030
+                  },
+                  {
+                    "heroId": 104,
+                    "index": 1,
+                    "hp": 44456869
+                  },
+                  {
+                    "heroId": 110,
+                    "index": 2,
+                    "hp": 48803026
+                  },
+                  {
+                    "heroId": 118,
+                    "index": 3,
+                    "hp": 51497036
+                  },
+                  {
+                    "heroId": 114,
+                    "index": 4,
+                    "hp": 45231628
+                  }
+                ]
+              },
+              "accept": {
+                "teamInfo": [
+                  {
+                    "heroId": 7201,
+                    "index": 10,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7201,
+                    "index": 11,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7202,
+                    "index": 12,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7203,
+                    "index": 13,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7202,
+                    "index": 14,
+                    "hp": 0
+                  }
+                ]
+              }
+            }
+          },
+          "isWin": true
+        }
+      ]
+    },
+    {
+      "accountAlias": "502",
+      "attemptsByNation": {
+        "1": 0,
+        "2": 0,
+        "3": 1,
+        "4": 0
+      },
+      "reads": [
+        {
+          "role": {
+            "levelId": 6951,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 120
+              },
+              "3": {
+                "heroId": 112
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "3": 1
+            },
+            "statistics": {
+              "genie:battle": 3
+            },
+            "statisticsTime": {
+              "genie:battle": 1793068888
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 18054864
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 18226736
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 18055975
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 18226824
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 18068126
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 18054741
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 444788311
+              },
+              "108": {
+                "heroId": 108,
+                "level": 861,
+                "power": 18822706
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 18054690
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 18228629
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 18056242
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 18730105
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 18056161
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 18054815
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 18055788
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 18747087
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 18055841
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 18016131
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 18068062
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 18725684
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 18054261
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 18228390
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 17948433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 17919327
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 17948697
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 17981000
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 17948273
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 17918296
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 17917710
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 17947852
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 17981467
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 17918281
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 17981175
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 17947560
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 17948469
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 17948610
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 18288172
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 17947016
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 17947622
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 17947776
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 17948199
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 17947828
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 17948778
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 17917879
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 17755026
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 17947717
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 17948215
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 17947146
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 17981154
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 18225806
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 18285967
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 18284446
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 17755465
+              },
+              "305": {
+                "heroId": 305,
+                "level": 1,
+                "power": 17755568
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 18284829
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 18286606
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 18285875
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 18225354
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 18285736
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 18285840
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 17947300
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 17947438
+              }
+            },
+            "petData": {
+              "pets": {
+                "-1": {
+                  "petId": 403,
+                  "hp": 65599994,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-502-pet-0"
+                }
+              }
+            }
+          }
+        },
+        {
+          "role": {
+            "levelId": 6951,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 120
+              },
+              "3": {
+                "heroId": 112
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "3": 1
+            },
+            "statistics": {
+              "genie:battle": 1
+            },
+            "statisticsTime": {
+              "genie:battle": 1793190440
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 18054864
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 18226736
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 18055975
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 18226824
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 18068126
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 18054741
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 444788311
+              },
+              "108": {
+                "heroId": 108,
+                "level": 861,
+                "power": 18822706
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 18054690
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 18228629
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 18056242
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 18730105
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 18056161
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 18054815
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 18055788
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 18747087
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 18055841
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 18016131
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 18068062
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 18725684
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 18054261
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 18228390
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 17948433
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 17919327
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 17948697
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 17981000
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 17948273
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 17918296
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 17917710
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 17947852
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 17981467
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 17918281
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 17981175
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 17947560
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 17948469
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 17948610
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 18288172
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 17947016
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 17947622
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 17947776
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 17948199
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 17947828
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 17948778
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 17917879
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 17755026
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 17947717
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 17948215
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 17947146
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 17981154
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 18225806
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 18285967
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 18284446
+              },
+              "304": {
+                "heroId": 304,
+                "level": 1,
+                "power": 17755465
+              },
+              "305": {
+                "heroId": 305,
+                "level": 1,
+                "power": 17755568
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 18284829
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 18286606
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 18285875
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 18225354
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 18285736
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 18285840
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 17947300
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 17947438
+              }
+            },
+            "petData": {
+              "pets": {
+                "-1": {
+                  "petId": 403,
+                  "hp": 65599994,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-502-pet-0"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "battles": [
+        {
+          "battleData": {
+            "options": {
+              "genieLevelId": 3003
+            },
+            "result": {
+              "type": 9,
+              "totalFrame": 882,
+              "round": 2,
+              "id": 1,
+              "sponsor": {
+                "teamInfo": [
+                  {
+                    "heroId": 106,
+                    "index": 0,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 121,
+                    "index": 1,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 105,
+                    "index": 2,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 111,
+                    "index": 3,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 115,
+                    "index": 4,
+                    "hp": 0
+                  }
+                ]
+              },
+              "accept": {
+                "teamInfo": [
+                  {
+                    "heroId": 7301,
+                    "index": 10,
+                    "hp": 277204613
+                  },
+                  {
+                    "heroId": 7301,
+                    "index": 11,
+                    "hp": 284567931
+                  },
+                  {
+                    "heroId": 7302,
+                    "index": 12,
+                    "hp": 288631550
+                  },
+                  {
+                    "heroId": 7303,
+                    "index": 13,
+                    "hp": 441500218
+                  },
+                  {
+                    "heroId": 7302,
+                    "index": 14,
+                    "hp": 323121081
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "accountAlias": "503",
+      "attemptsByNation": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 1
+      },
+      "reads": [
+        {
+          "role": {
+            "levelId": 6853,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "2": 0
+            },
+            "statistics": {
+              "genie:battle": 5
+            },
+            "statisticsTime": {
+              "genie:battle": 1793083866
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 19114283
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 19188480
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 19189642
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 19188543
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 19201793
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 19188408
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 335296245
+              },
+              "108": {
+                "heroId": 108,
+                "level": 1050,
+                "power": 20055363
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 19188357
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 19150636
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 19189909
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 19974281
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 19115356
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 19188482
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 19189455
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 19880754
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 19189508
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 19477991
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 19201729
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 19759290
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 19187928
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 19150479
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 19082100
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 19083080
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 19082364
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 19052073
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 19051959
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 19051962
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 19051377
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 19051577
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 19052459
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 19081927
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 19082226
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 19081227
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 19082136
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 19082276
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 19361788
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 19050819
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 19051369
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 19081443
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 19051892
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 19081495
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 19052417
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 19051545
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 18888693
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 19051455
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 19051907
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 19113287
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 19114821
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 19359473
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 19188037
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 19358400
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 19358748
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 19360364
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 19359700
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 19418795
+              },
+              "310": {
+                "heroId": 310,
+                "level": 1,
+                "power": 18888559
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 19359572
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 19359667
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 19051076
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 19051202
+              }
+            },
+            "petData": {
+              "pets": {
+                "6": {
+                  "petId": 303,
+                  "hp": 15000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-0"
+                },
+                "7": {
+                  "petId": 102,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-1"
+                },
+                "-1": {
+                  "petId": 404,
+                  "hp": 68133327,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-2"
+                }
+              }
+            }
+          }
+        },
+        {
+          "role": {
+            "levelId": 6853,
+            "battleTeam": {
+              "0": {
+                "heroId": 107
+              },
+              "1": {
+                "heroId": 108
+              },
+              "2": {
+                "heroId": 112
+              },
+              "3": {
+                "heroId": 120
+              },
+              "4": {
+                "heroId": 116
+              }
+            },
+            "genie": {
+              "2": 0,
+              "4": 0
+            },
+            "statistics": {
+              "genie:battle": 1
+            },
+            "statisticsTime": {
+              "genie:battle": 1793190447
+            },
+            "heroes": {
+              "101": {
+                "heroId": 101,
+                "level": 1,
+                "power": 19114283
+              },
+              "102": {
+                "heroId": 102,
+                "level": 1,
+                "power": 19188480
+              },
+              "103": {
+                "heroId": 103,
+                "level": 1,
+                "power": 19189642
+              },
+              "104": {
+                "heroId": 104,
+                "level": 1,
+                "power": 19188543
+              },
+              "105": {
+                "heroId": 105,
+                "level": 1,
+                "power": 19201793
+              },
+              "106": {
+                "heroId": 106,
+                "level": 1,
+                "power": 19188408
+              },
+              "107": {
+                "heroId": 107,
+                "level": 5500,
+                "power": 335296245
+              },
+              "108": {
+                "heroId": 108,
+                "level": 1050,
+                "power": 20055363
+              },
+              "109": {
+                "heroId": 109,
+                "level": 1,
+                "power": 19188357
+              },
+              "110": {
+                "heroId": 110,
+                "level": 1,
+                "power": 19150636
+              },
+              "111": {
+                "heroId": 111,
+                "level": 1,
+                "power": 19189909
+              },
+              "112": {
+                "heroId": 112,
+                "level": 700,
+                "power": 19974281
+              },
+              "113": {
+                "heroId": 113,
+                "level": 1,
+                "power": 19115356
+              },
+              "114": {
+                "heroId": 114,
+                "level": 1,
+                "power": 19188482
+              },
+              "115": {
+                "heroId": 115,
+                "level": 1,
+                "power": 19189455
+              },
+              "116": {
+                "heroId": 116,
+                "level": 700,
+                "power": 19880754
+              },
+              "117": {
+                "heroId": 117,
+                "level": 1,
+                "power": 19189508
+              },
+              "118": {
+                "heroId": 118,
+                "level": 1,
+                "power": 19477991
+              },
+              "119": {
+                "heroId": 119,
+                "level": 1,
+                "power": 19201729
+              },
+              "120": {
+                "heroId": 120,
+                "level": 700,
+                "power": 19759290
+              },
+              "121": {
+                "heroId": 121,
+                "level": 1,
+                "power": 19187928
+              },
+              "122": {
+                "heroId": 122,
+                "level": 1,
+                "power": 19150479
+              },
+              "201": {
+                "heroId": 201,
+                "level": 1,
+                "power": 19082100
+              },
+              "202": {
+                "heroId": 202,
+                "level": 1,
+                "power": 19083080
+              },
+              "203": {
+                "heroId": 203,
+                "level": 1,
+                "power": 19082364
+              },
+              "204": {
+                "heroId": 204,
+                "level": 1,
+                "power": 19052073
+              },
+              "205": {
+                "heroId": 205,
+                "level": 1,
+                "power": 19051959
+              },
+              "206": {
+                "heroId": 206,
+                "level": 1,
+                "power": 19051962
+              },
+              "207": {
+                "heroId": 207,
+                "level": 1,
+                "power": 19051377
+              },
+              "208": {
+                "heroId": 208,
+                "level": 1,
+                "power": 19051577
+              },
+              "209": {
+                "heroId": 209,
+                "level": 1,
+                "power": 19052459
+              },
+              "210": {
+                "heroId": 210,
+                "level": 1,
+                "power": 19081927
+              },
+              "211": {
+                "heroId": 211,
+                "level": 1,
+                "power": 19082226
+              },
+              "212": {
+                "heroId": 212,
+                "level": 1,
+                "power": 19081227
+              },
+              "213": {
+                "heroId": 213,
+                "level": 1,
+                "power": 19082136
+              },
+              "214": {
+                "heroId": 214,
+                "level": 1,
+                "power": 19082276
+              },
+              "215": {
+                "heroId": 215,
+                "level": 1,
+                "power": 19361788
+              },
+              "216": {
+                "heroId": 216,
+                "level": 1,
+                "power": 19050819
+              },
+              "217": {
+                "heroId": 217,
+                "level": 1,
+                "power": 19051369
+              },
+              "218": {
+                "heroId": 218,
+                "level": 1,
+                "power": 19081443
+              },
+              "219": {
+                "heroId": 219,
+                "level": 1,
+                "power": 19051892
+              },
+              "220": {
+                "heroId": 220,
+                "level": 1,
+                "power": 19081495
+              },
+              "221": {
+                "heroId": 221,
+                "level": 1,
+                "power": 19052417
+              },
+              "222": {
+                "heroId": 222,
+                "level": 1,
+                "power": 19051545
+              },
+              "224": {
+                "heroId": 224,
+                "level": 1,
+                "power": 18888693
+              },
+              "225": {
+                "heroId": 225,
+                "level": 1,
+                "power": 19051455
+              },
+              "226": {
+                "heroId": 226,
+                "level": 1,
+                "power": 19051907
+              },
+              "227": {
+                "heroId": 227,
+                "level": 1,
+                "power": 19113287
+              },
+              "228": {
+                "heroId": 228,
+                "level": 1,
+                "power": 19114821
+              },
+              "301": {
+                "heroId": 301,
+                "level": 1,
+                "power": 19359473
+              },
+              "302": {
+                "heroId": 302,
+                "level": 1,
+                "power": 19188037
+              },
+              "303": {
+                "heroId": 303,
+                "level": 1,
+                "power": 19358400
+              },
+              "306": {
+                "heroId": 306,
+                "level": 1,
+                "power": 19358748
+              },
+              "307": {
+                "heroId": 307,
+                "level": 1,
+                "power": 19360364
+              },
+              "308": {
+                "heroId": 308,
+                "level": 1,
+                "power": 19359700
+              },
+              "309": {
+                "heroId": 309,
+                "level": 1,
+                "power": 19418795
+              },
+              "310": {
+                "heroId": 310,
+                "level": 1,
+                "power": 18888559
+              },
+              "311": {
+                "heroId": 311,
+                "level": 1,
+                "power": 19359572
+              },
+              "312": {
+                "heroId": 312,
+                "level": 1,
+                "power": 19359667
+              },
+              "313": {
+                "heroId": 313,
+                "level": 1,
+                "power": 19051076
+              },
+              "314": {
+                "heroId": 314,
+                "level": 1,
+                "power": 19051202
+              }
+            },
+            "petData": {
+              "pets": {
+                "6": {
+                  "petId": 303,
+                  "hp": 15000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-0"
+                },
+                "7": {
+                  "petId": 102,
+                  "hp": 5000000,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-1"
+                },
+                "-1": {
+                  "petId": 404,
+                  "hp": 68133327,
+                  "quenches": null,
+                  "starId": 0,
+                  "talentId": 0,
+                  "talentHp": 0,
+                  "quenchInfoMap": null,
+                  "uId": "redacted-503-pet-2"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "battles": [
+        {
+          "battleData": {
+            "options": {
+              "genieLevelId": 4001
+            },
+            "result": {
+              "type": 9,
+              "totalFrame": 326,
+              "round": 2,
+              "isWin": true,
+              "id": 1,
+              "sponsor": {
+                "teamInfo": [
+                  {
+                    "heroId": 107,
+                    "index": 0,
+                    "hp": 1151856464
+                  },
+                  {
+                    "heroId": 116,
+                    "index": 1,
+                    "hp": 88202974
+                  },
+                  {
+                    "heroId": 112,
+                    "index": 2,
+                    "hp": 89270319
+                  },
+                  {
+                    "heroId": 120,
+                    "index": 3,
+                    "hp": 87872059
+                  },
+                  {
+                    "heroId": 108,
+                    "index": 4,
+                    "hp": 89188922
+                  }
+                ]
+              },
+              "accept": {
+                "teamInfo": [
+                  {
+                    "heroId": 7401,
+                    "index": 10,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7401,
+                    "index": 11,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7402,
+                    "index": 12,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7403,
+                    "index": 13,
+                    "hp": 0
+                  },
+                  {
+                    "heroId": 7402,
+                    "index": 14,
+                    "hp": 0
+                  }
+                ]
+              }
+            }
+          },
+          "isWin": true
+        }
+      ]
+    }
+  ]
+}

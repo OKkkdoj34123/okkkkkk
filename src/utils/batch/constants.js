@@ -30,6 +30,7 @@ export const bossTimesOptions = [0, 1, 2, 3, 4].map((v) => ({
 
 // 可用的定时任务列表
 export const availableTasks = [
+  { label: "刷新 Token", value: "batchRefreshTokens" },
   { label: "日常任务", value: "startBatch" },
   { label: "领取挂机", value: "claimHangUpRewards" },
   { label: "一键加钟", value: "batchAddHangUpTime" },
@@ -38,20 +39,21 @@ export const availableTasks = [
   { label: "一键爬塔", value: "climbTower" },
   { label: "一键爬怪异塔", value: "climbWeirdTower" },
   { label: "一键答题", value: "batchStudy" },
+  { label: "篝火报名", value: "batchBonfireSignup" },
+  { label: "凤仪祈愿", value: "batchPhoenixPrayer" },
+  { label: "一键江湖黑市", value: "batchJianghuMarket" },
+  { label: "逐鹿盐山竞猜（自动识别）", value: "batchApexGuess" },
   { label: "批量开箱", value: "batchOpenBox" },
   { label: "按积分开箱", value: "batchOpenBoxByPoints" },
   { label: "领取宝箱积分", value: "batchClaimBoxPointReward" },
   { label: "批量钓鱼", value: "batchFish" },
   { label: "批量招募", value: "batchRecruit" },
-  { label: "一键使用兑换码", value: "batchRedeemCodes" },
-  { label: "一键宝库前3层", value: "batchbaoku13" },
-  { label: "一键宝库4,5层", value: "batchbaoku45" },
+  { label: "批量兑换码", value: "batchRedeemCodes" },
+  { label: "同步黑市采购清单", value: "store_syncpurchaseconfig" },
   { label: "一键梦境", value: "batchmengjing" },
+  { label: "盐场参与一次", value: "batchSaltOnce" }, // SALT_SCHEDULE_V1
+  { label: "营地空投保底（周二至周四）", value: "batchCampChallengePet" },
   { label: "一键俱乐部签到", value: "batchclubsign" },
-  { label: "营地挑战", value: "batchCampChallenge" },
-  { label: "营地挑战宠物", value: "batchCampChallengePet" },
-  { label: "营地智能挑战(凑3胜)", value: "batchCampChallengeSmart" },
-  { label: "领取营地任务奖励", value: "batchCampClaimTasks" },
   { label: "批量申请俱乐部", value: "batchApplyLegion" },
   { label: "一键竞技场战斗3次", value: "batcharenafight" },
   { label: "一键钓鱼补齐", value: "batchTopUpFish" },
@@ -59,17 +61,16 @@ export const availableTasks = [
   { label: "一键领取怪异塔免费道具", value: "batchClaimFreeEnergy" },
   { label: "一键换皮闯关", value: "skinChallenge" },
   { label: "一键购买四圣碎片", value: "legion_storebuygoods" },
-  { label: "一键配置黑市采购清单", value: "store_syncpurchaseconfig" },
   { label: "一键黑市采购", value: "store_purchase" },
   { label: "免费领取珍宝阁", value: "collection_claimfreereward" },
   { label: "批量领取功法残卷", value: "batchLegacyClaim" },
   { label: "批量赠送功法残卷", value: "batchLegacyGiftSendEnhanced" },
   { label: "一键使用怪异塔道具", value: "batchUseItems" },
   { label: "一键怪异塔合成", value: "batchMergeItems" },
+  { label: "一键怪异塔综合处理", value: "batchWeirdTowerIntegrated" },
   { label: "一键领取蟠桃园任务", value: "batchClaimPeachTasks" },
   { label: "一键扫荡灯神", value: "batchGenieSweep" },
   { label: "一键购买梦境商品", value: "batchBuyDreamItems" },
-  { label: "一键玄武赐福", value: "batchXuanwuBlessing" },
 ];
 
 // 月度任务目标
@@ -129,6 +130,9 @@ export const defaultBatchSettings = {
   boxCount: 100,
   fishCount: 100,
   recruitCount: 100,
+  cdkCodes: "",
+  cdkPlatformType: "h5",
+  blackMarketPurchaseList: [],
   defaultBoxType: 2001,
   defaultFishType: 1,
   receiverId: "",
@@ -140,8 +144,6 @@ export const defaultBatchSettings = {
   connectionTimeout: 10000,
   reconnectDelay: 1000,
   maxLogEntries: 1000,
-  cdkCodes: "",
-  cdkPlatformType: "h5",
 };
 
 // 默认模板

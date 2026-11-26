@@ -1,7 +1,7 @@
-import type { EVM, XyzwSession } from ".";
 import { gameLogger } from "@/utils/logger";
+import type { EVM, XyzwSession } from ".";
 
-export const HangupPlugin = ({ onSome }: EVM) => {
+export const HangupPlugin = ({ onSome, $emit }: EVM) => {
   onSome(
     ["system_claimhangupreward", "system_claimhanguprewardresp"],
     async (data: XyzwSession) => {

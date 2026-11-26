@@ -1,0 +1,401 @@
+<template>
+  <!-- 手动输入表单 -->
+  <n-form :model="importForm" :label-placement="'top'" :size="'large'" :show-label="true">
+
+
+    <n-form-item :label="'bin文件'" :show-label="true">
+      <a-upload multiple accept="*.bin,*.dmp" @before-upload="uploadBin" draggable dropzone placeholder="粘贴Token字符串..."
+        clearable>
+        <!-- <div class="dropzone-content">
+          请点击上传或将bind文件拖拽到此处
+        </div> -->
+      </a-upload>
+    </n-form-item>
+
+    <n-form-item label="角色命名格式" :show-label="true">
+      <n-input v-model:value="importForm.nameTemplate" placeholder="{name}-{index}-{id}" />
+      <template #feedback>
+        支持变量: {name}角色名, {id}角色ID, {index}角色序号, {server}区服
+      </template>
+    </n-form-item>
+
+    <ServerRoleList
+      :data="serverListData"
+      max-height="50vh"
+      @add="addSelectedRole"
+      @download="handleDownload"
+    />
+
+    <a-list>
+      <a-list-item v-for="(role, index) in roleList" :key="index">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%">
+          <div>
+            <strong>角色名称:</strong> {{ role.name || "未命名角色" }}<br />
+            <strong>Token:</strong>
+            <span style="word-break: break-all">{{ role.token }}</span><br />
+            <strong>服务器:</strong> {{ role.server || "未指定" }}<br />
+            <strong>角色序号:</strong> {{ role.roleIndex }}
+          </div>
+          <n-button type="error" size="small" @click="removeRole(index)">
+            删除
+          </n-button>
+        </div>
+      </a-list-item>
+    </a-list>
+
+    <div class="form-actions">
+      <n-button type="primary" size="large" block :loading="isImporting" @click="handleImport">
+        <template #icon>
+          <n-icon>
+            <CloudUpload />
+          </n-icon>
+        </template>
+        添加Token
+      </n-button>
+
+      <n-button v-if="tokenStore.hasTokens" size="large" block @click="cancel">
+        取消
+      </n-button>
+    </div>
+  </n-form>
+</template>
+
+<script lang="ts" setup>
+import { ref, reactive } from "vue";
+import { useTokenStore } from "@/stores/tokenStore";
+import { CloudUpload } from "@vicons/ionicons5";
+
+import {
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NIcon,
+  NCollapse,
+  NCollapseItem,
+  useMessage,
+} from "naive-ui";
+
+import PQueue from "p-queue";
+import useIndexedDB from "@/hooks/useIndexedDB";
+import { buildAccountKey } from "@/utils/accountIdentity";
+import { getTokenId, transformToken, getServerList } from "@/utils/token";
+import { g_utils } from "@/utils/bonProtocol";
+
+const $emit = defineEmits(["cancel", "ok"]);
+
+const { storeArrayBuffer } = useIndexedDB();
+
+const cancel = () => {
+  roleList.value = [];
+  $emit("cancel");
+};
+
+const removeRole = (index: number) => {
+  roleList.value.splice(index, 1);
+};
+
+const tokenStore = useTokenStore();
+const message = useMessage();
+const isImporting = ref(false);
+const importForm = reactive({
+  name: "",
+  server: "",
+  wsUrl: "",
+  importMethod: "",
+  nameTemplate: "{name}-{index}-{id}",
+});
+const roleList = ref<
+  Array<{
+    id: string;
+    name: string;
+    roleId: string;
+    token: string;
+    server: string;
+    roleIndex?: number;
+    accountKey?: string | null;
+    isUpdate?: boolean;
+    binBuffer?: ArrayBuffer;
+    wsUrl: string;
+    importMethod: string;
+  }>
+>([]);
+const serverListData = ref<any[]>([]);
+const currentBinData = ref<ArrayBuffer | null>(null);
+const binDecodedResult = ref("");
+const originalBinData = ref<any>(null);
+
+const tQueue = new PQueue({ concurrency: 1, interval: 1000 });
+
+const initName = (fileName: string) => {
+  if (!fileName) return;
+  fileName = fileName.trim();
+  let binRes = fileName.match(/^bin-(.*?)服-([0-2])-([0-9]{6,12})-(.*)\.bin$/);
+  console.log(binRes);
+  if (binRes) {
+    importForm.name = `${binRes[1]}_${binRes[2]}_${binRes[4]}`;
+    return {
+      server: binRes[1],
+      roleIndex: binRes[2],
+      roleId: binRes[3],
+      roleName: binRes[4],
+    };
+  }
+  return {
+    server: "",
+    roleIndex: "",
+    roleId: "",
+    roleName: importForm.name || "",
+  };
+};
+
+const handleDownload = (roleInfo: any) => {
+  if (!originalBinData.value) {
+    message.error("Bin数据丢失，请重新上传");
+    return;
+  }
+  try {
+    const newData = { ...originalBinData.value };
+    newData.serverId = roleInfo.serverId; // 确保类型一致
+    const newBinBuffer = g_utils.encode(newData) as ArrayBuffer;
+    
+    // 构造文件名: bin-{server}-0-{roleId}-{name}.bin
+    let sid = Number(roleInfo.serverId);
+    let roleIndex = 0;
+    
+    if (sid >= 2000000) {
+      roleIndex = 2;
+      sid -= 2000000;
+    } else if (sid >= 1000000) {
+      roleIndex = 1;
+      sid -= 1000000;
+    }
+    
+    const serverNum = sid - 27;
+    const fileName = `bin-${serverNum}服-${roleIndex}-${roleInfo.roleId}-${roleInfo.name}.bin`;
+    
+    downloadBinFile(fileName, newBinBuffer);
+    message.success(`已开始下载: ${fileName}`);
+  } catch (e: any) {
+    console.error("下载失败", e);
+    message.error("下载失败: " + e.message);
+  }
+};
+
+const addSelectedRole = async (roleInfo: any) => {
+  if (!originalBinData.value) {
+    message.error("Bin数据丢失，请重新上传");
+    return;
+  }
+
+  try {
+    const newData = { ...originalBinData.value };
+    newData.serverId = roleInfo.serverId; // 确保类型一致
+    const newBinBuffer = g_utils.encode(newData) as ArrayBuffer;
+    const contentId = getTokenId(newBinBuffer);
+    const roleToken = await transformToken(newBinBuffer);
+    const roleName = roleInfo.name || `角色_${roleInfo.roleId}`;
+
+    let sid = Number(roleInfo.serverId);
+    let roleIndex = 0;
+    if (sid >= 2000000) {
+      roleIndex = 2;
+      sid -= 2000000;
+    } else if (sid >= 1000000) {
+      roleIndex = 1;
+      sid -= 1000000;
+    }
+    const serverNum = sid - 27;
+    const serverLabel = String(serverNum) + "服";
+
+    const template = importForm.nameTemplate || "{name}-{index}-{id}";
+    const finalName = template
+      .replace(/{name}/g, () => roleName)
+      .replace(/{index}/g, () => String(roleIndex))
+      .replace(/{id}/g, () => String(roleInfo.roleId))
+      .replace(/{server}/g, () => serverLabel);
+
+    // 按稳定身份「服务器:角色ID」匹配已有账号：命中则复用旧 id，
+    // 定时任务/分组/账号设置里的引用保持不变；未命中才用 bin 内容 MD5 作新 id。
+    const accountKey = buildAccountKey(serverNum, roleInfo.roleId);
+    const existingToken = tokenStore.findTokenByAccountKey(
+      accountKey,
+      roleInfo.roleId || null,
+      serverLabel,
+      finalName,
+    );
+    const tokenId = existingToken?.id || contentId;
+
+    // 判重按稳定身份（不再用会随命名模板变化的 name）
+    const exists = roleList.value.some(
+      (r) => r.accountKey === accountKey && accountKey !== null
+    );
+    if (exists) {
+      message.warning(`角色 ${finalName} 已在待添加列表中`);
+      return;
+    }
+
+    if (existingToken) {
+      message.warning(
+        `识别到已有角色"${finalName}"，导入后将更新该账号（定时任务等设置保持不变）`
+      );
+    } else {
+      message.success(`已添加角色: ${finalName}`);
+    }
+
+    // bin 延迟到 handleImport 提交时写入，避免取消/重复点击时提前覆盖旧账号的 bin
+    roleList.value.push({
+      id: tokenId,
+      roleId: roleInfo.roleId,
+      token: roleToken,
+      name: finalName,
+      server: serverLabel,
+      roleIndex: roleIndex,
+      wsUrl: importForm.wsUrl || existingToken?.wsUrl || "",
+      importMethod: "bin",
+      accountKey,
+      isUpdate: Boolean(existingToken),
+      binBuffer: newBinBuffer,
+    });
+
+  } catch (e: any) {
+    console.error("添加角色失败", e);
+    message.error("添加角色失败: " + e.message);
+  }
+};
+
+const uploadBin = (binFile: File) => {
+  tQueue.add(async () => {
+    console.log("上传文件数据:", binFile);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const userToken = e.target?.result as ArrayBuffer;
+      currentBinData.value = userToken;
+
+      // 获取服务器角色列表
+      try {
+        const listStr = await getServerList(userToken);
+        const parsedList = JSON.parse(listStr);
+        // 转换为数组
+        if (parsedList && typeof parsedList === 'object') {
+          serverListData.value = Object.values(parsedList).sort((a: any, b: any) => b.power - a.power);
+        } else {
+          serverListData.value = [];
+        }
+        console.log("Server List:", parsedList);
+        message.success("获取服务器角色列表成功，请选择角色添加");
+      } catch (err) {
+        console.error("Failed to get server list", err);
+        message.warning("获取服务器角色列表失败，请检查文件是否正确");
+        serverListData.value = [];
+      }
+
+      // 尝试解析 bin 文件内容
+      try {
+        const binMsg = g_utils.parse(userToken);
+        let binData = binMsg.getData();
+        if (!binData && (binMsg as any)._raw) {
+          console.log("Bin文件 getData() 为空，尝试使用 _raw");
+          binData = { ...(binMsg as any)._raw };
+        }
+
+        console.log("Bin文件解析:", binData);
+        binDecodedResult.value = JSON.stringify(binData, null, 2);
+        originalBinData.value = binData;
+      } catch (err: any) {
+        console.error("Bin文件解析失败", err);
+        binDecodedResult.value = "Bin文件解析失败: " + (err.message || err);
+      }
+    };
+    reader.onerror = () => {
+      message.error("读取文件失败，请重试");
+    };
+    reader.readAsArrayBuffer(binFile);
+  });
+  return false; // 阻止自动上传
+};
+
+const handleImport = async () => {
+  if (roleList.value.length === 0) {
+    message.error("请先上传bin文件！");
+    return;
+  }
+  // 匹配在 addSelectedRole 阶段已完成，id 与 bin 存储位置在此统一落库，
+  // 保证两者一致；命中旧账号则更新（复用 id，定时任务引用不变），否则新增。
+  let succeeded = 0;
+  let failed = 0;
+  for (const role of roleList.value) {
+    const { id, isUpdate, binBuffer } = role;
+    if (binBuffer) {
+      const saved = await storeArrayBuffer(id, binBuffer);
+      if (!saved) {
+        message.error(`保存BIN数据到IndexedDB失败: ${role.name}`);
+        failed++;
+        continue;
+      }
+    }
+    const record = { ...role };
+    delete record.binBuffer;
+    delete record.isUpdate;
+    if (isUpdate) {
+      console.log("更新同名token（保留id，定时任务引用不变）:", role.name);
+      tokenStore.updateToken(id, record);
+    } else {
+      tokenStore.addToken(record);
+    }
+    succeeded++;
+  }
+  console.log("当前Token列表:", tokenStore.gameTokens);
+  if (failed > 0) message.warning(`Token添加完成：成功 ${succeeded}，失败 ${failed}`);
+  else message.success("Token添加成功");
+  roleList.value = [];
+  $emit("ok");
+};
+
+const downloadBinFile = (fileName, bin) => {
+  const blob = new Blob([new Uint8Array(bin)], {
+    type: "application/octet-stream",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+};
+</script>
+
+<style scoped lang="scss">
+.optional-fields {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  n-form-item {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.form-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dropzone-content {
+  width: 100%;
+  border: 1px dashed #fcc;
+  border-radius: 8px;
+  text-align: center;
+  color: #888;
+  padding: 40px 20px;
+  font-size: 12px;
+}
+</style>

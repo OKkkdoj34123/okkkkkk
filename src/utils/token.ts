@@ -1,12 +1,7 @@
 import axios from "axios";
-import { enc, lib, MD5 } from "crypto-js";
+import { MD5, lib, enc } from "crypto-js";
 import { g_utils } from "@/utils/bonProtocol";
 
-/**
- * Derive the existing storage identity from the exact credential bytes.
- * @param {string|ArrayBuffer|Uint8Array} token Credential data used by the token store.
- * @returns {string} Hexadecimal digest used as the stable local token key.
- */
 export const getTokenId = (token: string | ArrayBuffer | Uint8Array) => {
   const binHash = MD5(lib.WordArray.create(token)).toString(enc.Hex);
   return binHash;
@@ -96,23 +91,12 @@ export const setAuthUserRateLimiterCallback = (
   authUserRateLimiter.onWait(callback);
 };
 
-/**
- * Schedule a login operation within the shared authentication rate window.
- * @template T
- * @param {Function} fn Asynchronous login operation.
- * @returns {Promise<T>} Resolves with the operation result, or rejects with its error.
- */
 export const scheduleAuthUserRequest = <T>(
   fn: () => Promise<T>,
 ): Promise<T> => {
   return authUserRateLimiter.schedule(fn);
 };
 
-/**
- * Exchange credential bytes through the shared login limiter and create session metadata.
- * @param {ArrayBuffer} arrayBuffer Imported credential bytes.
- * @returns {Promise<string>} Serialized role token for the WebSocket connection.
- */
 export const transformToken = async (arrayBuffer: ArrayBuffer) => {
   return authUserRateLimiter.schedule(async () => {
     const res = await axios.post(
@@ -127,10 +111,12 @@ export const transformToken = async (arrayBuffer: ArrayBuffer) => {
           referrerPolicy: "no-referrer",
         },
         responseType: "arraybuffer",
+        timeout: 30000,
       },
     );
     const msg = g_utils.parse(res.data);
     const data = msg.getData();
+    if (!data || typeof data !== "object" || !(data.roleToken || data.token)) throw new Error("认证响应缺少连接凭据");
     const currentTime = Date.now();
     const sessId = currentTime * 100 + Math.floor(Math.random() * 100);
     const connId = currentTime + Math.floor(Math.random() * 10);

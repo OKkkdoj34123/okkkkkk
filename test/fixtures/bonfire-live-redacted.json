@@ -1,0 +1,49 @@
+{
+  "source": "2026-11-06 real account 501; IDs anonymized, only relevant fields retained",
+  "role": {
+    "role": {
+      "roleId": 101,
+      "legionId": 77
+    }
+  },
+  "legion": {
+    "info": {
+      "id": 77,
+      "leaderId": 100,
+      "members": {
+        "100": {
+          "roleId": 100,
+          "job": 1
+        },
+        "101": {
+          "roleId": 101,
+          "job": 2
+        },
+        "102": {
+          "roleId": 102,
+          "job": 999
+        }
+      }
+    }
+  },
+  "before": {
+    "club": {
+      "legionId": 77,
+      "phase": "261019"
+    }
+  },
+  "after": {
+    "club": {
+      "legionId": 77,
+      "phase": "261109"
+    }
+  },
+  "signup": {
+    "club": {
+      "phase": "261109"
+    }
+  },
+  "count": {
+    "cnt": 20
+  }
+}

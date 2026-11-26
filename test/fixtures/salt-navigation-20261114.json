@@ -1,0 +1,716 @@
+{
+  "source": "2026-11-14 user diagnostic navigation.snapshot; projected fields only; legion IDs anonymized; no fabricated server acceptance",
+  "metadata": {
+    "confId": 57,
+    "legionWarMap": 13,
+    "mapName": "legionWarMap",
+    "type": 15,
+    "subType": 1,
+    "state": "started"
+  },
+  "role": {
+    "state": "idle",
+    "position": {
+      "x": 26,
+      "y": 22
+    },
+    "aB": 0,
+    "d": 0,
+    "legionID": 7
+  },
+  "buildingData": {
+    "1_18": {
+      "id": "1_18",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 104
+    },
+    "22_21": {
+      "id": "22_21",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "9_25": {
+      "id": "9_25",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "31_15": {
+      "id": "31_15",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "34_15": {
+      "id": "34_15",
+      "type": 3,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": -1
+    },
+    "4_17": {
+      "id": "4_17",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "3_23": {
+      "id": "3_23",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 108
+    },
+    "32_27": {
+      "id": "32_27",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_31": {
+      "id": "20_31",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "11_14": {
+      "id": "11_14",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "20_17": {
+      "id": "20_17",
+      "type": 6,
+      "hP": 120,
+      "maxHP": 120,
+      "belongsLegionId": -1
+    },
+    "18_24": {
+      "id": "18_24",
+      "type": 5,
+      "hP": 100,
+      "maxHP": 100,
+      "belongsLegionId": -1
+    },
+    "21_28": {
+      "id": "21_28",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "10_5": {
+      "id": "10_5",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "32_11": {
+      "id": "32_11",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "17_14": {
+      "id": "17_14",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "29_17": {
+      "id": "29_17",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "12_19": {
+      "id": "12_19",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 116
+    },
+    "23_19": {
+      "id": "23_19",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "26_25": {
+      "id": "26_25",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "8_14": {
+      "id": "8_14",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "9_18": {
+      "id": "9_18",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "26_20": {
+      "id": "26_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "33_29": {
+      "id": "33_29",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 107
+    },
+    "16_5": {
+      "id": "16_5",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "21_5": {
+      "id": "21_5",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 100
+    },
+    "11_7": {
+      "id": "11_7",
+      "type": 3,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": -1
+    },
+    "35_19": {
+      "id": "35_19",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 117
+    },
+    "14_20": {
+      "id": "14_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "18_13": {
+      "id": "18_13",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "7_16": {
+      "id": "7_16",
+      "type": 1,
+      "hP": 20,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_23": {
+      "id": "20_23",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "28_24": {
+      "id": "28_24",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "30_29": {
+      "id": "30_29",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "25_8": {
+      "id": "25_8",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "14_9": {
+      "id": "14_9",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_11": {
+      "id": "20_11",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "8_12": {
+      "id": "8_12",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "35_12": {
+      "id": "35_12",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "23_13": {
+      "id": "23_13",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "28_15": {
+      "id": "28_15",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 105
+    },
+    "11_16": {
+      "id": "11_16",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_3": {
+      "id": "20_3",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "14_14": {
+      "id": "14_14",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "39_16": {
+      "id": "39_16",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 115
+    },
+    "29_19": {
+      "id": "29_19",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "26_22": {
+      "id": "26_22",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 7
+    },
+    "19_28": {
+      "id": "19_28",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 101
+    },
+    "16_7": {
+      "id": "16_7",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "22_10": {
+      "id": "22_10",
+      "type": 5,
+      "hP": 100,
+      "maxHP": 100,
+      "belongsLegionId": -1
+    },
+    "26_14": {
+      "id": "26_14",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": 105
+    },
+    "19_20": {
+      "id": "19_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "5_21": {
+      "id": "5_21",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "27_28": {
+      "id": "27_28",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "26_31": {
+      "id": "26_31",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 111
+    },
+    "7_4": {
+      "id": "7_4",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 106
+    },
+    "37_10": {
+      "id": "37_10",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 112
+    },
+    "8_23": {
+      "id": "8_23",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "31_24": {
+      "id": "31_24",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "24_27": {
+      "id": "24_27",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "29_9": {
+      "id": "29_9",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "24_16": {
+      "id": "24_16",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "16_18": {
+      "id": "16_18",
+      "type": 2,
+      "hP": 50,
+      "maxHP": 50,
+      "belongsLegionId": -1
+    },
+    "9_20": {
+      "id": "9_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "29_21": {
+      "id": "29_21",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "32_22": {
+      "id": "32_22",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "11_24": {
+      "id": "11_24",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "29_26": {
+      "id": "29_26",
+      "type": 3,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": -1
+    },
+    "6_10": {
+      "id": "6_10",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 114
+    },
+    "34_10": {
+      "id": "34_10",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "25_17": {
+      "id": "25_17",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "6_19": {
+      "id": "6_19",
+      "type": 3,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": -1
+    },
+    "17_20": {
+      "id": "17_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "6_24": {
+      "id": "6_24",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "15_25": {
+      "id": "15_25",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_26": {
+      "id": "20_26",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "9_9": {
+      "id": "9_9",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "21_13": {
+      "id": "21_13",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "31_13": {
+      "id": "31_13",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "15_16": {
+      "id": "15_16",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "33_17": {
+      "id": "33_17",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "36_17": {
+      "id": "36_17",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "32_20": {
+      "id": "32_20",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "20_8": {
+      "id": "20_8",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "31_8": {
+      "id": "31_8",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "27_10": {
+      "id": "27_10",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 119
+    },
+    "11_12": {
+      "id": "11_12",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "13_23": {
+      "id": "13_23",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 103
+    },
+    "34_23": {
+      "id": "34_23",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 110
+    },
+    "13_5": {
+      "id": "13_5",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "19_5": {
+      "id": "19_5",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "12_10": {
+      "id": "12_10",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "5_14": {
+      "id": "5_14",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 109
+    },
+    "37_14": {
+      "id": "37_14",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "3_19": {
+      "id": "3_19",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "24_29": {
+      "id": "24_29",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "14_3": {
+      "id": "14_3",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 102
+    },
+    "8_7": {
+      "id": "8_7",
+      "type": 1,
+      "hP": 30,
+      "maxHP": 30,
+      "belongsLegionId": -1
+    },
+    "14_12": {
+      "id": "14_12",
+      "type": 4,
+      "hP": 80,
+      "maxHP": 80,
+      "belongsLegionId": 113
+    }
+  }
+}

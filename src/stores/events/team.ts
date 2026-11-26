@@ -1,7 +1,11 @@
-import type { EVM, XyzwSession } from ".";
 import { gameLogger } from "@/utils/logger";
+import type { EVM, XyzwSession } from ".";
 
-export const TeamPlugin = ({ onSome }: EVM) => {
+export const TeamPlugin = ({
+  onSome,
+  $emit
+}: EVM) => {
+
   onSome(
     [
       "team_getteaminfo",
@@ -11,7 +15,7 @@ export const TeamPlugin = ({ onSome }: EVM) => {
     ],
     (data: XyzwSession) => {
       gameLogger.verbose(`收到队伍信息事件: ${data.tokenId}`, data);
-      const { body, gameData } = data;
+      const { body, gameData, cmd } = data;
       if (!body) {
         gameLogger.debug("队伍信息响应为空");
         return;
@@ -34,7 +38,7 @@ export const TeamPlugin = ({ onSome }: EVM) => {
     ],
     (data: XyzwSession) => {
       gameLogger.verbose(`收到队伍信息事件: ${data.tokenId}`, data);
-      const { body, gameData } = data;
+      const { body, gameData, cmd } = data;
       if (!body) {
         gameLogger.debug("队伍信息响应为空");
         return;
@@ -55,4 +59,5 @@ export const TeamPlugin = ({ onSome }: EVM) => {
       });
     },
   );
-};
+
+}

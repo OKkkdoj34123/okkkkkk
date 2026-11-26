@@ -92,3 +92,4 @@ export const compareBlackMarketPurchaseLists = (
   const right = JSON.stringify(toStorePurchaseItemList(rightList));
   return left === right;
 };
+

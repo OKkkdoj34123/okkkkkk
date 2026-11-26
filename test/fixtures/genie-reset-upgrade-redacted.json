@@ -1,0 +1,48 @@
+{
+  "source": "server-monitor-main-1793199479663.json",
+  "note": "Real action deltas, not full role snapshots",
+  "records": [
+    {
+      "cmd": "legion_resetresearch",
+      "req": {
+        "type": 4,
+        "advanced": false
+      },
+      "code": 0,
+      "researchDelta": {}
+    },
+    {
+      "cmd": "legion_research",
+      "req": {
+        "researchId": 107,
+        "isMax": false
+      },
+      "code": 0,
+      "researchDelta": {
+        "107": 12
+      }
+    },
+    {
+      "cmd": "legion_research",
+      "req": {
+        "researchId": 108,
+        "isMax": false
+      },
+      "code": 0,
+      "researchDelta": {
+        "108": 17
+      }
+    },
+    {
+      "cmd": "legion_research",
+      "req": {
+        "researchId": 107,
+        "isMax": true
+      },
+      "code": 0,
+      "researchDelta": {
+        "107": 15
+      }
+    }
+  ]
+}

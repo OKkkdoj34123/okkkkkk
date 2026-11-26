@@ -4,9 +4,8 @@
  */
 
 import { $CacheManager } from "@/stores/cache";
-import { g_utils } from "./bonProtocol.js";
-import { sleep } from "./helperTaskRunner.js";
-import { gameLogger, wsLogger } from "./logger.js";
+import { bonProtocol, g_utils } from "./bonProtocol.js";
+import { wsLogger, gameLogger } from "./logger.js";
 
 /**
  * 错误码映射表
@@ -31,6 +30,8 @@ const errorCodeMap = {
   1500020: "能量不足",
   2300070: "未加入俱乐部",
   3500020: "没有可领取的奖励",
+  12000050: "今日发车次数已达上限",
+  12000060: "不在发车时间内",
   400190: "没有可领取的签到奖励",
   1000020: "今天已经领取过奖励了",
   3300050: "购买数量超出限制",
@@ -44,9 +45,112 @@ const errorCodeMap = {
   200330: "无效的ID",
   1500040: "上座塔的奖励未领取",
   1500010: "已经全部通关",
-  4800080: "不在规定时间内或未到报名阶段",
-  4800040: "俱乐部没有报名",
-  2100010: "活动未开放",
+};
+
+
+
+
+// DREAM_PRODUCTION_V5
+const dreamProductionWsDebug = () => {
+  try { return globalThis.localStorage?.getItem("dream_debug_verbose") === "true"; }
+  catch (_) { return false; }
+};
+const dreamProductionQuietCommands = new Set([
+  "fight_startdungeon", "fight_startdungeonresp", "dungeon_selecthero", "dungeon_buymerchant", "dungeon_buymerchantresp",
+]);
+const dreamProductionWsQuiet = (cmd) =>
+  ["fight_startgenie", "fight_startgenieresp"].includes(String(cmd).toLowerCase())
+  || (!dreamProductionWsDebug()
+    && dreamProductionQuietCommands.has(typeof cmd === "string" ? cmd.toLowerCase() : cmd));
+const dreamProductionPacketQuiet = (packet, promises) => dreamProductionWsQuiet(packet?.cmd)
+  || dreamProductionWsQuiet(promises?.[packet?.resp]?.originalCmd);
+
+// DREAM_ROUND_FIX_V4
+// DREAM_FINAL_V3
+// DREAM_STATE_FIX_V2
+// DREAM_DIAGNOSTICS_V1
+const dreamV4WireCommands = new Set(["dungeon_selecthero", "fight_startdungeon", "role_getroleinfo", "fight_startlevel", "dungeon_buymerchant"]);
+const dreamV4PacketHint = (packet) => {
+  // 仓库ProtoMsg没有hint getter；只读取原始报文中的这个字段。
+  const value = packet.hint ?? packet._raw?.hint;
+  return typeof value === "string" ? value.slice(0, 500) : typeof value === "number" ? value : undefined;
+};
+const dreamV4HeaderError = (packet) => {
+  const value = packet.error ?? packet._raw?.error;
+  if (typeof value === "string") return value.slice(0, 500);
+  if (typeof value === "number" || typeof value === "boolean") return value;
+  if (!value || typeof value !== "object") return undefined;
+  const result = {};
+  for (const key of ["code", "message", "msg", "reason", "desc", "hint", "tip"]) {
+    if (typeof value[key] === "string") result[key] = value[key].slice(0, 500);
+    else if (typeof value[key] === "number") result[key] = value[key];
+  }
+  return result;
+};
+const dreamV4WireKeys = (body) => body && typeof body === "object"
+  ? Object.keys(body).filter((key) => !/token|password|cookie|session|authorization|secret|ticket/i.test(key)).slice(0, 20) : [];
+const dreamV4WireRequest = (raw, decodedBody) => {
+  const preview = {};
+  if (decodedBody && typeof decodedBody === "object") {
+    for (const key of ["heroId", "battleVersion", "id", "index", "pos"]) {
+      const value = decodedBody[key];
+      if (value === null || typeof value === "number" || (typeof value === "string" && /^\d{1,15}$/.test(value))) preview[key] = value;
+    }
+    if (decodedBody.battleTeam && typeof decodedBody.battleTeam === "object") {
+      preview.battleTeam = {};
+      for (const [key, value] of Object.entries(decodedBody.battleTeam).slice(0, 5)) {
+        if (/^[0-4]$/.test(key) && (typeof value === "number" || (typeof value === "string" && /^\d{1,9}$/.test(value)))) preview.battleTeam[key] = value;
+      }
+    }
+  }
+  return { cmd: raw.cmd, seq: raw.seq, ack: raw.ack, time: raw.time,
+    decoded: decodedBody !== undefined && decodedBody !== null && typeof decodedBody === "object",
+    bodyKeys: dreamV4WireKeys(decodedBody), body: preview };
+};
+const dreamV4ErrorBody = (packet) => {
+  const body = packet.rawData ?? packet.decodedBody ?? packet.body;
+  const detail = {};
+  if (body && typeof body === "object") {
+    for (const key of ["code", "errorCode", "errCode", "message", "reason", "desc", "tip", "hint"]) {
+      const value = body[key];
+      if (typeof value === "number" || typeof value === "boolean") detail[key] = value;
+      else if (typeof value === "string") detail[key] = value.slice(0, 500);
+    }
+  }
+  return detail;
+};
+const dreamDiagnosticWire = (packet, promiseData, requestSeq, matchMode) => ({
+  code: packet.code, hint: dreamV4PacketHint(packet), headerError: dreamV4HeaderError(packet),
+  requestCmd: promiseData.originalCmd, responseCmd: packet.cmd,
+  requestSeq: Number(requestSeq), resp: packet.resp, matchMode,
+  serverTime: packet.time, ack: packet.ack,
+  request: promiseData.dreamRequest,
+  responseBodyKeys: dreamV4WireKeys(packet.rawData ?? packet.decodedBody ?? packet.body),
+  serverError: packet.code ? dreamV4ErrorBody(packet) : undefined,
+});
+const dreamDiagnosticServerError = (packet, promiseData, requestSeq, matchMode) => {
+  const errorDesc = errorCodeMap[packet.code] || dreamV4PacketHint(packet) || "未知错误";
+  const error = new Error(`服务器错误: ${packet.code} - ${errorDesc}`);
+  Object.assign(error, dreamDiagnosticWire(packet, promiseData, requestSeq, matchMode));
+  return error;
+};
+const dreamDiagnosticAttach = (body, packet, promiseData, requestSeq, matchMode) => {
+  // Salt diagnostics only: preserve matching rules and never attach request bodies.
+  if (promiseData.originalCmd === "bottlehelper_claim" && body && typeof body === "object") {
+    try {
+      Object.defineProperty(body, "__bottleDiagnostic", { configurable: true, enumerable: false,
+        value: { requestCmd: promiseData.originalCmd, responseCmd: packet.cmd,
+          requestSeq: Number(requestSeq), resp: packet.resp, code: packet.code, matchMode } });
+    } catch (_) { /* Frozen responses remain unchanged and will be reported as unverified. */ }
+  }
+  if (!dreamV4WireCommands.has(promiseData.originalCmd) || !body || typeof body !== "object") return body;
+  try {
+    Object.defineProperty(body, "__dreamDiagnostic", {
+      value: dreamDiagnosticWire(packet, promiseData, requestSeq, matchMode),
+      configurable: true, enumerable: false,
+    });
+  } catch (_) { /* 不改变冻结响应对象的既有行为 */ }
+  return body;
 };
 
 // 事件节流定义表，根据实际需要调整命令和节流时间
@@ -70,7 +174,7 @@ const formatBodyForLog = (body) => {
 
   if (typeof body === "object") {
     const isNumericObject = Object.keys(body).every(
-      (key) => !Number.isNaN(Number.parseInt(key)),
+      (key) => !Number.isNaN(parseInt(key)),
     );
     if (isNumericObject) {
       return `[BON:Object:${Object.keys(body).length}]`;
@@ -142,8 +246,16 @@ export class CommandRegistry {
   }
 }
 
+// 活动请求均已实测支持 resp 序号。领奖共用回包名，沿用序号匹配。
+const phoenixCommands = [
+  "activity_claimsignreward", "activity_warorderget", "activity_warordertaskclaim",
+  "activity_warorderrewardclaim", "activity_getlotteryinfo", "activity_lottery",
+  "activity_claimlotterycumulative", "activity_exchange",
+];
+
 /** 预注册游戏命令 */
 export function registerDefaultCommands(reg) {
+  for (const cmd of phoenixCommands) reg.register(cmd);
   const registry = reg
     .registerHeartbeat()
     // 角色/系统
@@ -194,12 +306,8 @@ export function registerDefaultCommands(reg) {
     .register("store_buy", { goodsId: 1 })
     .register("store_purchase", { goodsId: 1 })
     .register("store_refresh", { storeId: 1 })
-    .register("store_getpurchase")
-    .register("store_setpurchase", {
-      purchaseCnt: 1,
-      purchaseItemList: [],
-    })
-    .register("store_getpurchasehistory")
+    .register("store_getpurchase", {})
+    .register("store_setpurchase", { purchaseCnt: 0, purchaseItemList: [] })
 
     // 军团
     .register("legion_getinfo")
@@ -214,6 +322,7 @@ export function registerDefaultCommands(reg) {
     .register("legion_agree")
     .register("legion_ignore")
     .register("legion_research")
+    .register("legion_exchangeresearch")
     .register("legion_resetresearch")
 
     .register("legion_getinfobyid")
@@ -222,25 +331,14 @@ export function registerDefaultCommands(reg) {
     .register("saltroad_getsaltroadwartotalrank")
     .register("legionwar_getgoldmonthwarrank")
     .register("legion_getopponent")
-    .register("club_getinfo")
-    .register("club_gettargetteam")
-    .register("club_attack")
-    .register("club_attackmonster")
-    .register("club_taskclaim")
     .register("legion_getbattlefield")
     .register("legion_claimpayloadtask")
     .register("legion_claimpayloadtaskprogress")
     .register("saltroad_getwartype")
     .register("saltroad_getsaltroadwargrouprank")
     .register("league_getbattlefield")
+    .register("league_getgroupopponent")
     .register("legion_signup") // 盐场报名
-    // 营地挑战 / 俱乐部战
-    .register("club_getinfo")
-    .register("club_gettargetteam", { targetId: 0 })
-    .register("club_getattackrecord")
-    .register("club_getdefenserecord", { targetId: 0, targetIsMirror: false })
-    .register("club_getgrouprank")
-    .register("club_getrolerank")
 
     // 邮件
     .register("mail_getlist", { category: [0, 4, 5], lastId: 0, size: 60 })
@@ -274,19 +372,14 @@ export function registerDefaultCommands(reg) {
     .register("mergebox_claimcostprogress", { actType: 1 })
     .register("mergebox_claimmergeprogress", { actType: 1 })
     .register("evotower_claimtask", { taskId: 1 })
-    .register("evotower_buyenergy", { energy: 1 })
-    .register("tower_buyenergy", { buyNum: 1 })
 
     // 瓶子机器人
     .register("bottlehelper_claim")
     .register("bottlehelper_start", { bottleType: -1 })
     .register("bottlehelper_stop", { bottleType: -1 })
 
-    // 军团匹配/营地挑战和签到
+    // 军团匹配和签到
     .register("legionmatch_rolesignup")
-    .register("legionmatch_signup")
-    .register("legionmatch_getrank")
-    .register("legionmatch_getbattlerecord")
     .register("legion_signin")
 
     // 钓鱼
@@ -294,6 +387,7 @@ export function registerDefaultCommands(reg) {
     .register("artifact_exchange")
 
     // 灯神相关
+    .register("fight_startgenie") // manual ordinary genie challenge; no default nation/pet
     .register("genie_sweep", { genieId: 1 })
     .register("genie_buysweep")
 
@@ -311,7 +405,19 @@ export function registerDefaultCommands(reg) {
     .register("presetteam_getinfo")
     .register("presetteam_setteam")
     .register("presetteam_saveteam", { teamId: 1 })
+    // CAMP_STAGE1_V1: 只读营地命令
+    .register("club_getinfo")
+    .register("club_getsignupcnt")
+    .register("club_signup")
+    .register("club_gettargetteam")
+    .register("club_getattackrecord")
+    .register("club_getdefenserecord")
+    .register("club_getgrouprank")
+    .register("club_attack")
+    .register("club_attackmonster")
+    .register("club_taskclaim")
     .register("role_gettargetteam")
+    .register("hero_calcpowerbyteam")
     .register("hero_exchange")
     .register("hero_gointobattle")
     .register("hero_gobackbattle")
@@ -338,19 +444,11 @@ export function registerDefaultCommands(reg) {
     // 梦魇相关
     .register("nightmare_getroleinfo")
     .register("dungeon_selecthero")
-    .register("bosstower_gethelprank")
     .register("dungeon_buymerchant")
     // 活动/任务
     .register("activity_get")
+    .register("activity_buystoregoods")
     .register("activity_recyclewarorderrewardclaim")
-    // 玄武赐福活动
-    .register("activity_warorderget")
-    .register("activity_warordertaskclaim")
-    .register("activity_warorderrewardclaim")
-    .register("activity_getlotteryinfo")
-    .register("activity_lottery")
-    .register("activity_claimsignreward")
-    .register("activity_commonbuygoods")
     .register("legion_getpayloadtask")
     .register("legion_getpayloadkillrecord")
     .register("legion_getpayloadbf")
@@ -366,6 +464,16 @@ export function registerDefaultCommands(reg) {
 
     // 扭蛋相关
     .register("gacha_drawreward", { num: 1, isGroup: false })
+
+    // 车辆相关
+    .register("car_getrolecar")
+    .register("car_refresh", { carId: 0 })
+    .register("car_claim", { carId: 0 })
+    .register("car_send", { carId: 0, helperId: 0, text: "" })
+    .register("car_getmemberhelpingcnt")
+    .register("car_getmemberrank")
+    .register("car_research")
+    .register("car_claimpartconsumereward")
 
     // 功法
     .register("legacy_getinfo")
@@ -401,11 +509,7 @@ export function registerDefaultCommands(reg) {
       isLocked: false,
     })
 
-    // 咸王宝库
     .register("matchteam_getroleteaminfo")
-    .register("bosstower_getinfo")
-    .register("bosstower_startboss")
-    .register("bosstower_startbox")
     .register("discount_getdiscountinfo")
 
     // 换皮闯关相关
@@ -428,10 +532,8 @@ export function registerDefaultCommands(reg) {
     .register("apex_getroleinfo")
     .register("apex_getguesslist", { scheduleId: 0, idx: 0 })
     .register("apex_guess", { teamId: "" })
-    .register("apex_get64oppomap", { scheduleId: 0, groupId: 0 })
-    // —— APEX 逐鹿盐山：按需注册，仅登记组件实际调用的命令 ——
-    .register("apex_getvotelist")
-    .register("apex_vote", { round: 0, teamId: "" });
+    .register("apex_guessclaim", { scheduleId: 0, teamId: "" })
+    .register("apex_get64oppomap", { scheduleId: 0, groupId: 0 });
   registry.commands.set(
     "fight_startareaarena",
     (ack = 0, seq = 0, params = {}) => {
@@ -485,16 +587,9 @@ export class XyzwWebSocketClient {
     this.socket = null;
     this.ack = 0;
     this.seq = 0;
-    this.wireSeq = 0;
-    // Latest correlated server response time; never infer completion from the browser clock.
-    this.serverTime = undefined;
     this.sendQueue = [];
     this.sendQueueTimer = null;
     this.heartbeatTimer = null;
-    this.heartbeatStartTimer = null;
-    this.reconnectTimer = null;
-    this.reconnectResetTimer = null;
-    this.dialogResetTimer = null;
     this.heartbeatInterval = heartbeatMs;
     this.sendCache = $CacheManager.getCache(this.url, { timeout: 1000 });
 
@@ -503,6 +598,9 @@ export class XyzwWebSocketClient {
     this.showMsg = false;
     this.connected = false;
     this.isReconnecting = false; // 重连状态标志
+    // 默认保持原项目行为：断线后允许 send() 触发自动重连。
+    // 主线推图运行期间会关闭它，由推图模块自己控制“顶号后30分钟重连”。
+    this.autoReconnectEnabled = true;
 
     this.promises = Object.create(null);
     this.registry = registerDefaultCommands(
@@ -521,20 +619,9 @@ export class XyzwWebSocketClient {
   init() {
     wsLogger.info(`连接: ${this.url.split("?")[0]}`);
 
-    if (this.reconnectTimer !== null) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-      this.isReconnecting = false;
-    }
-    if (this.socket) this.disconnect();
-    const socket = new WebSocket(this.url);
-    this.socket = socket;
-    this.serverTime = undefined;
-    this.wireSeq = 0;
-    this.ack = 0;
+    this.socket = new WebSocket(this.url);
 
-    socket.onopen = () => {
-      if (this.socket !== socket) return;
+    this.socket.onopen = () => {
       wsLogger.info("连接成功");
       this.connected = true;
       // 启动心跳机制
@@ -544,8 +631,7 @@ export class XyzwWebSocketClient {
       if (this.onConnect) this.onConnect();
     };
 
-    socket.onmessage = (evt) => {
-      if (this.socket !== socket) return;
+    this.socket.onmessage = (evt) => {
       try {
         let packet;
         if (typeof evt.data === "string") {
@@ -560,94 +646,86 @@ export class XyzwWebSocketClient {
         } else if (evt.data instanceof Blob) {
           // 处理Blob数据
           // 收到Blob数据
-          evt.data
-            .arrayBuffer()
-            .then((buffer) => {
-              if (this.socket !== socket) return;
-              try {
-                packet = this.utils?.parse
-                  ? this.utils.parse(buffer, "auto")
-                  : buffer;
-                // Blob解析完成
+          evt.data.arrayBuffer().then((buffer) => {
+            try {
+              packet = this.utils?.parse
+                ? this.utils.parse(buffer, "auto")
+                : buffer;
+              // Blob解析完成
 
-                // 处理消息体解码（ProtoMsg会自动解码）
-                if (packet instanceof Object && packet.rawData !== undefined) {
-                  gameLogger.verbose(
-                    "ProtoMsg Blob消息，使用rawData:",
-                    packet.rawData,
-                  );
-                } else if (packet.body && this.shouldDecodeBody(packet.body)) {
-                  try {
-                    if (this.utils && this.utils.bon && this.utils.bon.decode) {
-                      // 转换body数据为Uint8Array
-                      const bodyBytes = this.convertToUint8Array(packet.body);
-                      if (bodyBytes) {
-                        const decodedBody = this.utils.bon.decode(bodyBytes);
-                        gameLogger.debug(
-                          "BON Blob解码成功:",
-                          packet.cmd,
-                          decodedBody,
-                        );
-                        // 不修改packet.body，而是创建一个新的属性存储解码后的数据
-                        packet.decodedBody = decodedBody;
-                      }
-                    } else {
-                      gameLogger.warn("BON解码器不可用 (Blob)");
+              // 处理消息体解码（ProtoMsg会自动解码）
+              if (packet instanceof Object && packet.rawData !== undefined) {
+                if (!dreamProductionPacketQuiet(packet, this.promises)) gameLogger.verbose(
+                  "ProtoMsg Blob消息，使用rawData:",
+                  packet.rawData,
+                );
+              } else if (packet.body && this.shouldDecodeBody(packet.body)) {
+                try {
+                  if (this.utils && this.utils.bon && this.utils.bon.decode) {
+                    // 转换body数据为Uint8Array
+                    const bodyBytes = this.convertToUint8Array(packet.body);
+                    if (bodyBytes) {
+                      const decodedBody = this.utils.bon.decode(bodyBytes);
+                      if (!dreamProductionPacketQuiet(packet, this.promises)) gameLogger.debug(
+                        "BON Blob解码成功:",
+                        packet.cmd,
+                        decodedBody,
+                      );
+                      // 不修改packet.body，而是创建一个新的属性存储解码后的数据
+                      packet.decodedBody = decodedBody;
                     }
-                  } catch (error) {
-                    gameLogger.error(
-                      "BON Blob消息体解码失败:",
-                      error.message,
-                      packet.cmd,
-                    );
+                  } else {
+                    gameLogger.warn("BON解码器不可用 (Blob)");
                   }
+                } catch (error) {
+                  gameLogger.error(
+                    "BON Blob消息体解码失败:",
+                    error.message,
+                    packet.cmd,
+                  );
                 }
-
-                // 更新 ack 为服务端最新的 seq（若存在）
-                const actualPacket = packet._raw || packet;
-                const incomingSeq =
-                  typeof actualPacket?.seq === "number"
-                    ? actualPacket.seq
-                    : typeof packet?.seq === "number"
-                      ? packet.seq
-                      : undefined;
-                if (typeof incomingSeq === "number" && incomingSeq >= 0) {
-                  this.ack = incomingSeq;
-                }
-
-                if (this.showMsg) {
-                  // 收到Blob消息
-                }
-
-                // 回调处理
-                if (this.messageListener) {
-                  this.messageListener(packet);
-                }
-
-                // Promise 响应处理
-                if (this.socket === socket) this._handlePromiseResponse(packet);
-              } catch (error) {
-                gameLogger.error("Blob解析失败:", error.message);
               }
-            })
-            .catch((error) => {
-              if (this.socket === socket) {
-                gameLogger.error("Blob读取失败:", error.message);
+
+              // 更新 ack 为服务端最新的 seq（若存在）
+              const actualPacket = packet._raw || packet;
+              const incomingSeq =
+                typeof actualPacket?.seq === "number"
+                  ? actualPacket.seq
+                  : typeof packet?.seq === "number"
+                    ? packet.seq
+                    : undefined;
+              if (typeof incomingSeq === "number" && incomingSeq >= 0) {
+                this.ack = incomingSeq;
               }
-            });
+
+              if (this.showMsg) {
+                // 收到Blob消息
+              }
+
+              // 回调处理
+              if (this.messageListener) {
+                this.messageListener(packet);
+              }
+
+              // Promise 响应处理
+              this._handlePromiseResponse(packet);
+            } catch (error) {
+              gameLogger.error("Blob解析失败:", error.message);
+            }
+          });
           return; // 异步处理，直接返回
         } else {
           gameLogger.warn("未知数据类型:", typeof evt.data, evt.data);
           packet = evt.data;
         }
 
-        if (this.showMsg) {
+        if (this.showMsg && !dreamProductionPacketQuiet(packet, this.promises)) {
           gameLogger.verbose("收到消息:", packet);
         }
 
         // 处理消息体解码（ProtoMsg会自动解码）
         if (packet instanceof Object && packet.rawData !== undefined) {
-          gameLogger.verbose("ProtoMsg消息，使用rawData:", packet.rawData);
+          if (!dreamProductionPacketQuiet(packet, this.promises)) gameLogger.verbose("ProtoMsg消息，使用rawData:", packet.rawData);
         } else {
           // 处理可能存在_raw包装的情况
           const actualPacket = packet._raw || packet;
@@ -670,7 +748,7 @@ export class XyzwWebSocketClient {
                 const bodyBytes = this.convertToUint8Array(actualPacket.body);
                 if (bodyBytes) {
                   const decodedBody = this.utils.bon.decode(bodyBytes);
-                  gameLogger.debug(
+                  if (!dreamProductionPacketQuiet(packet, this.promises)) gameLogger.debug(
                     "BON解码成功:",
                     actualPacket.cmd || packet.cmd,
                     decodedBody,
@@ -701,15 +779,13 @@ export class XyzwWebSocketClient {
         }
 
         // Promise 响应处理
-        if (this.socket === socket) this._handlePromiseResponse(packet);
+        this._handlePromiseResponse(packet);
       } catch (error) {
         gameLogger.error("消息处理失败:", error.message);
       }
     };
 
-    socket.onclose = (evt) => {
-      if (this.socket !== socket) return;
-      this.socket = null;
+    this.socket.onclose = (evt) => {
       wsLogger.info(`WebSocket 连接关闭: ${evt.code} ${evt.reason || ""}`);
       wsLogger.debug("关闭详情:", {
         code: evt.code,
@@ -725,8 +801,7 @@ export class XyzwWebSocketClient {
       }
     };
 
-    socket.onerror = (error) => {
-      if (this.socket !== socket) return;
+    this.socket.onerror = (error) => {
       wsLogger.error("WebSocket 错误:", error);
       this.connected = false;
       this._clearTimers();
@@ -757,10 +832,7 @@ export class XyzwWebSocketClient {
     if (typeof body === "object" && body.constructor === Object) {
       // 检查是否是数字键的对象（例如 {"0": 8, "1": 2, ...}）
       const keys = Object.keys(body);
-      return (
-        keys.length > 0 &&
-        keys.every((key) => !Number.isNaN(+Number.parseInt(key)))
-      );
+      return keys.length > 0 && keys.every((key) => !isNaN(parseInt(key)));
     }
 
     return false;
@@ -781,14 +853,14 @@ export class XyzwWebSocketClient {
     // 对象格式的数字数组转换为Uint8Array
     if (typeof body === "object" && body.constructor === Object) {
       const keys = Object.keys(body)
-        .map((k) => Number.parseInt(k))
+        .map((k) => parseInt(k))
         .sort((a, b) => a - b);
       if (keys.length > 0) {
         const maxIndex = Math.max(...keys);
-        const arr = Array.from({ length: maxIndex + 1 }, () => 0);
+        const arr = new Array(maxIndex + 1).fill(0);
         for (const [key, value] of Object.entries(body)) {
-          const index = Number.parseInt(key);
-          if (!Number.isNaN(+index) && typeof value === "number") {
+          const index = parseInt(key);
+          if (!isNaN(index) && typeof value === "number") {
             arr[index] = value;
           }
         }
@@ -825,46 +897,64 @@ export class XyzwWebSocketClient {
     }
   }
 
+  /**
+   * 控制当前客户端是否允许自动重连。
+   * true  = 保持原项目行为
+   * false = 由上层业务手动控制重连
+   */
+  setAutoReconnectEnabled(enabled = true) {
+    this.autoReconnectEnabled = Boolean(enabled);
+    wsLogger.info(
+      `WebSocket 自动重连已${this.autoReconnectEnabled ? "开启" : "关闭"}`,
+    );
+  }
+
   /** 重连（防重复连接版本） */
   reconnect() {
+    // PUSH_SCHEDULER_RECONNECT_GUARD
+    if (!this.autoReconnectEnabled) {
+      wsLogger.debug("自动重连已由上层推图调度器接管");
+      return;
+    }
+
+    if (!this.autoReconnectEnabled) {
+      wsLogger.info("自动重连已被业务层暂停，跳过 reconnect()");
+      return;
+    }
+
     // 防止重复重连
     if (this.isReconnecting) {
       wsLogger.debug("重连已在进行中，跳过此次重连请求");
       return;
     }
 
+    this.isReconnecting = true;
     wsLogger.info("开始WebSocket重连...");
 
-    // 先取消旧会话的等待请求与队列，再安排新的重连。
+    // 先断开现有连接
     this.disconnect();
-    this.isReconnecting = true;
 
     // 延迟重连，避免过于频繁
-    const reconnectTimer = setTimeout(() => {
-      if (this.reconnectTimer !== reconnectTimer) return;
-      this.reconnectTimer = null;
+    setTimeout(() => {
       try {
         this.init();
       } finally {
         // 无论成功或失败都重置重连状态
-        const resetTimer = setTimeout(() => {
-          if (this.reconnectResetTimer !== resetTimer) return;
-          this.reconnectResetTimer = null;
+        setTimeout(() => {
           this.isReconnecting = false;
         }, 2000); // 2秒后允许下次重连
-        this.reconnectResetTimer = resetTimer;
       }
     }, 1000);
-    this.reconnectTimer = reconnectTimer;
   }
 
   /** 断开连接 */
   disconnect() {
-    const socket = this.socket;
-    this.socket = null;
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
+    }
     this.connected = false;
     this._clearTimers();
-    socket?.close();
   }
 
   /** debounceSend */
@@ -893,29 +983,35 @@ export class XyzwWebSocketClient {
   /** 发送消息 */
   send(cmd, params = {}, options = {}) {
     if (!this.connected) {
-      wsLogger.warn(`WebSocket 未连接，消息已入队: ${cmd}`);
+      wsLogger.warn(`WebSocket 未连接: ${cmd}`);
+
+      // 主线推图进入30分钟冷却后，不允许旧 client 通过 send() 抢连，
+      // 也不把已经过期的消息留到30分钟后发送。
+      if (!this.autoReconnectEnabled) {
+        wsLogger.warn(`自动重连已暂停，丢弃未连接状态下的消息: ${cmd}`);
+        return null;
+      }
+
       // 防止频繁重连
       if (!this.dialogStatus && !this.isReconnecting) {
         this.dialogStatus = true;
         wsLogger.info("自动触发重连...");
         this.reconnect();
-        const dialogTimer = setTimeout(() => {
-          if (this.dialogResetTimer !== dialogTimer) return;
-          this.dialogResetTimer = null;
+        setTimeout(() => {
           this.dialogStatus = false;
         }, 2000);
-        this.dialogResetTimer = dialogTimer;
       }
     }
 
     // 移除特定命令的控制台直出日志，统一用 wsLogger 控制
 
     // 统一在入队时分配 seq，避免与 Promise 版本竞争导致重复
-    const assignedSeq = options.request
-      ? options.request.seq
-      : cmd === "heart_beat"
-        ? 0
-        : ++this.seq;
+    const assignedSeq =
+      options.seq !== undefined
+        ? options.seq
+        : cmd === "heart_beat"
+          ? 0
+          : ++this.seq;
 
     const task = {
       cmd,
@@ -924,23 +1020,22 @@ export class XyzwWebSocketClient {
       respKey: options.respKey || cmd,
       sleep: options.sleep || 0,
       onSent: options.onSent,
-      request: options.request,
     };
 
     this.sendQueue.push(task);
     return task;
   }
 
-  /**
-   * Queue a command and wait for its sequence or legacy command response.
-   * @param {string} cmd Registered protocol command.
-   * @param {object} params Command body.
-   * @param {number} timeoutMs Timeout measured from queue admission, in milliseconds.
-   * @returns {Promise<unknown>} Response body; rejects on a server error or timeout.
-   */
+  /** Promise 版发送 */
   sendWithPromise(cmd, params = {}, timeoutMs = 5000) {
     return new Promise((resolve, reject) => {
-      if (!this.connected || this.socket?.readyState !== WebSocket.OPEN) {
+      // Promise 请求必须建立在真实可写的连接上。
+      // 避免 socket 已 CLOSED 但对象仍存在时进入 send() 并触发抢连。
+      if (
+        !this.connected ||
+        !this.socket ||
+        this.socket.readyState !== WebSocket.OPEN
+      ) {
         return reject(new Error("WebSocket 连接已关闭"));
       }
 
@@ -948,23 +1043,31 @@ export class XyzwWebSocketClient {
       const requestSeq = ++this.seq;
 
       // 设置 Promise 状态，使用seq作为键
-      const request = { resolve, reject, originalCmd: cmd, seq: requestSeq };
-      this.promises[requestSeq] = request;
+      this.promises[requestSeq] = { resolve, reject, originalCmd: cmd };
 
       // 超时处理
       const timer = setTimeout(() => {
-        this._rejectRequest(
-          request.seq,
-          new Error(`请求超时: ${cmd} (${timeoutMs}ms)`),
-        );
+        const pending = this.promises[requestSeq];
+        delete this.promises[requestSeq];
+        if (pending && (phoenixCommands.includes(cmd) || ["store_buy", "store_refresh", "store_purchase"].includes(cmd))) {
+          const index = this.sendQueue.findIndex(task => task.seq === requestSeq && task.cmd === cmd);
+          if (index !== -1) this.sendQueue.splice(index, 1);
+        }
+        const timeoutError = new Error(`请求超时: ${cmd} (${timeoutMs}ms)`);
+        if (dreamV4WireCommands.has(cmd)) {
+          Object.assign(timeoutError, { requestCmd: cmd, requestSeq, matchMode: "timeout", request: pending?.dreamRequest });
+        }
+        reject(timeoutError);
       }, timeoutMs);
-      request.timer = timer;
 
-      try {
-        this.send(cmd, params, { request });
-      } catch (error) {
-        this._rejectRequest(requestSeq, error);
-      }
+      // 发送消息，直接传递seq
+      this.send(cmd, params, {
+        seq: requestSeq,
+        onSent: () => {
+          // 消息发送成功后，不要清除超时器，让它继续等待响应
+          // 只有在收到响应或超时时才清除
+        },
+      });
     });
   }
 
@@ -999,28 +1102,16 @@ export class XyzwWebSocketClient {
   /** 设置心跳 */
   _setupHeartbeat() {
     // 延迟3秒后开始发送第一个心跳，避免连接刚建立就发送
-    const socket = this.socket;
-    const heartbeatTimer = setTimeout(() => {
-      if (this.heartbeatStartTimer !== heartbeatTimer) return;
-      this.heartbeatStartTimer = null;
-      if (
-        this.socket === socket &&
-        this.connected &&
-        socket?.readyState === WebSocket.OPEN
-      ) {
+    setTimeout(() => {
+      if (this.connected && this.socket?.readyState === WebSocket.OPEN) {
         wsLogger.debug("开始发送首次心跳");
         this.sendHeartbeat();
       }
     }, 3000);
-    this.heartbeatStartTimer = heartbeatTimer;
 
     // 设置定期心跳
     this.heartbeatTimer = setInterval(() => {
-      if (
-        this.socket === socket &&
-        this.connected &&
-        socket?.readyState === WebSocket.OPEN
-      ) {
+      if (this.connected && this.socket?.readyState === WebSocket.OPEN) {
         this.sendHeartbeat();
       } else {
         wsLogger.warn("心跳检查失败: 连接状态异常");
@@ -1032,37 +1123,30 @@ export class XyzwWebSocketClient {
   _processQueueLoop() {
     if (this.sendQueueTimer) clearInterval(this.sendQueueTimer);
 
-    const socket = this.socket;
     this.sendQueueTimer = setInterval(async () => {
       if (!this.sendQueue.length) return;
-      if (
-        this.socket !== socket ||
-        !this.connected ||
-        socket?.readyState !== WebSocket.OPEN
-      )
-        return;
+      if (!this.connected || this.socket?.readyState !== WebSocket.OPEN) return;
 
       const task = this.sendQueue.shift();
       if (!task) return;
-      const request = task.request;
-      if (request && this.promises[request.seq] !== request) return;
-      // Server sequences must be contiguous: cancelled or failed unsent commands use no number.
-      const wireSeq =
-        task.cmd === "heart_beat" && !request ? 0 : this.wireSeq + 1;
 
       try {
-        // Reserve a server sequence only for this actual send attempt.
+        // 直接使用任务指定的 seq（已在入队时分配）
         const raw = this.registry.build(
           task.cmd,
           this.ack,
-          wireSeq,
+          task.seq,
           task.params,
         );
 
         // 发送前日志（仅标准五段）
         if (raw && raw.cmd !== "_sys/ack") {
           const decodedBody = this.decodeBodyForLog(raw.body);
-          wsLogger.info("📤 发送报文", {
+          const pending = this.promises[task.seq];
+          if (pending && dreamV4WireCommands.has(task.cmd)) {
+            pending.dreamRequest = dreamV4WireRequest(raw, decodedBody);
+          }
+          if (!dreamProductionWsQuiet(task.cmd)) wsLogger.info("📤 发送报文", {
             cmd: raw.cmd,
             ack: raw.ack ?? 0,
             seq: raw.seq ?? 0,
@@ -1071,24 +1155,13 @@ export class XyzwWebSocketClient {
           });
         }
 
+        // 自增逻辑已在入队时统一处理，这里不再修改 this.seq
+
         // 编码并发送
         const bin = this.registry.encodePacket(raw);
-        if (
-          this.socket !== socket ||
-          !this.connected ||
-          socket.readyState !== WebSocket.OPEN
-        ) {
-          throw new Error("WebSocket 连接已关闭");
-        }
-        if (request) {
-          delete this.promises[request.seq];
-          request.seq = wireSeq;
-          this.promises[wireSeq] = request;
-        }
-        socket.send(bin);
-        if (wireSeq !== 0) this.wireSeq = wireSeq;
+        this.socket?.send(bin);
 
-        if (this.showMsg || task.cmd === "heart_beat") {
+        if ((this.showMsg || task.cmd === "heart_beat") && !dreamProductionWsQuiet(task.cmd)) {
           wsLogger.wsMessage("local", task.cmd, false);
           if (this.showMsg) {
             wsLogger.verbose("原始数据:", raw);
@@ -1125,7 +1198,6 @@ export class XyzwWebSocketClient {
         // 可选延时
         if (task.sleep) await sleep(task.sleep);
       } catch (error) {
-        if (request) this._rejectRequest(request.seq, error);
         wsLogger.error(`发送消息失败: ${task.cmd}`, error);
       }
     }, 50);
@@ -1133,19 +1205,9 @@ export class XyzwWebSocketClient {
 
   /** 处理 Promise 响应 */
   _handlePromiseResponse(packet) {
-    // 有编号的旧响应不能通过命令名匹配到另一笔请求，包括未关联的 resp=0。
-    const responseId = packet.resp;
-    const hasSequence =
-      typeof responseId === "number" ||
-      (typeof responseId === "string" && /^\d+$/.test(responseId));
-    if (hasSequence && !this.promises[responseId]) return;
-    if (Number.isFinite(packet.time) && packet.time > 0)
-      this.serverTime = packet.time;
-
     // 优先使用resp字段进行响应匹配（新的正确方式）
     if (packet.resp !== undefined && this.promises[packet.resp]) {
       const promiseData = this.promises[packet.resp];
-      clearTimeout(promiseData.timer);
       delete this.promises[packet.resp];
 
       // 获取响应数据，优先使用 rawData（ProtoMsg 自动解码），然后 decodedBody（手动解码），最后 body
@@ -1157,28 +1219,29 @@ export class XyzwWebSocketClient {
             : packet.body;
 
       if (packet.code === 0 || packet.code === undefined) {
-        promiseData.resolve(responseBody || packet);
+        promiseData.resolve(dreamDiagnosticAttach(responseBody || packet, packet, promiseData, packet.resp, "resp"));
       } else {
-        // 获取错误描述
-        const errorDesc =
-          errorCodeMap[packet.code] || packet.hint || "未知错误";
-
         promiseData.reject(
-          new Error(`服务器错误: ${packet.code} - ${errorDesc}`),
+          dreamDiagnosticServerError(packet, promiseData, packet.resp, "resp"),
         );
       }
       return;
     }
 
     // 兼容旧的基于cmd名称的匹配方式（保留为向后兼容）
-    const cmd =
-      packet.cmd || (typeof responseId === "string" ? responseId : undefined);
+    const cmd = packet.cmd;
     if (!cmd) return;
     const respCmdKey = typeof cmd === "string" ? cmd.toLowerCase() : cmd;
+
+    // 丢弃序号已过期的战令回执，防止迟到的活动包结算旧版通行证请求。
+    if (respCmdKey === "activity_warorderclaimresp" && Number(packet.resp) > 0) return;
 
     // 命令到响应的映射 - 处理响应命令与原始命令不匹配的情况
     const responseToCommandMap = {
       // 1:1 响应映射（优先级高）
+      dungeon_buymerchantresp: "dungeon_buymerchant",
+      fight_startdungeonresp: "fight_startdungeon",
+      fight_startgenieresp: "fight_startgenie",
       fight_startpvpresp: "fight_startpvp",
       activity_getresp: "activity_get",
       collection_goodslistresp: "collection_goodslist",
@@ -1194,10 +1257,10 @@ export class XyzwWebSocketClient {
       apex_getroleinforesp: "apex_getroleinfo",
       apex_getguesslistresp: "apex_getguesslist",
       apex_guessresp: "apex_guess",
+      apex_guessclaimresp: "apex_guessclaim",
       apex_get64oppomapresp: "apex_get64oppomap",
-      apex_getvotelistresp: "apex_getvotelist",
-      apex_voteresp: "apex_vote",
       hero_recruitresp: "hero_recruit",
+      hero_calcpowerbyteamresp: "hero_calcpowerbyteam",
       friend_batchresp: "friend_batch",
       system_claimhanguprewardresp: "system_claimhangupreward",
       system_hangupupgraderesp: "system_hangupupgrade",
@@ -1216,10 +1279,12 @@ export class XyzwWebSocketClient {
       presetteam_saveteamresp: "presetteam_saveteam",
       presetteam_getinforesp: "presetteam_getinfo",
       mail_claimallattachmentresp: "mail_claimallattachment",
-      store_buyresp: "store_purchase",
+      store_goodslistresp: "store_goodslist",
+      store_buyresp: ["store_buy", "store_purchase"],
+      store_refreshresp: "store_refresh",
       store_getpurchaseresp: "store_getpurchase",
       store_setpurchaseresp: "store_setpurchase",
-      store_getpurchasehistoryresp: "store_getpurchasehistory",
+      system_claimcdkrewardresp: "system_claimcdkreward",
       system_getdatabundleverresp: "system_getdatabundlever",
       tower_claimrewardresp: "tower_claimreward",
       fight_starttowerresp: "fight_starttower",
@@ -1246,21 +1311,12 @@ export class XyzwWebSocketClient {
       warguess_getguesscoinrewardresp: "warguess_getguesscoinreward",
       league_getbattlefieldresp: "league_getbattlefield",
       league_getgroupopponentresp: "league_getgroupopponent",
-      legion_applyjoinresp: "legion_applyjoin",
       legion_signupresp: "legion_signup",
       legion_payloadsignupresp: "legion_payloadsignup",
-      legionmatch_rolesignupresp: "legionmatch_rolesignup",
-      legionmatch_signupresp: "legionmatch_signup",
-      legionmatch_getrankresp: "legionmatch_getrank",
-      legionmatch_getbattlerecordresp: "legionmatch_getbattlerecord",
       pearl_replaceskillresp: "pearl_replaceskill",
       pearl_exchangeskillresp: "pearl_exchangeskill",
       pearl_unloadskillresp: "pearl_unloadskill",
-      // 咸王宝库
       matchteam_getroleteaminforesp: "matchteam_getroleteaminfo",
-      bosstower_getinforesp: "bosstower_getinfo",
-      bosstower_startbossresp: "bosstower_startboss",
-      bosstower_startboxresp: "bosstower_startbox",
       discount_getdiscountinforesp: "discount_getdiscountinfo",
       // 升星相关响应映射
       hero_heroupgradestarresp: "hero_heroupgradestar",
@@ -1270,24 +1326,32 @@ export class XyzwWebSocketClient {
       book_claimpointrewardresp: "book_claimpointreward",
       // 军团信息
       legion_getinforesp: "legion_getinfo",
+      legion_getinfobyidresp: "legion_getinfobyid",
+      legion_applyjoinresp: "legion_applyjoin",
       legion_getinforresp: "legion_getinfo",
+      // 车辆相关响应映射
+      car_getrolecarresp: "car_getrolecar",
+      car_refreshresp: "car_refresh",
+      car_claimresp: "car_claim",
+      car_sendresp: "car_send",
+      car_getmemberhelpingcntresp: "car_getmemberhelpingcnt",
+      car_getmemberrankresp: "car_getmemberrank",
+      car_researchresp: "car_research",
+      car_claimpartconsumerewardresp: "car_claimpartconsumereward",
+      // CAMP_STAGE1_V1: 营地查询响应映射
       club_getinforesp: "club_getinfo",
+      club_getsignupcntresp: "club_getsignupcnt",
+      club_signupresp: "club_signup",
       club_gettargetteamresp: "club_gettargetteam",
+      club_getattackrecordresp: "club_getattackrecord",
+      club_getdefenserecordresp: "club_getdefenserecord",
+      club_getgrouprankresp: "club_getgrouprank",
       club_attackresp: "club_attack",
       club_attackmonsterresp: "club_attackmonster",
       club_taskclaimresp: "club_taskclaim",
       role_gettargetteamresp: "role_gettargetteam",
-      // 玄武赐福活动响应映射
-      activity_warordergetresp: "activity_warorderget",
-      activity_warorderclaimresp: [
-        "activity_warorderrewardclaim",
-        "activity_warordertaskclaim",
-        "activity_recyclewarorderrewardclaim",
-      ],
-      activity_getlotteryinforesp: "activity_getlotteryinfo",
-      activity_lotteryresp: "activity_lottery",
-      activity_rewardresp: "activity_claimsignreward",
-      bosstower_gethelprankresp: "bosstower_gethelprank",
+      activity_warorderclaimresp: "activity_recyclewarorderrewardclaim",
+      arena_getarearankresp: "arena_getarearank",
       // 功法相关响应映射
       legacy_getinforesp: "legacy_getinfo",
       legacy_claimhangupresp: "legacy_claimhangup",
@@ -1307,7 +1371,7 @@ export class XyzwWebSocketClient {
 
       // 同步响应映射（优先级低）
 
-      legion_researchresp: ["legion_research", "legion_resetresearch"],
+      legion_researchresp: ["legion_research", "legion_resetresearch", "legion_exchangeresearch"],
       syncresp: [
         "system_mysharecallback",
         "task_claimdailypoint",
@@ -1317,7 +1381,8 @@ export class XyzwWebSocketClient {
         "lordweapon_changedefaultweapon",
       ],
       syncrewardresp: [
-        "activity_commonbuygoods",
+        "activity_buystoregoods",
+        "system_claimcdkreward",
         "system_buygold",
         "discount_claimreward",
         "card_claimreward",
@@ -1325,8 +1390,8 @@ export class XyzwWebSocketClient {
         "genie_sweep",
         "genie_buysweep",
         "system_signinreward",
-        "system_claimcdkreward",
         "dungeon_selecthero",
+        "dungeon_buymerchant",
         "artifact_exchange",
         "hero_exchange",
         "hero_rebirth",
@@ -1342,11 +1407,17 @@ export class XyzwWebSocketClient {
       originalCmds = [originalCmds]; // 转换为数组
     }
 
+    // 黑市的两种购买共用回包名。迟到的有序号回包和含糊的无序号回包都不能归给另一笔交易。
+    if (["store_goodslistresp", "store_buyresp", "store_refreshresp"].includes(respCmdKey)) {
+      if (Number(packet.resp) > 0) return;
+      const candidates = Object.values(this.promises).filter(p => originalCmds.includes(p.originalCmd));
+      if (candidates.length !== 1) return;
+    }
+
     // 查找对应的 Promise - 遍历所有等待中的 Promise（向后兼容）
     for (const [requestId, promiseData] of Object.entries(this.promises)) {
       // 检查 Promise 是否匹配当前响应的任一原始命令
       if (originalCmds.includes(promiseData.originalCmd)) {
-        clearTimeout(promiseData.timer);
         delete this.promises[requestId];
 
         // 获取响应数据，优先使用 rawData（ProtoMsg 自动解码），然后 decodedBody（手动解码），最后 body
@@ -1363,14 +1434,10 @@ export class XyzwWebSocketClient {
         }
 
         if (packet.code === 0 || packet.code === undefined) {
-          promiseData.resolve(responseBody || packet);
+          promiseData.resolve(dreamDiagnosticAttach(responseBody || packet, packet, promiseData, requestId, "cmd-fallback"));
         } else {
-          // 获取错误描述
-          const errorDesc =
-            errorCodeMap[packet.code] || packet.hint || "未知错误";
-
           promiseData.reject(
-            new Error(`服务器错误: ${packet.code} - ${errorDesc}`),
+            dreamDiagnosticServerError(packet, promiseData, requestId, "cmd-fallback"),
           );
         }
         break;
@@ -1378,39 +1445,8 @@ export class XyzwWebSocketClient {
     }
   }
 
-  /**
-   * Cancel an outstanding request and remove its unsent queue entry.
-   * @param {number} requestSeq Current request key, remapped to the wire sequence on send.
-   * @param {Error} error Failure delivered to the caller; sent packets cannot be recalled.
-   */
-  _rejectRequest(requestSeq, error) {
-    const request = this.promises[requestSeq];
-    if (!request) return;
-    clearTimeout(request.timer);
-    delete this.promises[requestSeq];
-    this.sendQueue = this.sendQueue.filter((task) => task.seq !== requestSeq);
-    request.reject(error);
-  }
-
-  /** Cancel the connection's requests, unsent commands and scheduled callbacks. */
+  /** 清理定时器 */
   _clearTimers() {
-    this.sendQueue.length = 0;
-    for (const field of [
-      "heartbeatStartTimer",
-      "reconnectTimer",
-      "reconnectResetTimer",
-      "dialogResetTimer",
-    ]) {
-      clearTimeout(this[field]);
-      this[field] = null;
-    }
-    this.isReconnecting = false;
-    this.dialogStatus = false;
-    for (const [id, request] of Object.entries(this.promises)) {
-      clearTimeout(request.timer);
-      delete this.promises[id];
-      request.reject(new Error("WebSocket 连接已关闭"));
-    }
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;

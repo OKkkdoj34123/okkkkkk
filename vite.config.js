@@ -1,8 +1,8 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import path from "path";
+  import fs from "fs";
+import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -77,7 +77,6 @@ export default defineConfig(async () => {
   const { ArcoResolver } = componentsResolversModule ?? {};
   const componentsPlugin = componentsModule?.default?.({
     dirs: ["src/components"],
-    globsExclude: ["**/Private/**"],
     resolvers: ArcoResolver
       ? [
           ArcoResolver({
@@ -134,7 +133,7 @@ export default defineConfig(async () => {
             fs.copyFileSync(src, dest);
             console.log("\n[copy-worker] worker.js copied to dist/_worker.js");
           } else {
-            console.warn(`\n[copy-worker] worker.js not found at ${src}`);
+            console.warn("\n[copy-worker] worker.js not found at " + src);
           }
         } catch (e) {
           console.error("\n[copy-worker] Error copying worker.js:", e);
@@ -144,12 +143,18 @@ export default defineConfig(async () => {
   ].filter(Boolean);
 
   return {
-    // GitHub Pages 部署在子路径下，需要相对/前缀路径；本地与 Cloudflare 保持根路径。
+    // GitHub Pages 部署在子路径下，需要带前缀的资源路径；本地与 Cloudflare 保持根路径。
     base: process.env.VITE_BASE_PATH || "/",
     plugins,
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
+        "@components": path.resolve(__dirname, "src/components"),
+        "@views": path.resolve(__dirname, "src/views"),
+        "@assets": path.resolve(__dirname, "src/assets"),
+        "@utils": path.resolve(__dirname, "src/utils"),
+        "@api": path.resolve(__dirname, "src/api"),
+        "@stores": path.resolve(__dirname, "src/stores"),
       },
     },
     server: {
@@ -157,27 +162,6 @@ export default defineConfig(async () => {
       open: true,
       host: true,
       proxy: {
-        // 官方资源 CDN 代理：浏览器直连失败时回退到同源路径。
-        "/api/res": {
-          target: "https://xxz-xyzw-res.hortorgames.com",
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/res/, ""),
-          secure: true,
-        },
-        // 手机号验证码接口需要以 ucenter-app-server Host 路由。
-        "/api/hortor-ucenter": {
-          target: "https://comb-platform.hortorgames.com",
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/hortor-ucenter/, ""),
-          secure: true,
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Linux; Android 12; ALN-AL80 Build/HUAWEIALN-AL80; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.196 Mobile Safari/537.36",
-            Accept: "application/json",
-            Host: "ucenter-app-server.hortorgames.com",
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
         // 微信登录接口代理
         "/api/weixin": {
           target: "https://open.weixin.qq.com",
@@ -227,7 +211,7 @@ export default defineConfig(async () => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: "modern",
+          api: "modern-compiler",
           additionalData: '@use "@/assets/styles/variables.scss" as vars;',
         },
       },

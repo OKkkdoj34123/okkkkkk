@@ -1,0 +1,1899 @@
+﻿
+[2026-11-23] 自动周计划 A/B/C 批次内部独立任务开关
+基线 GitHub main 972d79dab9b23b187f29d656ce30bdb792ae09c1。
+13 条 WEEKLY_RULES 按 rule.id 分别保存到每批 taskEnabled。每格控制整条计划，周五和常规日分别设置。旧 v1 配置和新增规则默认开启，关闭整批保留选择。全量配置随 autoWeeklySchedule 迁移。
+周一北京时间 00:10 仍为一个 tokenRefresh:TOKENS。开始前重新读取参与批次及分组，合并账号去重。三批全关时不发请求。普通任务按参与批次查重，已排队后关闭记终态跳过，运行中允许结束。执行键及默认五分钟补执行窗口沿用原约定。
+下午备用窗口从最后一个启用的相关塔时段结束后开放，全部关闭时为 15:30–18:30。夜间仍为 21:00–24:00。
+修改文件为 src/utils/autoSchedule/ 下的 weeklyPlan.js、planGenerator.js、batchResolver.js、scheduleGuard.js、scheduleStorage.js、scheduler.js、useAutoSchedule.js，以及 src/components/Batch/AutoWeeklyPanel.vue、src/views/BatchDailyTasks.vue。回归扩展 test/autoSchedule.test.js、test/autoScheduleRuntime.test.js、test/tokenRefreshRuntime.test.js。同步更新本文及 docs/CURRENT_STATE.md、docs/MODULE_MAP.md、docs/TODO.md。
+离线验证中，pnpm test:schedule 通过 93/93，pnpm verify 通过维护检查、640/640 项测试和生产构建。Chromium 双标签同时修改、重载及今日/本周展示通过。pnpm lint:check 未通过，补丁后 41426 个错误、1268 个警告，基线为 41438 个错误、1268 个警告。
+使用时需保持批量日常页面运行。下午和夜间备用窗口的独立自定义任务配置、进一步完善自动周计划模板列入 TODO-005。
+
+[2026-11-22] 原始 BIN 分组迁移与盐场实服进展
+基线 GitHub main 81bf37b509cad9d5dd87f1b9b54f5cc63bb020d0。
+配置迁移的“仅原始 BIN”新增分组，部分导出裁剪成员，全选保留空组。导入按目标设备实际保留的账号 ID 恢复成员。同 ID 组保留本地名称、颜色及成员并补齐选区，兼容旧 v1 文件。
+11 月 21 日普通盐场实服日志确认，大本营选址、同距离据点分流、自然到达和一次攻击结算已跑通。后续优先观察途中易主和断线、刷新后的防重复提交，再按实际异常补测试与修正。
+代码入口为 src/utils/binConfigArchive.js、src/utils/tokenRefreshSource.js、src/views/BatchDailyTasks.vue、src/components/Batch/ConfigExportDialog.vue。修正同页连续选文件时重复处理上一份配置的问题。626 项离线回归、维护检查和生产构建通过，Chromium 页面已用模拟认证验证跨设备分组恢复。专项命令为 node scripts/maintenance/test.mjs token-config。
+
+[2026-11-20] RECRUIT_WEEK_BENEFIT_20261120_R2
+基线：GitHub main 6d102f1c15b9c3f785941d92dc5ff0fbae339108。
+共享DailyTaskRunner的claimBoxWeekBenefit新增活动6招募周福利：type=4、buyType=1、商品0免费/限领1、奖励type3/itemId1001/value5（招募令×5）。周分流为黑市周5/9、招募周6、宝箱周7；保留活动期/目录/领取记录/奖励回包/领取后回读、防重键与未决保护；不改activityCycle周期识别及常规task_claimweekreward。
+实服日志：领取前activity_get目录与myStoreInfo[6].complete={}已确认；activity_buystoregoods参数activityId=6/goodsIndex=0/buyNum=1，code=0并返回5个招募令。上传日志未包含领取后activity_get，新增代码的回读仍待部署后现场确认。
+新增recruitWeekBenefit-20261120.json和招募周/三周分流专项回归；同步CURRENT_STATE、MODULE_MAP、TODO、MAINTENANCE。验证由安装器执行node scripts/maintenance/verify.mjs；未发送新游戏请求，未提交/推送/部署。
+交付：patch_recruit_week_benefit_20261120_R2.py，基线SHA与目标文件内容预检、备份、失败回滚、--restore latest。
+
+[2026-11-20] 凤仪祈愿移植到 f6797fca
+基线 f6797fca59bdb3345e23355638cae38ef8eb8d29。普通日最多 10 抽。最后一天核对第 7 格并补齐七天签到，再使用剩券以及实际到账的返券。已完成的盐场周期任务可以领奖。
+自动累计奖励覆盖 5、10、15、20 抽。其余档位和两类商店留待核对。移植版 620 项离线测试及生产构建通过。凤仪业务、手动和定时入口、使用说明见 docs/phoenix-prayer-20261120.md。
+
+[2026-11-18] Token 管理批量选择账号
+TokenImport/index.vue 接入 TokenAccountPicker.vue，支持多组并集、手动勾选及响应式网格，保留服务器标签、原有操作和确认流程。基线 main db3687a9，同时支持已应用当天配置导出补丁的版本。验证入口：node scripts/maintenance/verify.mjs。
+
+[2026-11-18] 按账号范围导出配置 / 纯 BIN JSON
+基线 db3687a9d97b506a61fb2ae364180ba12ad0a2fc。批量日常支持全选、多分组和逐号选择。保留旧配置导入；仅 BIN 文件可在空设备通过 Token 管理的恢复入口导入，新增账号逐个认证，已有账号按 ID 和相同 BIN 字节识别。相关文件见 docs/MODULE_MAP.md；验证入口 node scripts/maintenance/verify.mjs。真实设备认证待验收。
+
+[2026-11-15] BATCH_SCHEDULE_TASK_ALIGNMENT_20261115_R2 自建定时任务与批量日常对齐
+基线：GitHub main e877f96587a90fc743d1195fe235c06ff269d4c1；按目标文件Git blob内容核验，允许LF/CRLF、BOM和末尾换行差异。
+新增自建定时任务：篝火报名、凤仪祈愿、一键江湖黑市、逐鹿盐山竞猜（固定第一赛季自动识别，不继承手动ID）。复用现有业务执行器；外层调度统一持有抢占租约，篝火/凤仪/江湖/逐鹿盐山保留Web Locks；PushPlus逐账号结果包含状态和明细。江湖黑市从已保存清单读取，清单为空/损坏时零购买。无开放Apex赛程记为跳过，多候选仍停止。
+移除批量智能发车、一键收车及其专属任务文件/工具/配置/按钮/定时项；旧定时配置加载与导入时清理旧任务ID，混合任务保留其他步骤，空计划禁用。独立车辆页面/俱乐部车辆信息不删除。自动周计划说明改为默认折叠，删除配置迁移验证说明区域。盐场仍只保留自建独立定时，不加入自动周计划。
+新增 scheduledTaskAdapters 与离线测试；同步 constants/index/BatchDailyTasks/AutoWeeklyPanel/retiredActivities、维护机器索引和项目管理文档。
+安装器：--check零写入；--apply自动备份并运行 node scripts/maintenance/verify.mjs；验证失败自动回滚；--restore latest检查应用后文件哈希，保护额外编辑。
+2026-11-16 R2收尾：修正源码替换匹配及旧配置键误报，完整内容校验防止部分安装被误判完成；原周计划说明内容保留并折叠。待核验结果显式标记。597项离线回归、维护检查与Vite构建通过；18项安装/冲突/中断/恢复场景通过。
+范围：未发送真实游戏/认证请求；未提交、推送或部署。实服验收由用户部署后按账号/活动窗口进行。
+
+xyzw_web_helper_custom 维护导航与历史台账
+最近整理：2026-11-16（北京时间） | BATCH_SCHEDULE_TASK_ALIGNMENT_20261115_R2
+业务输入：GitHub main / e877f96587a90fc743d1195fe235c06ff269d4c1。
+查现状：docs/CURRENT_STATE.md；查代码：docs/MODULE_MAP.md；查未做事项：docs/TODO.md；查流程：docs/MAINTENANCE.md。
+
+[2026-11-14] PHOENIX_ARENA_WEEK_CLEANUP
+输入：上一版凤仪祈愿修复补丁已应用。竞技场前置改为只挑战1次，当前阵容、逐账号读取battleVersion、回读进度和持久化未决保护；不再调用完整日常。祈愿仍每日累计10抽、每请求回包后等待1秒。
+周福利：复用北京时间getActivityCycle，黑市仅生成活动5/9，宝箱仅7；招募周不生成这些领取项。服务端免费/奖励/期次核验不变。
+移除宝库批量/单号入口、任务注册/函数/开放状态、BossTower组件及专用协议事件；旧定时加载和导入自动移除旧项、保留其他步骤，空计划禁用。梦境、普通塔、怪异塔保留。
+实服：用户两号竞技场分别0→1；测试1十连0→10，测试2单抽9次1→10；各剩9券；同日再运行均零挑战/零抽奖/零新增领奖。单抽间隔10.226–16.152秒，无操作过快。实验时缺战斗版本曾拒绝200750，最终动态读取版本后成功；不将该实验请求记为成功战斗。
+验证：585项离线测试、维护检查和生产构建；安装器新增删除文件的备份恢复，LF/CRLF/BOM/无末尾换行、重复执行、冲突零写入、故障回滚。实服记录脱敏；回放仅重建被追踪器引用修改的两类领奖状态映射，其余请求、进度和回执来自实服，详见fixture.provenance。
+交付：patch_phoenix_arena_week_cleanup_20261114.py；--check、--apply/无参数、--restore。未提交、推送或部署。
+
+[2026-11-14] PHOENIX_DAILY_ARENA_FREE_WEEK_FIX
+增量输入：上述Git基线加上一版凤仪祈愿补丁。祈愿请求回包后等待1000ms；活动竞技场未完成时，当前账号先补一轮日常并临时启用竞技场，回读达标才继续。其余日常配置保留，不循环补做。
+共享DailyTaskRunner新增金砖商店200、江湖黑市500免费福利；保留宝箱周活动7。新增活动5/9均核验价格0/限领1/奖励/期次与领取后状态，独立未决保护。用户日志余额11348→11548→12048。
+文件：src/utils/batch/phoenixPrayer.js、tasksPhoenixPrayer.js、src/utils/dailyTaskRunner.js、src/views/BatchDailyTasks.vue；相关测试/脱敏样例、CURRENT_STATE/MODULE_MAP/TODO及本台账同步。
+验证：维护检查、578项离线回归、生产构建；补丁LF/CRLF/BOM/无末尾换行、冲突零写入、重复应用、字节恢复与故障回滚。未新增实服请求，未提交、推送或部署；现场限频与新流程验收见TODO-013。
+交付：patch_phoenix_daily10_fix_20261114.py；--check预检、--apply或无参数应用、--restore恢复到上一版凤仪祈愿。
+
+[2026-11-13] PHOENIX_PRAYER_DAILY10
+批量日常新增凤仪祈愿独立手动入口，本期当日最多10抽。入口及验证见 docs/MODULE_MAP.md。实服单号点卯、10抽、领奖后余7券，同日重复0抽。跨期配置与赤羽兑换见 TODO-013。
+
+[2026-11-12] DAILY_BLACK_MARKET_LIMIT_TEST_20261112
+输入：GitHub main / 859000b394d1201b8391c07daa6f15eecfd4197f。
+策略：保留每日黑市黄金鱼竿 goodsId=12 默认最高价1999金砖；折后整组价2000时超价跳过。历史实服回放记录的限价为2000，不代表当前默认配置。
+CI：Actions run 43188759390 在该提交上556/564通过，8项失败集中于 test/dailyBlackMarket.test.js，均为旧测试预期黄金鱼竿2000限价可购买，与当前1999默认策略不一致。
+修改：仅修正测试预期并新增1999/2000边界回归；同步CURRENT_STATE、MODULE_MAP、TODO、MAINTENANCE及本台账。不修改黑市采购业务代码、历史BIN回放或商品配置。
+验证：安装器应用后自动执行 node scripts/maintenance/verify.mjs；未执行前不宣称本地全量验证或GitHub CI恢复。无实服请求，不提交/推送/部署。
+交付：patch_daily_black_market_limit_tests_20261112.py，基线SHA预检、目标文件冲突保护、原字节备份、验证失败自动回滚及恢复。
+
+[2026-11-12] DAILY_BLACK_MARKET_LIVE_20261112
+三BIN实服发现BON第0页省略refresh，旧版零扣款停止；已在每日黑市模块兼容省略字段的协议默认0，显式非法值继续停止。
+按当次回放记录的限价真实采购扣款5400/4280/2962，三个账号各首刷一次，完整库存增量与奖励一致；该批黄金鱼竿限价为2000，属于历史配置；同日再次执行全部零写入、零扣款。黄金宝箱与普通鱼竿默认超价跳过；第二号配置300/800后另购黄金1、普通鱼竿10，扣1100、刷新0次，再运行零写入。
+新增三账号及两档补购的脱敏实服回放；此前本地记录的黑市26项、全量564项、维护检查与生产构建曾通过。随后GitHub Actions发现8项测试预期与当前1999默认限价不一致，详见DAILY_BLACK_MARKET_LIMIT_TEST_20261112。Windows Chrome、4000关和跨日留在TODO-022。
+patch_daily_black_market.py支持干净基线/上一版完整补丁的精确核验与升级，自动备份并恢复到本次执行前状态。
+
+[2026-11-11] DAILY_BLACK_MARKET_20261111
+每日黑市以真实角色主线4000关分流。低关卡共用本机五档整组限价，按当前货架已购数和折扣购买，最多首刷一次。高关卡沿用服务器清单。
+入口在 src/utils/batch/dailyBlackMarket.js、tasksStore.js、src/utils/dailyTaskRunner.js 和批量日常的黑市配置弹窗。已登记 daily-market 专项和两份脱敏手动抓包样例。WebSocket 改动限定于黑市回执和过期排队写命令。
+离线专项、全量回归、维护检查和生产构建通过。实服自动采购与解锁边界留在 TODO-022。安装与回滚使用 patch_daily_black_market.py。
+
+[2026-11-11] STUDY_FINAL_20261111
+单账号/批量共用周预检，按账号互斥，答题与领奖同类请求间隔1000ms；全对才领奖，独立回读确认。严格诊断定位501实服ID 291，补录原题。501仅领奖与全领跳过、502完整流程均实测；红点和旧第7题仍待核对。详见 docs/CURRENT_STATE.md 的“一键答题与领奖”及 TODO-015。
+
+[2026-11-07] SALT_JSON_DIAGNOSTICS_20261107
+修改：盐场自动采集账号/会话、旧记录、地图变化、选点排除原因、请求回包及终态；批量日常增加JSON导出卡片，持久化最近3批。
+边界：不改行军/攻击/重试/120秒等待/未决保护，不清空执行历史；每批12MiB事件/30000条，超限和存储失败明确提示；凭据脱敏。
+源码：新增saltField/diagnostics.js及SaltDiagnosticsPanel.vue；runner/session/tasksSaltOnce接入，BatchDailyTasks增加卡片；通用WebSocket不变。
+验证：新增6项针对性检查，含15账号命令等价、地图推送、脱敏、保存失败/容量限制；完整验证结果见docs/salt-json-diagnostics-20261107.md。没有活动期实测，不使用非活动期旧日志。
+交付：patch_salt_json_diagnostics_20261107.py；管理状态/模块/TODO/维护说明同步，未提交/推送/部署。
+
+[2026-11-07] UI_BOX_BENEFIT_20261107
+界面：TokenImport和MessageTester统一底色/标题/宽度；/tokens复用DefaultLayout，保留公开导入参数，进入Token页清除任务缓存以保持原退出行为。
+业务：DailyTaskRunner新增宝箱周免费福利；严格核验活动7商品0价格0/限1/奖励，已领跳过、成功回读、未决持久化，不修改常规周常任务领奖。
+验证：新增6项针对性检查；4个既有测试模拟活动未开放，保持原场景断言。501此前一次真实领取成功，本轮生产方法只读跳过。全量/构建/安装器结果见docs/ui-box-benefit-20261107.md。
+管理：CURRENT_STATE、MODULE_MAP、TODO-021、MAINTENANCE、modules.json和本台账同步。交付patch_ui_box_benefit_20261107.py，未提交/推送/部署。
+
+[2026-11-06] TOKEN_LAYOUT_HELP_20261106
+修改：BatchDailyTasks.vue配置迁移独立行、按钮换行、可展开验证说明；TokenImport/index.vue标题/操作分行，移除操作区横向滚动隐藏按钮。
+边界：页面script完全不变，不改业务执行；无新增测试。更新CURRENT_STATE/MODULE_MAP/MAINTENANCE/TODO-020及专题。
+验证和限制：见docs/token-layout-help-20261106.md；浏览器启动受限，真实页面及迁移刷新待用户验收。
+交付：patch_token_layout_help_20261106.py，基于81b2ce6加上一版配置刷新补丁，预检/备份/恢复；未推送或部署。
+
+[2026-11-06] TOKEN_CONFIG_REFRESH_20261106
+修复：日常配置保留来源类型/URL，可选携带BIN，恢复并核验原始字节；旧import账号刷新自动识别URL或已有BIN。
+保留：已有账号ID与当前Token，仅补刷新来源；任务/分组/日常设置引用映射，不需删号重建。缺BIN明确提示，不能从现有Token反推。
+源码：tokenRefreshSource.js、tokenStore.ts、BatchDailyTasks.vue；测试tokenConfigTransfer.test.js、tokenRefreshRuntime.test.js；维护索引/状态/模块表/流程/TODO-020/专题同步。
+验证：针对性29项（新增8项）；全量和安装器结果见docs/token-config-refresh-20261106.md。无真实认证请求，浏览器迁移待用户验收。
+交付：patch_token_config_refresh_20261106.py，预检/备份/恢复；未提交、推送或部署。
+
+[2026-11-06] BONFIRE_SIGNUP_20261106
+修改：日常独立篝火报名；tasksBonfire.js核对身份/职位，周五至周日、同俱乐部去重、动态赛期回读及未决保护。
+协议：xyzwWebSocket.js补club_getsignupcnt/club_signup注册和响应映射；消息测试可填命令+{}。不接自动任务，不领邮件。
+实测：501副团长真实报名一次，赛期261019→261109回读确认；实际任务核心重跑已报名跳过。人数20对应成员20人，报名后人数可空返回。
+测试/管理：bonfireSignup.test.js、脱敏fixture、maintenance/modules.json；CURRENT_STATE/MODULE_MAP/MAINTENANCE/TODO-019及专题同步。
+交付：patch_bonfire_signup_20261106.py，预检/备份/恢复；详情docs/bonfire-signup-20261106.md。未提交、推送或部署，浏览器按钮待现场验收。
+
+[2026-11-05] BATCH_ENTRY_TOKEN_20261105
+修改：BatchDailyTasks.vue将逐鹿盐山ID移入内部弹窗，打开/取消不执行；日常新增“刷新Token”，仅处理当前勾选账号，独立启动重置上次停止标志。
+周刷新：batchResolver.js只取启用A/B/C绑定分组的有效账号并集；排队后按最新配置解析，空组跳过、不回退全部本地。重叠账号刷新一次；其他游戏任务保留重复账号跳过。
+兼容：weeklyPlan.js只更新标签；周一北京时间00:10、TOKENS执行键、锁/历史/中断不重跑策略不变；AutoWeeklyPanel.vue同步提示。日常链与自建定时不变。
+测试/管理：tokenRefreshRuntime.test.js补充范围/排队变更/停止/互斥回归；maintenance/modules.json登记Token回归和相关入口；CURRENT_STATE/MODULE_MAP/MAINTENANCE/TODO/TXT及交付记录同步。
+验证和剩余限制：见docs/batch-entry-token-20261105.md；没有真实游戏/认证请求，浏览器及周一现场验收仍待TODO-018。逐鹿盐山赛程自动发现、异常终态及未决持久化仍见TODO-016/017。
+交付：patch_batch_entry_token_20261105.py，预检/备份/恢复；未提交、推送或部署。
+
+以下是保留的历史交付记录，其旧基线和“未提交”仅指当时状态。
+
+[2026-11-03] APEX_GUESS_20261103
+基线：GitHub main / 94b1bd0dfedd88f98a228bb3a796df3d0f6d12ff；本地补丁，未提交/推送/部署。
+修改：src/utils/batch/tasksApex.js（历史正确奖励补领、cheerCnt多数选择、任一方已竞猜跳过、请求后回读确认、last分页终止）；src/utils/xyzwWebSocket.js（注册apex_guessclaim及响应映射）；src/views/BatchDailyTasks.vue（移除固定46，改为填写当期scheduleId）。
+测试/维护：新增test/apexGuess.test.js、docs/apex-guess-validation-20261103.md；更新CURRENT_STATE、MODULE_MAP、TODO、maintenance/modules.json和本TXT。
+真实验证依据：501/502/503各4次竞猜与4次领奖均回读确认；16002道具58→74，金砖变化0，剩余可领0。原始记录为apex_bin_validation_20261103.md。
+边界：未来scheduleId通用自动发现尚未验证，当前输入框需填写当期已核实ID；留空只补领奖，不提交竞猜。浏览器UI/定时调度全链路未验收，见TODO-016。
+
+第一份抓包10道题均匹配并完成领奖；其他题目集合覆盖与题库选择机制仍待实服验证。3100060/400340不作全局忽略。
+2026-10-30补验：三个BIN真实答题/领奖均通过；题库切换仍未验证。旧段落为历史记录，最新证据见docs/study-live-validation-20261030.md。
+
+================ 以下为保留的历史记录，旧“当前/版本/未实现”不代表现状 ================
+
+[2026-10-28] GENIE_FOUR_NATION_20261028
+输入main=d35686c260ad9f84673a7ad9ed4c951084c1ddff。统一副本按钮；默认魏2蜀2吴2群4，总和<=10；首战默认开启；去掉手动预览，单击开始自动校验。
+新增genieChallengePlan.js，扩展tasksGenieChallenge.js，修改策略/弹窗/页面；不改扫荡、调度、BON、依赖和账号养成。
+三号实发4次：501魏败蜀胜，502吴败，503群胜；历史日期首战正常切当日计数，主线阵容/等级/科技不变。
+科技仅分析：legion_exchangeresearch→legion_researchresp；职业映射及扣钻事实见docs/genie-technology-analysis-20261028.md。详细验证见docs/genie-four-nation-20261028.md。
+未commit/push/deploy；交付带精确版本预检、备份和恢复的一键补丁。
+
+﻿xyzw_web_helper_custom 项目管理与代码索引
+版本：2.1 | 初次整理：2026-10-05 | 最近维护：2026-10-26（北京时间）
+维护入口：AGENTS.md → docs/CURRENT_STATE.md → docs/MODULE_MAP.md；最新变更见当前状态页和末尾台账。
+下方原有“当前增量”等属于历史模块记录；最新维护状态请以上述当前状态页为准。
+当前增量：BATCH_TABLE_20261023；运行版本20261023.4；逐账号表格、待核验计数及请求阶段诊断；兼容20261023.2/.3。
+前次增量：BATCH_CONSOLE_20261023；基线 main/0e40cb5d45d68ffca17fe057353628adb002fa16；运行版本20261023.3；控制台详细日志、PushPlus单条概览。
+前次增量：BATCH_CONFIRMED_20261023；基线 main/d0edf19c2cd3d051c4045ed704281523a40850cd；运行版本20261023.2；盐罐误判修复与精简推送。
+前次增量：BATCH_OBSERVABILITY_20261023；基于20261022.2；运行版本20261023.1；盐罐回包核验、PushPlus完整执行记录。
+前次增量：BATCH_RELEASE_20261022；基于已应用的 20261022.1；运行版本 20261022.2；正式日志、独立残卷去重与爬塔查询恢复。
+前次增量：BATCH_RELIABILITY_20261022；基线 main / f103f76ad34f306f24f791462e50764ea6eecef0；运行版本 20261022.1；源码与离线验证完成，真实账号验收待完成。
+历史增量：BOTTLE_CONNECTION_20261019；基线 main / e05600cbc113bf9ff6d6b4eb807a304eb4842605；下面保留前次增量及历史。
+历史增量：TOKEN_DREAM_STATUS_20261018；基线 main / 4826bbc1376e8f670a96ec8d00c0c99c2b9f52c1；历史记录及下方旧基线说明保留。
+[PROJECT_DREAM_RELEASE_20261011]
+建议位置：项目根目录/PROJECT_INDEX_AND_CHANGELOG.txt
+仓库：https://github.com/yt3238642935-afk/xyzw_web_helper_custom
+核对基线：main / 3279a5378596d55b908c28f7a84d8a01afa63671
+本地增量：SALT_ONCE_FINAL_20261018；取消自动周计划盐场，合并盐场诊断v3与布阵分步重试。
+交付：patch_salt_once_final_20261018.py；替代尚未运行的patch_salt_once_diagnostics_v3.py。
+后续盐场脚本维护以本次对话及本条记录为准；代码未自动提交，活动期实测待完成。
+说明：上述HEAD为补丁基线，不是补丁提交哈希；历史章节保留各次修改当时的状态。
+
+【使用说明】
+本文件负责三件事：按功能找到代码；记住关键修改；按文件反查修改来源。
+建议与源码一起提交 Git，后续每次修改同步更新本文件，保留编号。
+TXT 不会自动监测源码变化，也不会因聊天继续而自动更新。
+查功能：搜索“[功能]”；查历史：搜索提交短哈希或记录编号；查文件：搜索完整路径。
+
+依据：初始《代码定位与修改指南深度调研报告.pdf》、历次项目讨论、
+本次实际获取的 Git main 目录树及提交记录；重点核对近期梦境和导出/挂机差异。
+“修改文件”以下面的 Git 清单为准，不把调用到的文件也算成已修改文件。
+状态分别记录：代码已提交 / 用户实测 / 待验证；三者不能互相替代。
+初次整理仅制作管理文件；后续源码修改及验证情况见新增台账。
+Git 只能证明仓库中的状态，不能证明你本机还有没有未提交补丁。
+
+============================================================
+一、当前状态与后续边界
+============================================================
+1. 初始整理基线提交 08031fc：批量俱乐部申请、手动重发及正式日志已入库；
+   用户已确认该功能完善并提交。字段核验异常的旧版记录不作为当前失败结论。
+2. 梦境：v7 选将、连续战斗及购买已有用户成功日志；v8 正式日志代码
+   已包含于 ed10bad（DREAM_LOGS_V8 标记）。v8 独立实机日志确认未见。
+   正式日志默认每20次战斗汇报进度，详细诊断由 dream_debug_verbose 控制。
+3. 批量日常错误分类、PushPlus 报告、挂机领取及 PNG 导出均已有 Git 提交。
+   挂机领取用户明确确认验证；图片导出不据“已提交”推断所有浏览器均已实测。
+4. 兑换码、黑市清单、盐场积分面板、BON 偏移修正已随 162cb3f 入库。
+   盐场非活动期刷新：暂时放弃继续修改；不等同于删除已有积分面板。
+   BON：已有离线验证记录；真实复杂场景验证不足，后续按必要性处理。
+5. 玄武活动：未实施，后续考虑。即使历史中生成过方案或补丁，也不计作已迁入。
+6. 设备相关超时：曾出现同账号在另一设备正常、原设备部分账号超时；
+   当前缺少完整闭环证据，不直接归因于 Token、BON 或某一次梦境修改。
+
+[2026-10-11 当前维护补充 / R16-R21]
+7. 营地空投保底已随301d98b入库（补记此前遗漏）；怪异塔v5随09c6453入库，
+   用户已确认基本满足预期；400340语义仍不能直接断定为官方限频错误。
+8. 盐场参与一次：237c09d新增；3766bad接入定时并统一控制器；39d9b2a修复出发前选点。
+   已提交不等于已实战通过。现有资料仅确认此前可布阵、无法出发，新导航v2仍待活动期实测。
+9. 梦境商品模板：用户2026-10-11确认改进成功；主公等级使用role.level。
+   单独购买 > 黑市周 > 自动模板，两个手动开关默认关闭；4000级归第一模板。
+   高级金币红将碎片为3-6，非金币选项3-4不在自动及黑市周模板内。
+10. 本次正式日志：购买成功每账号一条结果（含模板）；跳过原因、失败商品/错误码、
+    手动停止及异常保留。战斗继续沿用v8的每20场进度、真实胜负计数及正常阵亡结束。
+    不改购买请求、模板规则、战斗间隔、通信层和其他模块日志。
+    用户此前确认的是模板业务成功；本次正式日志的页面/服务器观察尚待应用后验证。
+
+
+[WEIRD_TOWER_FINAL_V4_STATE_BEGIN]
+[历史状态；当前v5已由用户确认基本满足预期] 怪异塔综合处理v4（2026-10-08）
+  沿用用户已验证的 v3 流程；原三个独立按钮保留，综合按钮与定时选项去掉“调试”。
+  默认每账号仅输出开始和结束汇总；异常、停止、保护退出明确保留，不误报完成。
+  v3 实测：使用63把钥匙、合成77次、领取11次奖励；末尾钥匙0、免费道具0、无合成组合。
+  另一个账号连接超时；正式版仅整理日志，未因此宣称连接问题已经修复。
+  本次已应用；完整构建及正式版游戏实测待验证，提交哈希由后续维护记录。
+  应用前本机 Git HEAD：301d98beb9d804f01a9da35c963384b8e67e5595（不是本次修改的提交哈希）。
+[WEIRD_TOWER_FINAL_V4_STATE_END]
+
+
+[WEIRD_TOWER_RECOVERY_V5_STATE_BEGIN]
+[当前补充状态] 用户实测基本满足预期，作为本轮正式版归档。已实现查询降频、有限重试和跨账号冷却；400340 的具体含义仍未确认，后续按实际异常继续维护。
+  应用前本机Git HEAD：301d98beb9d804f01a9da35c963384b8e67e5595（不是本次补丁的提交哈希）。
+[WEIRD_TOWER_RECOVERY_V5_STATE_END]
+
+
+============================================================
+二、代码快速索引（以下路径已对照当前 Git 目录）
+============================================================
+项目链路：Token导入 → Pinia状态 → WebSocket → BON编解码 → 命令/响应
+          → 日常或批量任务 → Vue界面/PushPlus报告。
+主要技术：Vue 3 / Vite / Pinia；日常开发使用 pnpm。
+
+[功能] 入口、导航和界面
+  src/main.js
+    应用启动
+  src/App.vue
+    根组件/全局主题
+  src/router/index.js
+    路由和访问条件
+  src/layout/DefaultLayout.vue
+    菜单、导航和主布局
+  src/views/GameFeatures.vue
+    游戏功能入口
+  src/views/BatchDailyTasks.vue
+    批量按钮、设置、任务调度接线
+
+[功能] Token、连接和协议
+  src/views/TokenImport/index.vue
+    Token管理界面
+  src/stores/tokenStore.ts
+    账号状态与连接生命周期
+  src/utils/token.ts
+    Token解析
+  src/utils/batch/connectionManager.js
+    批量连接队列
+  src/utils/xyzwWebSocket.js
+    命令注册、发送、响应映射、错误处理
+  src/utils/gameCommands.js
+    兼容式命令构造
+  src/utils/bonProtocol.js
+    BON二进制编解码
+  src/utils/wsAgent.js
+    连接代理辅助
+
+[功能] 日常、挂机、错误码和推送
+  src/utils/dailyTaskRunner.js
+    日常编排；每日挂机最多领取5次
+  src/utils/batch/tasksHangUp.js
+    独立批量挂机入口，与日常内领取区分
+  src/utils/batch/tasksLegacy.js
+    BATCH_RELEASE_20261022：独立残卷入口接入同链共享结果，返回完整错误和待核验元数据
+  src/utils/batch/hangUpWorkflow.js
+    BATCH_RELIABILITY_20261022：同链同账号的分享/加钟、残卷去重；首次拒绝停止后续加钟；不复用真实领奖次数
+  src/utils/batch/taskResult.js
+    verificationRequired / verificationDetails：待核验标记、旧执行器文字兼容与采集器传递
+  src/utils/batch/tasksBottle.js
+    盐罐任务
+  src/utils/batch/dailyErrorPolicy.js
+    批量日常错误分类规则
+  src/utils/pushPlusNotifier.js
+    PushPlus报告和长消息处理
+  src/utils/taskPreemptionCoordinator.js
+    任务协调/抢占
+  src/utils/batch/cronUtils.js
+    定时计算
+  src/utils/batch/logUtils.js
+    批量日志辅助
+
+[WEIRD_TOWER_RECOVERY_V5_INDEX_BEGIN]
+[功能] 怪异塔综合处理（R15 / v5查询恢复，用户已确认基本满足预期）
+  src/utils/batch/tasksWeirdTowerIntegrated.js
+    readEndpoint：独立重试失败的只读命令；不会因读取失败重发开箱/合成/领奖。
+    read：开箱/合成后逐次读回棋盘；以服务器累计消耗计算剩余钥匙，最多复用不足10次消耗。
+    领取奖励、初始化、最终确认及活动/库存数据异常时，必须重新查询真实钥匙状态。
+    queryControls：本模块跨账号的查询间隔及失败后冷却；不修改WebSocket公共底层。
+    日志保留开始/结果/查询异常与恢复；汇总塔查询次数和重试次数，不输出整张棋盘。
+    调试：weird_tower_debug_verbose=1，每轮任务启动时读取，下一轮可直接切换。
+  PROJECT_INDEX_AND_CHANGELOG.txt
+    本次故障事实、修复范围、真实验证状态；原v1-v4历史继续保留。
+  既有接入仍在tasksTower.js、BatchDailyTasks.vue和constants.js，本次不修改这些文件。
+[WEIRD_TOWER_RECOVERY_V5_INDEX_END]
+
+[WEIRD_TOWER_FINAL_V4_INDEX_BEGIN]
+[v4入口沿革，当前修复见上方v5] 怪异塔综合处理（R14）
+  src/utils/batch/tasksWeirdTowerIntegrated.js
+    综合循环：领每日钥匙 → 使用 → 满格连续合成 → 进度/合成领奖 → 收尾免费道具。
+    有剩余组合先合成；奖励增加钥匙后返回使用；读回确认、有限重读及5分钟保护保留。
+    默认精简日志；调试开关 weird_tower_debug_verbose=1，仅影响日志，不能改变任务请求。
+  src/utils/batch/tasksTower.js
+    v1 已接入 createWeirdTowerIntegrated；本次未修改，原独立任务保持原样。
+  src/views/BatchDailyTasks.vue
+    综合按钮、函数绑定、活动判断、定时白名单与串行调度；本次只调整按钮名称。
+  src/utils/batch/constants.js
+    定时任务选项；标识 batchWeirdTowerIntegrated 保持不变，旧配置继续可用。
+[WEIRD_TOWER_FINAL_V4_INDEX_END]
+
+[功能] 梦境购买模板（R20）与正式日志（R21）
+  src/utils/dreamConstants.js
+    dreamPurchaseTemplates：低等级7项/高等级11项/黑市周13项。
+    resolveDreamPurchasePlan：单独勾选优先；黑市周次之；按每个账号role.level自动选择。
+    主公≤4000归第一模板；未知等级且无手动模板时跳过，不拿levelId代替。
+  src/views/BatchDailyTasks.vue
+    dreamPurchaseManualEnabled / dreamPurchaseBlackMarketEnabled：默认false；草稿保存/取消。
+    dreamPurchaseList：保留原勾选；只有单独购买开启才生效，空清单不降级。
+    配置导入导出包含清单及两个开关；手动与定时均调用批量梦境购买执行器。
+  src/utils/batch/tasksDungeon.js
+    批次固定设置、每号独立选模板；保留本轮检查、购买失败停止、禁止盲目重试。
+    本次正式购买日志只修改输出；详细模式沿用dream_debug_verbose=true。
+  src/utils/gameFeatureUnlocks.js
+    levelId是主线关卡；1000关梦境开放门槛与主公4000级分档是两件事。
+
+[功能] 盐场参与一次（R17-R19；2026-10-18补充）
+  src/utils/batch/tasksSaltOnce.js
+    批量入口、手动/定时共用控制器、停止与终态汇总。
+  src/utils/saltField/model.js
+    静态拓扑+动态归属、最近目标、记录、防重复、旧失败恢复资格。
+  src/utils/saltField/session.js
+    盐场专用连接、响应匹配与快照；新增回包/错误码诊断。
+  src/utils/saltField/debug.js
+    结构化诊断开关、日志裁剪与敏感字段脱敏。
+  src/utils/saltField/runner.js
+    布阵→行军→至少120秒且确认抵达→攻击→结算核验；未知结果禁止重攻。
+    两条布阵指令间隔800ms；第一步确认成功后，只重试未完成的第二步。
+  src/utils/batch/index.js / src/utils/batch/constants.js / src/views/BatchDailyTasks.vue
+    模块导出、batchSaltOnce任务选项、页面按钮和定时白名单/串行调度。
+  docs/salt-once.md / docs/salt-once-navigation-v2.md
+    设计、修复边界及实测步骤。
+  test/saltOnce.test.js / test/saltOnceTransport.test.js / test/saltNavigation.test.js
+    离线回归；不等同游戏实战结果。
+
+[功能] 自动周计划取消盐场（SALT_ONCE_FINAL_20261018）
+  src/utils/autoSchedule/weeklyPlan.js：删除周六20:00盐场规则和任务链，识别旧盐场计划。
+  src/utils/autoSchedule/scheduler.js：禁止旧计划入队/重试/执行，保留历史记录与核验提示。
+  src/components/Batch/AutoWeeklyPanel.vue：说明盐场由自行定时任务执行。
+  test/autoSchedule.test.js、test/autoScheduleRuntime.test.js：无盐场周计划、旧记录及人工定时回归。
+  test/saltOnceDiagnostics.test.js：诊断脱敏、布阵间隔与分步重试回归。
+
+[功能] 营地空投保底（R16补记）
+  src/utils/batch/tasksCampChallenge.js / src/utils/campReadOnly.js
+    当前赛期/北京时间核验、周二至周四按进度补足三次；保底不等于保证掉落。
+  src/components/Club/CampChallenge.vue / src/components/GameStatus.vue
+    营地界面及状态接入；批量入口另见BatchDailyTasks.vue。
+
+[功能] 梦境及购买
+  src/utils/batch/tasksDungeon.js
+    批量选将、连续战斗、购买流程
+  src/components/cards/DreamHelperCard.vue
+    梦境卡片及手动购买
+  src/utils/dreamTeam.js
+    阵容解析/标准化
+  src/utils/gameFeatureUnlocks.js
+    主线等级和开放条件
+  src/utils/dreamConstants.js
+    梦境时间/常量
+
+[功能] 俱乐部申请、兑换码和黑市
+  src/utils/batch/tasksLegionApply.js
+    所属俱乐部核验、申请、手动重发
+  src/utils/batch/tasksUpstreamExtras.js
+    首批迁移的批量业务
+  src/utils/batch/blackMarketConfig.js
+    黑市清单配置
+  src/utils/batch/tasksStore.js
+    既有商店业务
+  src/utils/batch/index.js
+    任务模块统一导出
+  src/utils/batch/constants.js
+    任务注册、默认配置
+
+[功能] 盐场、蟠桃和图片导出
+  src/utils/imageExport.js
+    公共PNG下载；多个页面共用
+  src/components/Club/ClubInfo.vue
+    俱乐部页面及积分面板接入
+  src/components/Club/ClubIslandPanel.vue
+    盐场岛屿/积分面板
+  src/views/LegionWar.vue
+    盐场页面
+  src/utils/legionWar.js
+    盐场业务
+  src/utils/clubBattleUtils.js
+    盐场条件与辅助
+  src/components/Club/PeachInfo.vue
+    蟠桃信息
+  src/components/Club/PeachInfoV2.vue
+    蟠桃信息另一入口
+  src/components/Club/PeachBattleRecords.vue
+    蟠桃战报
+
+[功能] 其他常用业务
+  src/utils/batch/tasksItem.js
+    宝箱、钓鱼、物品
+  src/utils/batch/tasksTower.js
+    爬塔
+  src/utils/batch/tasksCar.js
+    车辆
+  src/utils/batch/tasksArena.js
+    竞技场
+  src/views/PushingLevels.vue
+    主线推关
+  src/utils/studyQuestionsFromJSON.js
+    答题题库匹配
+  public/answer.json
+    题库
+  src/utils/helperTaskRunner.js
+    游戏助手业务
+  src/utils/identityExcel.js
+    Excel导出
+
+[功能] 部署与运行
+  package.json
+    脚本与依赖；以实际内容为准
+  pnpm-lock.yaml
+    依赖锁定
+  vite.config.js
+    开发代理/构建
+  worker.js
+    Cloudflare生产代理
+  render-backend/server.js
+    可选后端定时任务
+  render-backend/lib/gameClient.js
+    可选Node游戏连接
+  render-backend/lib/bonProtocol.js
+    可选Node协议实现
+
+响应已到但界面未更新：再查 src/stores/events/ 对应事件模块。
+图片导出改公共工具即可影响调用方；不等于所有导出页面都改过源码。
+新增批量功能通常涉及：业务文件 → index.js → constants.js → 页面接线；
+若新增命令，再查 xyzwWebSocket.js；不要直接在页面手拼BON包。
+render-backend 是另一运行环境，前端修改不会自动同步到后端。
+source/、src/xyzw/、public/game/大型bundle、xyzw_web_helper-main/ 是
+参考/运行时/历史内容，通常不作为业务修改入口。生成的 *.d.ts 不手写业务。
+
+============================================================
+三、关键修改台账（新记录优先；Git提交与本地补丁分别标注）
+============================================================
+范围：初始自定义版本之后与维护相关的提交，不展开上游全部历史。
+M=修改；A=新增；D=删除。日期采用 Git 记录的提交日期。
+
+[R21] 2026-10-11 | 梦境模板正式日志与管理文件修订 | 本地补丁，提交待用户执行
+关键：成功购买合并成单号结果；保留模板名、成功/失败数；失败明细为error，不吞异常。
+  调试模式保留等级、商店核验和字段诊断；战斗日志沿用已安装v8，未改变战斗行为。
+文件：M src/utils/batch/tasksDungeon.js；M PROJECT_INDEX_AND_CHANGELOG.txt。
+验证：脚本交付前做日志/请求不变模拟、版本检查、重复执行及字节级回退检查；非真实服务器验证。
+状态：本条随补丁应用写入；未自动提交Git；应用后的构建和页面日志由用户验证。
+回退：python patch_project_log_and_dream_release.py --restore；恢复本次两文件，保留此前模板功能。
+
+[R20] 2026-10-11 | 梦境商品购买模板v1.1 | 本地已应用，用户确认成功；远端提交未见
+关键：三个模板“主公小于4000”“主公大于4000”“黑市周”；等级读取role.level。
+  第一模板7项，第二11项，黑市周13项；具体商品以dreamPurchaseTemplates为准。
+  单独勾选 > 黑市周 > 自动等级；两个开关默认关闭，4000级归第一模板。
+  金币红将碎片为3-6，排除3-4；单独购买空清单不回退；等级未知时自动模式跳过。
+文件：M src/utils/dreamConstants.js；M src/utils/batch/tasksDungeon.js；M src/views/BatchDailyTasks.vue。
+验证：用户本轮明确确认改进成功；交付前有模板优先级、混合等级、保存/取消及回退模拟。
+沿革：v1整文件匹配把文件末尾空行差异误判为版本不匹配，未写入；v1.1修复匹配并验证原字节回退。
+回退依赖：若已应用R21，先回退R21再考虑回退R20；不要用旧整文件备份覆盖后续功能。
+
+[R19] 2026-10-11 15:21（北京时间） | 盐场出发前选点修复v2 | 39d9b2a
+关键：合并静态地图与动态地块；最近六边形目标、同距离优先道路；角色刷新保留有效地图。
+  有条件恢复旧版出发前3/3失败记录；保留行军120秒下限、到达确认和攻击防重。
+验证：仓库说明记录41项离线测试、构建和安装器检查通过；该说明不等于本轮重新执行测试。
+状态：代码已提交；本轮未获得v2实际行军/结算通过日志，仍待活动期间实测。
+文件（按Git实际清单）：
+  A docs/salt-once-navigation-v2.md
+  A fix_salt_once_navigation_v2.py
+  M src/utils/batch/tasksSaltOnce.js
+  M src/utils/saltField/model.js
+  M src/utils/saltField/runner.js
+  M src/utils/saltField/session.js
+  A test/saltNavigation.test.js
+
+[R18] 2026-10-10 17:24（北京时间） | 盐场定时任务接入修复 | 3766bad
+关键：注册batchSaltOnce；手动与定时复用同一控制器，使用定时作用域状态；返回真实终态。
+  含盐场、营地或怪异塔综合任务的组合串行执行；不能概括为全部定时任务都改成串行。
+状态：代码已提交；连接超时和服务端结算仍需按实际日志核验。
+文件：
+  M src/utils/batch/constants.js
+  M src/utils/batch/tasksSaltOnce.js
+  M src/views/BatchDailyTasks.vue
+
+[R17] 2026-10-09 15:10（北京时间） | 新增盐场参与一次（试验版） | 237c09d
+关键：逐号布阵行军，再逐号确认抵达并攻击；持久化进度、有限尝试、跨标签锁及停止清理。
+状态：已提交试验版；用户曾实测可布阵但无可达目标，后续由R19修复本地寻路；不标为实战全部完成。
+文件：
+  A docs/salt-once.md
+  M src/utils/batch/index.js
+  A src/utils/batch/tasksSaltOnce.js
+  A src/utils/saltField/model.js
+  A src/utils/saltField/runner.js
+  A src/utils/saltField/session.js
+  M src/views/BatchDailyTasks.vue
+  A test/saltOnce.test.js
+  A test/saltOnceTransport.test.js
+
+[R16] 2026-10-08 14:51（北京时间） | 营地空投保底及项目索引首次入库（补记） | 301d98b
+关键：主线当前队伍、周二至周四、当前赛期内按进度补足三次；只记用户已确认达到保底执行机制。
+状态：代码已提交；本次补记遗漏记录，不修改营地源码。
+文件（含该提交一并纳入的界面/声明/初始管理TXT）：
+  A PROJECT_INDEX_AND_CHANGELOG.txt
+  M components.d.ts
+  A src/components/Club/CampChallenge.vue
+  M src/components/GameStatus.vue
+  M src/utils/batch/constants.js
+  M src/utils/batch/index.js
+  A src/utils/batch/tasksCampChallenge.js
+  A src/utils/campReadOnly.js
+  M src/utils/gameCommands.js
+  M src/utils/xyzwWebSocket.js
+  M src/views/BatchDailyTasks.vue
+
+
+
+[WEIRD_TOWER_RECOVERY_V5_RECORD_BEGIN]
+[R15] 2026-10-08 | 怪异塔综合v5：400340查询恢复修复 | 提交：09c6453（合并归档）
+问题：v4每次开箱/合成都查询evotower_getinfo，失败时还重复已成功的棋盘查询；短重试后退出。
+事实：2026-10-08多账号日志，一个完成（69钥匙/69合成/13次领奖）；另两个在该查询上返回400340。
+关键：拆开两类查询；按已确认消耗复用库存；失败端点3/9/15秒有限重试；持续失败后跨账号冷却。
+确认：奖励领取后和任务结束前必须读回真实库存；读取失败不重放消费请求、不虚报完成。
+本次文件：
+  M src/utils/batch/tasksWeirdTowerIntegrated.js
+  M PROJECT_INDEX_AND_CHANGELOG.txt
+验证：交付前离线模拟覆盖连续400340恢复、请求减少、不重放消费、最终核验、停止和冷却。
+状态（2026-10-11核对）：代码已随09c6453入库；用户已确认当前版本基本合适并拟作为最终版。
+  原交付时的待验证状态保留为历史，不再作为当前状态；不推断所有账号及异常场景均已覆盖。
+日志：默认精简，异常显示失败命令、错误码、等待/恢复；结果增加塔查询及查询重试计数。
+回退：python upgrade_weird_tower_integrated_v5.py --restore latest，恢复本次两文件到应用前状态。
+边界：400340原因仍待确认；本次不修改WebSocket/BON、旧按钮、定时任务标识及其他业务。
+[WEIRD_TOWER_RECOVERY_V5_RECORD_END]
+
+[WEIRD_TOWER_FINAL_V4_RECORD_BEGIN]
+[R14] 2026-10-08 | 怪异塔综合正式版 v4沿革 | 提交：09c6453（与v5合并归档）
+关键：保留已验证业务流程，关闭逐次操作/棋盘JSON/阶段进度日志，按账号汇总结果；未知错误不隐去。
+沿革：v1新增综合任务；v2领奖失败独立处理；v3先连续合成、状态查询有限重读；v4正式日志。
+本次文件：
+  M src/utils/batch/tasksWeirdTowerIntegrated.js
+  M src/views/BatchDailyTasks.vue（综合按钮文案）
+  M src/utils/batch/constants.js（同一任务标识的选项文案）
+  M PROJECT_INDEX_AND_CHANGELOG.txt
+前期v1接入：A 综合任务文件；M tasksTower.js、BatchDailyTasks.vue、constants.js；本次不重做接入。
+验证：v3有真实完成日志；补丁预检查通过才写入；完整项目构建/正式版游戏实测待用户补充。
+状态（2026-10-11核对）：v4沿革与后续v5代码随09c6453入库；当前以R15/v5为准。
+调试：localStorage.setItem('weird_tower_debug_verbose', '1')，下一次任务开始生效；removeItem关闭。
+恢复：python finalize_weird_tower_integrated.py --restore latest；恢复本补丁修改的源码与本TXT。
+边界：特殊功能道具的主动使用未新增；满格无可执行组合、资源剩余、未知领奖错误均不标为完成。
+[WEIRD_TOWER_FINAL_V4_RECORD_END]
+
+[R13] 2026-10-04 | 08031fc
+关键：批量申请俱乐部：核验当前归属、申请目标俱乐部、手动重发、正式日志。
+状态：代码已提交；用户确认完善并提交。
+文件：
+  M src/utils/batch/constants.js
+  M src/utils/batch/index.js
+  A src/utils/batch/tasksLegionApply.js
+  M src/utils/xyzwWebSocket.js
+  M src/views/BatchDailyTasks.vue
+
+[R12] 2026-10-04 | ed10bad
+关键：梦境v7/v8：有效单将提交、战力来源修复、本轮状态核验、购买防重复/异常停止及正式日志。
+状态：代码已提交；v7有真实成功记录；v8日志单独实测待补。
+文件：
+  M src/components/cards/DreamHelperCard.vue
+  M src/utils/batch/tasksDungeon.js
+
+[R11] 2026-10-04 | 162cb3f
+关键：迁入兑换码、黑市清单、盐场积分面板和BON byteOffset修正。components.d.ts 为随提交变化的生成声明。
+状态：代码已提交；BON有离线验证记录，盐场刷新暂缓；非全部功能实机验收。
+文件：
+  M components.d.ts
+  M src/components/Club/ClubInfo.vue
+  A src/components/Club/ClubIslandPanel.vue
+  A src/utils/batch/blackMarketConfig.js
+  M src/utils/batch/constants.js
+  M src/utils/batch/index.js
+  A src/utils/batch/tasksUpstreamExtras.js
+  M src/utils/bonProtocol.js
+  M src/utils/xyzwWebSocket.js
+  M src/views/BatchDailyTasks.vue
+
+[R10] 2026-10-03 | 0d62838
+关键：日常挂机最多领取5次，每次响应后等待5.1秒，读回完成状态后可提前结束；图片导出改公共PNG下载，移除优先系统分享。
+状态：代码已提交；挂机用户确认通过；图片导出各浏览器覆盖待补。
+文件：
+  M src/utils/dailyTaskRunner.js
+  M src/utils/imageExport.js
+
+[R09] 2026-10-03 | 923f8bc
+关键：批量日常错误分类与PushPlus报告调整；报告按用户要求完整显示失败、忽略警告。
+状态：代码已提交；不把历史补丁本地检查等同全部真实推送验证。
+文件：
+  A src/utils/batch/dailyErrorPolicy.js
+  M src/utils/dailyTaskRunner.js
+  M src/utils/pushPlusNotifier.js
+  M src/views/BatchDailyTasks.vue
+
+[R08] 2026-10-02 | 7fc6d9b
+关键：梦境阶段修复：战斗/购买与诊断；包含WebSocket改动。后续R12继续修复。
+状态：代码已提交；提交时未完全验证；不作为当前推荐回退点。
+文件：
+  M src/components/cards/DreamHelperCard.vue
+  M src/utils/batch/tasksDungeon.js
+  M src/utils/xyzwWebSocket.js
+
+[R07] 2026-09-29 | 0d84de4
+关键：移除一次性 apply_daily_unlocks_dream_fix.py；并非撤销对应业务源码。
+状态：代码已提交。
+文件：
+  D apply_daily_unlocks_dream_fix.py
+
+[R06] 2026-09-21 | 4f67349
+关键：功能开放条件、梦境阵容和相关日常/批量逻辑，新增配套测试。
+状态：代码已提交；属于初始报告中的既有改动。
+文件：
+  A apply_daily_unlocks_dream_fix.py
+  M src/utils/batch/tasksDungeon.js
+  M src/utils/batch/tasksItem.js
+  M src/utils/dailyTaskRunner.js
+  A src/utils/dreamTeam.js
+  A src/utils/gameFeatureUnlocks.js
+  M src/views/BatchDailyTasks.vue
+  A test/dreamTeam.test.js
+  A test/gameFeatureUnlocks.test.js
+
+[R05] 2026-09-20 | 3050d13
+关键：运行体验及PushPlus报告能力。
+状态：代码已提交；后续R09继续修改报告。
+文件：
+  M src/layout/DefaultLayout.vue
+  M src/utils/dailyTaskRunner.js
+  A src/utils/pushPlusNotifier.js
+  M src/views/BatchDailyTasks.vue
+  M src/views/PushingLevels.vue
+
+[R04] 2026-09-20 | 37e6f2a
+关键：日常任务抢占/协调机制，涉及连接状态、推关和任务页面。
+状态：代码已提交；公共调度历史依赖。
+文件：
+  M package.json
+  M pnpm-lock.yaml
+  M src/layout/DefaultLayout.vue
+  M src/router/index.js
+  M src/stores/tokenStore.ts
+  A src/utils/taskPreemptionCoordinator.js
+  M src/views/BatchDailyTasks.vue
+  M src/views/PushingLevels.vue
+  M vite.config.js
+
+[R03] 2026-09-17 | 37f0516
+关键：Token选择式批量操作。
+状态：代码已提交。
+文件：
+  M src/views/TokenImport/index.vue
+
+[R02] 2026-09-17 | a3eed01
+关键：定时任务由eval调用改为白名单。
+状态：代码已提交；新增任务需沿用注册机制。
+文件：
+  M src/views/BatchDailyTasks.vue
+
+[R01] 2026-09-17 | 137cd93
+关键：自定义开发说明与换行规范。
+状态：代码已提交。
+文件：
+  A .gitattributes
+  M README.md
+
+补充的仓库整理：2026-09-17 c5e0499 删除旧 .bak；9c78d46 调整忽略规则。
+初始自定义导入 e2b3b79 不逐文件展开；不把整个项目都记成后续修改。
+
+历史尝试（不当成当前已启用功能）：
+H01 2026-09-24 梦境400080/2600040早期补丁：用户随后要求回退。
+    曾涉及 tasksDungeon.js、bonProtocol.js、xyzwWebSocket.js；
+    当前是否保留某段逻辑以现有源码为准，不能按旧补丁名整体覆盖恢复。
+H02 梦境v1-v6：诊断、选将、战斗节奏和返回状态多轮调整，核心历史归入R08。
+    后续v7/v8归入R12；不再把旧诊断版当作最新部署版。
+H03 patch_daily_schedule_serial_v1.py：历史曾提供日常/挂机/罐子串行补丁。
+    本台账未逐段确认该补丁是否保留；归为待核验，不宣称已经完成部署。
+H04 玄武：仅存在讨论/候选补丁，用户本轮明确未修改，后续考虑。
+
+重要纠正：R12仅改两个梦境文件，不代表xyzwWebSocket.js从未修改。
+它至少在R08、R11、R13被修改；BON在R11被修改。应分提交追踪。
+
+============================================================
+四、按文件反查修改记录
+============================================================
+以下由第三节实际文件清单汇总（含已提交记录与本地补丁）；未列出的文件不代表整个仓库历史中从未修改。
+
+[2026-10-11 反向索引补充；下方旧记录继续保留]
+PROJECT_INDEX_AND_CHANGELOG.txt：R21本次维护；R16/301d98b首次入库；R14/R15/09c6453。
+src/utils/dreamConstants.js：R20模板、主公等级与商品索引。
+src/utils/batch/tasksDungeon.js：R21正式购买日志；R20模板执行；另见R12/R08/R06。
+src/views/BatchDailyTasks.vue：R20模板设置；R18盐场定时；R17盐场入口；R16营地；另见旧台账。
+src/utils/batch/tasksSaltOnce.js：R17新增；R18调度；R19导航诊断。
+src/utils/saltField/model.js、runner.js、session.js：R17新增；R19选点/刷新/恢复修复。
+src/utils/batch/constants.js：R18盐场定时；R16营地；另见R14/R13/R11。
+src/utils/batch/index.js：R17盐场导出；R16营地；另见R13/R11。
+src/components/Club/CampChallenge.vue、src/utils/batch/tasksCampChallenge.js、src/utils/campReadOnly.js：R16新增。
+src/components/GameStatus.vue、src/utils/gameCommands.js、components.d.ts：R16修改（另有历史记录者见下方）。
+src/utils/xyzwWebSocket.js：R16营地相关注册；另见R13/R11/R08；R17-R21未改此公共文件。
+docs/salt-once.md、test/saltOnce.test.js、test/saltOnceTransport.test.js：R17新增。
+docs/salt-once-navigation-v2.md、test/saltNavigation.test.js、fix_salt_once_navigation_v2.py：R19新增。
+说明：本次补丁脚本本身是交付工具，不是业务运行依赖；未自动加入Git。
+
+[WEIRD_TOWER_FINAL_V4_REVERSE_BEGIN]
+src/utils/batch/tasksWeirdTowerIntegrated.js
+  R15/v5查询恢复；R14/怪异塔正式日志；v1-v3综合任务新增与修复。
+src/utils/batch/tasksTower.js
+  前期v1综合任务接入；本次v4未修改。
+PROJECT_INDEX_AND_CHANGELOG.txt
+  R15/v5查询恢复；R14/怪异塔入口、关键沿革、文件清单与验证状态。
+[WEIRD_TOWER_FINAL_V4_REVERSE_END]
+
+[WEIRD_TOWER_RECOVERY_V5_REVERSE_BEGIN]
+[反向索引更新] R15仅修改综合任务文件和本TXT；具体路径见下方。
+[WEIRD_TOWER_RECOVERY_V5_REVERSE_END]
+
+.gitattributes
+  R01/137cd93
+README.md
+  R01/137cd93
+apply_daily_unlocks_dream_fix.py
+  R07/0d84de4；R06/4f67349
+components.d.ts
+  R11/162cb3f
+package.json
+  R04/37e6f2a
+pnpm-lock.yaml
+  R04/37e6f2a
+src/components/Club/ClubInfo.vue
+  R11/162cb3f
+src/components/Club/ClubIslandPanel.vue
+  R11/162cb3f
+src/components/cards/DreamHelperCard.vue
+  R12/ed10bad；R08/7fc6d9b
+src/layout/DefaultLayout.vue
+  R05/3050d13；R04/37e6f2a
+src/router/index.js
+  R04/37e6f2a
+src/stores/tokenStore.ts
+  R04/37e6f2a
+src/utils/batch/blackMarketConfig.js
+  R11/162cb3f
+src/utils/batch/constants.js
+  R14/怪异塔正式日志；R13/08031fc；R11/162cb3f
+src/utils/batch/dailyErrorPolicy.js
+  R09/923f8bc
+src/utils/batch/index.js
+  R13/08031fc；R11/162cb3f
+src/utils/batch/tasksDungeon.js
+  R12/ed10bad；R08/7fc6d9b；R06/4f67349
+src/utils/batch/tasksItem.js
+  R06/4f67349
+src/utils/batch/tasksLegionApply.js
+  R13/08031fc
+src/utils/batch/tasksUpstreamExtras.js
+  R11/162cb3f
+src/utils/bonProtocol.js
+  R11/162cb3f
+src/utils/dailyTaskRunner.js
+  R10/0d62838；R09/923f8bc；R06/4f67349；R05/3050d13
+src/utils/dreamTeam.js
+  R06/4f67349
+src/utils/gameFeatureUnlocks.js
+  R06/4f67349
+src/utils/imageExport.js
+  R10/0d62838
+src/utils/pushPlusNotifier.js
+  R09/923f8bc；R05/3050d13
+src/utils/taskPreemptionCoordinator.js
+  R04/37e6f2a
+src/utils/xyzwWebSocket.js
+  R13/08031fc；R11/162cb3f；R08/7fc6d9b
+src/views/BatchDailyTasks.vue
+  R14/怪异塔正式日志；R13/08031fc；R11/162cb3f；R09/923f8bc；R06/4f67349；R05/3050d13；R04/37e6f2a；R02/a3eed01
+src/views/PushingLevels.vue
+  R05/3050d13；R04/37e6f2a
+src/views/TokenImport/index.vue
+  R03/37f0516
+test/dreamTeam.test.js
+  R06/4f67349
+test/gameFeatureUnlocks.test.js
+  R06/4f67349
+vite.config.js
+  R04/37e6f2a
+
+============================================================
+五、后续每次修改如何维护本文件
+============================================================
+1. 修改前：读本文件，查当前分支/提交与工作区差异，确定本次功能和涉及文件。
+2. 修改后：只记实际新增、修改、删除的路径；补丁生成不等于已运行应用。
+3. 验证后：分别记“构建/本地检查”和“游戏实测”，没有验证就写待验证。
+4. 提交前：新增一条R编号，更新反向索引和第一节状态；随业务代码一起提交。
+5. 当条记录提交哈希可先写“见本条所在Git提交”，后续维护时再回填。
+   不为把提交自身哈希写入自身而反复 amend；新提交的哈希会随内容变化。
+6. 回退时保留记录并标“已回退”，新增回退说明，避免把已撤销内容当作现状。
+
+最小记录模板（通常5行即可）：
+[R22] YYYY-MM-DD | 功能名称 | 提交：见本条所在Git提交
+关键：一句话描述行为变化。
+文件：M/A/D 完整相对路径；完整相对路径。
+验证：构建通过/未运行；实测通过/待验证；关键结果。
+状态：已应用未提交/已提交/已回退；必要时标明回退依据。
+
+给后续协作者的固定要求：
+“先读PROJECT_INDEX_AND_CHANGELOG.txt，对照最新Git和实际源码定位。
+完成修改后同步更新关键台账、实际文件清单、验证状态和反向索引。
+未实施方案只放待办，不写成完成；保留本次范围外既有修改。
+玄武活动尚未实施，除非本次明确要求，否则不自行迁入。”
+
+============================================================
+六、检索与核对命令（在项目根目录执行）
+============================================================
+看当前基线及未提交文件：
+  git branch --show-current
+  git rev-parse HEAD
+  git status --short
+  git diff --name-status
+  git diff --cached --name-status
+说明：未跟踪文件看status；未暂存/已暂存分别看两种diff。
+
+看提交改了哪些文件：
+  git log -15 --oneline
+  git show --format=fuller --stat 08031fc
+  git diff-tree --no-commit-id --name-status -r 08031fc
+  git show 08031fc -- src/utils/batch/tasksLegionApply.js
+
+看一个文件的历史：
+  git log --oneline --follow -- src/utils/xyzwWebSocket.js
+  git log --oneline --follow -- src/views/BatchDailyTasks.vue
+
+按功能文字/协议检索（装有rg时）：
+  rg -n "梦境|dungeon_selecthero|fight_startdungeon" src
+  rg -n "俱乐部申请|legion_apply|手动重发" src
+  rg -n "领取挂机奖励|system_claimhangupreward" src
+  rg -n "downloadCanvasAsImage|imageExport" src
+  rg -n "dailyErrorPolicy|pushPlus" src
+  rg --files src/utils/batch src/components/Club
+没有rg时可在VS Code使用Ctrl+Shift+F，或用git grep检索已跟踪文件。
+
+开发和构建：
+  pnpm run dev
+  pnpm run build
+按修改范围选择已有测试，例如梦境阵容/开放条件：
+  node --test test/dreamTeam.test.js test/gameFeatureUnlocks.test.js
+仅构建通过不能证明服务端协议和真实游戏任务通过。
+运行lint前看package.json：历史lint脚本带--fix，会产生额外文件变更。
+
+备份与回退：
+补丁脚本/备份按既有习惯放项目外单独保存，记录对应提交或补丁版本。
+同一文件有多项功能修改时，不整文件覆盖旧备份；先查看diff。
+Git正式回退应定位具体提交并处理后续依赖，本文件不提供一键清空工作区命令。
+
+============================================================
+七、待办（不视为已完成）
+============================================================
+T01 玄武活动迁移：未实施，等待后续明确安排。
+T02 盐场非活动期刷新：暂缓；保留现有积分面板。
+T03 BON复杂场景：已有修正和离线验证记录，按实际需要补实测。
+T04 设备相关个别账号超时：待复现闭环；保留“另一设备正常”的事实。
+T05 梦境v8日志、各浏览器PNG下载、完整PushPlus失败报告：补充真实结果。
+T06 串行调度：已确认R18对盐场/营地/怪异塔综合组合串行；更早H03补丁仍需单独核对。
+T07 每次新增功能后同步本TXT；它是人工维护的项目入口，不是自动审计工具。
+T08 盐场导航v2：活动期验证选点→服务器接受行军→至少120秒且真实抵达→结算；未知结果不删记录重攻。
+T09 本次梦境正式日志：应用后构建并观察一个账号；R20模板业务已由用户确认成功，不再列为未实现。
+T10 提交R20/R21后回填可核对的提交信息；不要把39d9b2a当作模板或本次正式日志的提交。
+
+
+================================================================
+[R22] 2026-10-12（北京时间） | 自动周计划 / A-B-C动态批次 / 三周活动识别
+基线：main ce4ca76dd5fba32250aaff6fe9e97bcd5686e847（2026-10-11 梦境购买模板改进）
+状态：代码完成；离线测试通过；build通过；真实连续一周运行待验证。未commit、未push。
+新增：src/utils/autoSchedule/activityCycle.js、weeklyPlan.js、batchResolver.js、planGenerator.js、
+      scheduleGuard.js、scheduleStorage.js、scheduler.js、useAutoSchedule.js；
+      src/components/Batch/AutoWeeklyPanel.vue；
+      test/autoSchedule.test.js、test/autoScheduleRuntime.test.js。
+修改：src/views/BatchDailyTasks.vue、本项目管理文件。旧历史保持原文。
+定位：规则表→weeklyPlan；日期/周期→activityCycle；今日/本周→planGenerator；
+      分组→batchResolver；锁与入队→scheduler；配置/记录→scheduleStorage；
+      状态/重试→scheduleGuard；Vue接线→useAutoSchedule；设置/预览→AutoWeeklyPanel。
+关键实现：
+1. 所有自动规则采用UTC+8。黑市周基准2025-12-12T12:00:00+08:00，依次黑市/招募/宝箱，每21天循环。
+   周五每个计划项按自身计划时刻识别活动，正确处理12:00切换；手动覆盖默认auto。
+2. A/B/C仅保存分组ID，执行前动态读取当前有效账号；跨批次重复则跳过并提示；空批次warning。
+   历史实现：周六20:00盐场生成一个ALL项。2026-10-18已取消该规则，改由用户自行定时任务执行；盐场自身锁和未知结果保护保留。
+3. 非周五凌晨轻量→塔；周五凌晨日常、早间轻量；梦境周日/一/三/四；营地周二/三/四；
+   黑市周周五怪异塔15:30/16:00/16:30；每日中午/晚间日常。备用窗口仅展示，不入队。
+4. 自动项复用enqueueScheduledTask→scheduledExecutionChain→executeScheduledTask及原PushPlus。
+   仅自动Bundle强制顺序；人工daily/cron及原并行分支保留。执行期间不按预留分钟强制终止。
+   自动任务期间避开旧10分钟isRunning重置和自动刷新；手工按钮在Bundle间隙也保持忙碌。
+5. 入队前持久化独立executionKey；刷新残留queued/running转失败待核验，不自动重跑。
+   Web Locks同源选主，锁覆盖排队/运行全程。不支持Web Locks时停止自动调度，不用不可靠租约降级。
+   默认10分钟grace，超窗missed；排队延迟不算missed；手动重试新key并保留原记录。
+6. 默认关闭。今日计划/本周预览同源；展示状态、实际开始结束和步骤结果；配置导入导出含分组。
+   旧配置无autoWeeklySchedule仍可导入；只合并缺失分组，不覆盖既有分组成员或删除旧定时任务。
+7. 历史日期的逐账号明细压缩为数量摘要，保留executionKey、状态、重试关系与时间；当日明细保留。
+验证：43项自动计划/执行器/配置测试通过；加既有梦境、开放条件、任务执行、盐场、爬塔测试共108项通过。
+      pnpm run build通过（仍有原工程大chunk警告）。原pnpm run lint因eslint非直接依赖不可用；
+      直接调用锁文件内eslint又发现原import/order规则与import插件不兼容。
+      新增模块在仅临时关闭该无效规则的独立检查中通过；未更改项目eslint配置或格式化旧页面。
+界面验证：离线浏览器中北京时间显示、本周七天预览、双标签页单一调度、关闭同步通过；页面运行错误0。
+实机限制：浏览器关闭或设备休眠不能执行；锁只保护同源同浏览器的自动周计划，不跨设备选主；
+          日常Bundle沿用原账号资源设置，活动识别本身不新增批量招募/开箱策略。
+          不在运行中清除站点存储；中断记录须先核对游戏再手动重试。
+边界：未改xyzwWebSocket.js、bonProtocol.js、DailyTaskRunner和梦境/营地/怪异塔/盐场业务模块。
+================================================================
+
+============================================================
+2026-10-13  阵容下发正式版 + 功法残卷自动领取修复
+============================================================
+- 阵容下发：V3 实测通过后收敛为正式版；继续使用 hero_exchange 原位置更换。
+- 等级同步：保留慢速升级、200400 退避、默认只升不降；不执行 hero_rebirth。
+- 批量“领取挂机”：在普通挂机/加钟后读取主线 levelId；仅 levelId > 8001 时调用 legacy_claimhangup。
+- 定时“日常任务”：DailyTaskRunner 使用已读取的 mainStageLevel；仅 levelId > 8001 时加入功法残卷领取。
+- levelId <= 8001 或无法识别主线关卡时自动跳过，不用主公等级替代。
+- 未修改 WebSocket/BON 协议；未加入自动周计划。
+- 状态：阵容下发核心行为已实测通过；功法残卷自动领取需本次补丁后实机验证。
+
+[FORMATION_RELEASE_LEGACY_CLAIM_V1]
+
+
+
+============================================================
+[变更] BATCH_RUNTIME_FIX_20261015 | 批量日常运行机制修复
+============================================================
+基线：2d80392a2f7d0e295b69ff767c618baff96ba0d7（2026-10-13）
+交付：patch_batch_runtime_20261015.py；离线应用，先全量校验，再备份再写入。
+状态：71项离线回归与JavaScript语法检查通过；Windows换行、备份及还原已验证。
+完整前端构建、Cloudflare部署及游戏实测待用户执行。
+
+关键变化：
+1. 自动周计划补执行窗口默认5分钟；旧值0/非法值按5分钟，界面最小1分钟。
+   保留已有正数配置（例如10分钟），不删除历史missed/failed记录，不自动重放历史任务。
+2. 定时任务内各任务串行执行；账号之间仍按maxActive限制并发。
+   手动执行定时任务与自动执行共用执行占用状态，等待正在运行的手动批量结束。
+3. 新增connectionSlots.js，以账号ID维护连接名额；重复释放、未申请名额的释放无效。
+   连接失败/取消会清理自己的连接名额；排队期间响应停止；同账号建连进行中复用Promise。
+   各tasks文件大多数仅把releaseConnectionSlot()改为传入账号ID；不是重写业务算法。
+   盐场和怪异塔的独立建连路径同步登记名额。
+4. 停止仅作用于当前任务链；新任务链开始重置一次，链内任务不能把停止标记清掉。
+   DailyTaskRunner在下一条业务指令前检查停止；已发出的请求等待返回，不强行重发。
+   停止后允许只读阵容核验和必要的原阵容恢复，不继续业务任务。
+5. 删除“超过十分钟强制把isRunning置false”的健康检查；执行或排队时禁止自动刷新。
+6. 批量日常仅忽略collection_claimfreereward的12000116和dungeon_selecthero的2600040。
+   这两类返回记skipped，仅输出简短信息日志，不作为失败/警告进入PushPlus；继续后续日常。
+   不对其他命令屏蔽这两个错误码，也不改变独立梦境连续战斗、购买的错误核验策略。
+
+范围边界：
+- 本次未修复共享答题状态、竞技场共享缓存、阵容下发异常恢复、发车结果统计等第二批问题。
+- tasksFormationDispatch等文件仅适配连接名额释放，不代表阵容恢复缺陷已修复。
+- 未修改BON协议、通用xyzwWebSocket.js、游戏任务配置、账号Token及浏览器历史执行记录。
+- connectionManager.js旧工具保留；批量日常实际运行入口在BatchDailyTasks.vue。
+
+[功能] 新增入口
+src/utils/batch/connectionSlots.js：按账号维护连接名额，reserve/release幂等。
+test/batchRuntimeFix.test.js：零窗口、重复释放、取消、串行、指定错误忽略的离线回归。
+
+修改/新增文件（完整清单）：
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/components/Batch/AutoWeeklyPanel.vue
+- src/utils/autoSchedule/scheduleGuard.js
+- src/utils/autoSchedule/scheduleStorage.js
+- src/utils/batch/connectionSlots.js
+- src/utils/batch/dailyErrorPolicy.js
+- src/utils/batch/tasksApex.js
+- src/utils/batch/tasksArena.js
+- src/utils/batch/tasksBottle.js
+- src/utils/batch/tasksCampChallenge.js
+- src/utils/batch/tasksCar.js
+- src/utils/batch/tasksDungeon.js
+- src/utils/batch/tasksFootball.js
+- src/utils/batch/tasksFormationDispatch.js
+- src/utils/batch/tasksHangUp.js
+- src/utils/batch/tasksItem.js
+- src/utils/batch/tasksLegacy.js
+- src/utils/batch/tasksLegionApply.js
+- src/utils/batch/tasksSaltOnce.js
+- src/utils/batch/tasksStore.js
+- src/utils/batch/tasksTower.js
+- src/utils/batch/tasksUpstreamExtras.js
+- src/utils/batch/tasksWeirdTowerIntegrated.js
+- src/utils/dailyTaskRunner.js
+- src/views/BatchDailyTasks.vue
+- test/autoSchedule.test.js
+- test/autoScheduleRuntime.test.js
+- test/batchRuntimeFix.test.js
+
+调试：先运行补丁--check，再应用，运行node --test test/autoSchedule.test.js
+test/autoScheduleRuntime.test.js test/batchRuntimeFix.test.js test/saltOnce.test.js（同一行）。
+随后pnpm run build；用小批次验证定时串行、停止后下一轮启动、失败后名额回到0。
+自动周计划保留missed记录；历史任务需核对后手动重试，新的计划时间点自然触发。
+回退：同一脚本--restore latest；只还原本补丁文件；检测到后续编辑会拒绝覆盖。
+备份默认位于项目父目录xyzw_patch_backups中，运行时打印确切路径。
+
+
+[2026-10-16 BOX_POINTS_DEBUG_V1 — 本地调试版，暂不发布]
+按积分开箱：四种宝箱独立开关与互换优先级；手动与定时共用保存配置。
+本次确认开箱积分累计达标；每10箱领取奖励、刷新库存，再选下一轮。木质保留200。
+账号串行调试；请求异常不自动重发；库存不符、无资源、2000轮或30分钟退出。
+DEBUG-v1日志：配置、库存、命令、确认消耗、累计积分、领奖后库存、退出原因。
+修改：src/views/BatchDailyTasks.vue；src/utils/batch/tasksItem.js；本文件。
+新增：src/utils/batch/boxPointsRuntime.js；test/boxPointsRuntime.test.js。
+限制：真实奖励响应待验证；10箱批次可能超额；达标前后领奖失败均报告未完成。
+
+[2026-10-16 BOX_POINTS_DEBUG_V2 — 本地限流调试增量]
+实测v1：开箱40黄金+50青铜=1300分；第9轮领奖后的角色查询触发200400。
+v2：统一所有命令，上个请求结束至下个开始至少1500ms；角色查询200400最多退避重试3次（5/10/20秒），开箱和领奖不自动重发。
+停止按钮可中断节流与退避等待；记录命令、间隔、重试次数；每次启动仍从本次新增积分0开始，不自动恢复前次进度。
+修改：boxPointsRuntime.js、tasksItem.js、test/boxPointsRuntime.test.js、本文件。
+此版基于DEBUG-v1增量安装；回滚只恢复DEBUG-v1。真实服务器节流阈值尚未确认，1500ms为待实测保守设置。
+
+[2026-10-16 BOX_POINTS_RELEASE_V1 — 按积分开箱正式版]
+实测：2000目标→2300分（黄金10/青铜10/铂金40，6轮，约39秒）；3440目标→3600分（黄金20/青铜20/铂金60，10轮，约64秒）。
+16轮开箱及领奖均完成，无200400、无库存核验异常；领奖后新获得的高优先级箱重新优先使用，木质205保持不变。
+保留：优先级互换、独立开关、木质保留200、每10个开箱后领奖刷新、1.5秒请求间隔、仅查询200400的5/10/20秒退避、串行账号。
+正式日志：账号开始、每10轮进度、限流与异常、最终积分/超出量/开箱统计/领奖请求成功次数/耗时。移除逐请求JSON输出与界面调试字样。
+目标为本次新增积分，启动重新计数；10箱整批可能超额（最多499分），不保证精确凑分。小于10个的库存不使用。
+保护：最多2000轮/30分钟；库存不符或写请求异常不自动重发；停止可中断等待。
+验证：19项离线测试通过；实测仅覆盖上述单账号场景，不代表全部账号和长时间运行均已验证。
+目录索引：src/utils/batch/boxPointsRuntime.js（选箱/计分/库存核验/循环/节流）；test/boxPointsRuntime.test.js（回归）；src/utils/batch/tasksItem.js（批量入口/正式日志）；src/views/BatchDailyTasks.vue（配置与持久化）。
+
+
+============================================================
+[2026-10-18 SALT_ONCE_FINAL_20261018 — 盐场合并补丁]
+============================================================
+基线：main / 3279a5378596d55b908c28f7a84d8a01afa63671。
+背景：用户确认同时启用了自动周计划盐场与自行定时盐场，构成两个调度入口。
+此前patch_salt_once_diagnostics_v3.py尚未在本地运行；本脚本已合并其业务改进，无需先运行旧脚本。
+
+本次变更：
+1. 删除自动周计划固定周六20:00/ALL盐场项和salt任务链；今日/本周计划均不再显示。
+2. 调度器在入队、重试和执行前拒绝旧盐场计划；启动恢复时将旧queued/running盐场记录标为skipped，
+   保存原状态、历史明细及结果待核验说明。completed等已结束历史记录保持，不删除盐场防重记录。
+3. 自行设置的盐场定时任务、批量手动入口、账号分组及其他周任务沿用现有配置。
+4. 合并盐场v3：两条布阵命令间隔800ms；第一条明确成功后重试只补第二条，超时/未知结果仍不盲目重发。
+5. 默认关闭的控制台调试记录请求、响应、错误码、角色状态、目标来源和行军/攻击阶段；字段脱敏、体积限制。
+6. 更新本TXT的首页、目录索引及历史规则说明。未改变公共WebSocket/BON，也未修改开箱、梦境等模块。
+
+修改文件：
+M src/utils/autoSchedule/weeklyPlan.js
+M src/utils/autoSchedule/scheduler.js
+M src/components/Batch/AutoWeeklyPanel.vue
+M src/utils/saltField/session.js
+M src/utils/saltField/runner.js
+M src/utils/batch/tasksSaltOnce.js
+M test/autoSchedule.test.js
+M test/autoScheduleRuntime.test.js
+M PROJECT_INDEX_AND_CHANGELOG.txt
+A src/utils/saltField/debug.js
+A test/saltOnceDiagnostics.test.js
+
+验证：自动周计划、人工定时执行器、盐场导航/状态机/传输/诊断离线回归；补丁应用、重复运行、
+Windows BOM/CRLF、冲突零写入、备份还原均经过检查。完整pnpm构建及真实游戏活动验证由用户执行。
+边界：重复入口的取消不等于已证实3000560/200020的全部根因，不能承诺服务端报错均已解决。
+部署：pnpm run build后按现有方式更新；关闭所有旧版本页面再打开新版，避免旧脚本继续调度。
+核验：本周计划不含盐场；原自行定时盐场仍保留；先一个账号核验布阵→行军→抵达→战斗结算。
+调试开启：localStorage.setItem('xyzw_salt_once_debug_v1', '1')；关闭：localStorage.removeItem('xyzw_salt_once_debug_v1')。
+控制台前缀沿用[盐场调试][v3]。不要删除盐场历史记录以强制重试未知攻击。
+操作：python patch_salt_once_final_20261018.py --check；应用省略--check；回退加--restore latest。
+补丁全量预检、外部逐文件备份、写入失败自动回滚；后续编辑冲突时拒绝覆盖。
+不执行git add/commit/push，不修改浏览器账号/任务配置。部署确认后再由用户决定提交。
+
+
+【TOKEN_DREAM_STATUS_20261018｜2026-10-18｜版本 1.4】
+TOKEN_DREAM_STATUS_20261018 — 交付与验收说明
+
+基线：main / 4826bbc1376e8f670a96ec8d00c0c99c2b9f52c1
+仅修改工作区文件；不提交、不推送、不发布，不访问真实游戏账号。
+
+确认的代码原因
+1. 原周计划没有全量 Token 刷新入口；现有 attemptTokenRefresh 已支持 URL 和原始 BIN 认证，但只返回布尔值，并可能按页面触发重连。
+2. 梦境把 isWin=false 当作直接结束条件；没有按当前关卡计数的“首次+5次”策略。缺失胜负时的处理与有胜负时的读回检查不一致。
+3. 定时收集器会把正常返回但仍 waiting/running 的状态记为失败；failed 没有详细原因时无法准确回溯。
+4. 答题共用单个 studyStatus，发出答题/领奖命令就记完成，未等待响应；并发账号可能互相覆盖。
+5. 爬塔吞掉读状态错误、使用推测体力，并把异常循环退出记完成；挂机子步骤失败缺少独立结果回传。
+这些是静态代码与离线运行测试确认的问题，不代表已经证实每次真实游戏报错的原因。
+
+行为变更
+- 北京时间每周一 00:10 只有一条全局刷新计划，枚举当前本地所有导入账号，去重、串行；不依赖 A/B/C 绑定或重复账号校验。浏览器须打开并保持运行，默认 5 分钟宽限，错过不补跑。沿用调度器 Web Locks、持久记录，崩溃后待核验且不重放；该周刷新计划禁止手动重试，同账号认证也有 Web Lock。
+- 复用原 attemptTokenRefresh/transformToken 和 25 次/分钟限流、10 秒冷却；URL、BIN、wxQrcode 支持，旧名称 BIN 回退后迁移至账号 ID。缺少凭据/不支持来源记跳过。验证 localStorage 保存；刷新任务不抢占、关闭或强制重连游戏 WS。保留旧布尔 API 和显式重连行为。
+- 每场梦境读回 role。确认本轮、关卡未推进且选定武将 HP>0 才重试，同关最多 6 次；推进重置；HP=0/轮次结束正常停止。超时或无胜负仅在读回证明可继续时重试；未知字段/读取失败记待核验并停止。保留版本读取、选将、单次 200 战、3 秒间隔；400340 独立最多 2 次，15 秒冷却，恢复后 5 秒间隔。
+- 日常梦境先核对轮次、上阵和 HP；当前已选将/阵亡跳过，旧轮次可选将；字段缺失待核验。400080 不全局忽略，只在该命令读回确认当前轮次已有队伍时跳过。
+- 终态 completed/skipped/warning/partial/failed/stopped/unavailable 保留；真实异常记录原因；未收到合法终态记 warning 待核验。PushPlus 显示待核验详情，普通警告仍不列入异常明细；warning 不计为已完成项。
+- 挂机子步骤独立统计，部分成功记 partial；盐罐仅精确“无可领取盐罐”语义且限定领取命令才跳过，不推测数字错误码；答题按 tokenId 隔离、等待答题/领奖响应；爬塔读回体力、有限错误恢复、停止未知结果，finally 恢复原阵容。
+
+验证
+- node --test test/*.test.js：196 项通过（145 项原有测试 + 51 项新增测试）；覆盖原 autoScheduleRuntime、dreamTeam 以及本次 Token、梦境、终态和 PushPlus 分支。
+- pnpm build：通过；仍有项目大 chunk 体积提示。
+- git diff --check：通过。
+- 自动脚本还会在用户本机再次执行全部上述检查；依赖未安装时先退出，不改文件。
+- 真实认证、游戏战斗、周一跨标签执行和真实 PushPlus 投递尚未实测。
+
+实机验收清单
+1. 用 URL、BIN、微信扫码、手工账号各一个验证刷新结果和本地保存；确认原有推图连接不被刷新任务关闭；日志不含 Token、BIN 或鉴权 URL。
+2. 周一北京时间 00:10 打开两个标签页，检查只有一条计划、一轮认证；刷新页面不重复。浏览器关闭/休眠时无法保证触发。
+3. 梦境卡关仍存活时日志应出现重试 1/5 至 5/5；过关重置；归零停止；断网或状态缺失待核验；400340 不占普通关卡重试次数。
+4. 日常梦境对本轮已选将/阵亡不重发；400080 只有读回证明本轮队伍时跳过，否则保留真实错误。
+5. 挂机部分失败、空盐罐、并发答题、领奖失败、塔体力为零/未知结果及停止操作，核对页面、定时记录、PushPlus 三处结果。
+
+已知边界
+- 未获得真实空盐罐响应样本，因此未把任何数字错误码视为“无可领”；如服务器只返回数字码，会保留真实失败，需提供脱敏响应再扩展。
+- 答题默认答案仍沿用原逻辑；找不到答案会记警告。领奖响应超时只说明未确认，不会自动补领。
+- 自动计划依赖浏览器 Web Locks 与本地存储，不是后台定时服务；使用不同浏览器/不同存储的设备不共享记录。
+
+使用（脚本放在项目根目录，Python 3.9+）
+python patch_token_dream_status_20261018.py --check
+python patch_token_dream_status_20261018.py
+python patch_token_dream_status_20261018.py --restore latest
+其他目录运行：加 --root 项目绝对路径。
+--check 只检查文件与基线；--details 显示本说明；--verify-only 仅验证已应用版本。
+--source-snapshot 仅用于没有 Git 元数据的完整基线源码包，仍校验全部基线文件，不绕过内容检查。
+若缺少依赖，先在项目根目录执行 pnpm install --frozen-lockfile。
+
+回滚与保护
+- Git HEAD 必须等于上述基线；所有已读取基线文件按 SHA-256 校验，兼容 LF/CRLF；任何内容冲突先退出，不覆盖。
+- 新文件若已存在且不匹配也拒绝；全部已应用时重复运行不重写、不重复备份。
+- 自动备份到 _patch_backups/TOKEN_DREAM_STATUS_20261018_时间_随机值，含原始字节、权限及校验清单。
+- 文件替换、测试或构建失败会自动恢复源码；主动恢复前也会检查后续编辑，发现冲突拒绝覆盖。不要删除备份目录。
+- 强制结束 Python/系统断电后可用 --restore latest 恢复；后续源码有编辑则先自行保存，脚本不会强制覆盖。
+- dist 构建产物不属于源码回滚范围；恢复后需 pnpm build 重建旧版本，再按原流程部署。
+
+修改文件
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/components/Batch/AutoWeeklyPanel.vue
+- src/stores/events/study.ts
+- src/stores/tokenStore.ts
+- src/utils/autoSchedule/batchResolver.js
+- src/utils/autoSchedule/scheduleGuard.js
+- src/utils/autoSchedule/scheduler.js
+- src/utils/autoSchedule/weeklyPlan.js
+- src/utils/batch/constants.js
+- src/utils/batch/index.js
+- src/utils/batch/taskResult.js
+- src/utils/batch/tasksBottle.js
+- src/utils/batch/tasksDungeon.js
+- src/utils/batch/tasksHangUp.js
+- src/utils/batch/tasksToken.js
+- src/utils/batch/tasksTower.js
+- src/utils/dailyTaskRunner.js
+- src/utils/dreamStatePolicy.js
+- src/utils/pushPlusNotifier.js
+- src/utils/token.ts
+- src/views/BatchDailyTasks.vue
+- test/autoSchedule.test.js
+- test/autoScheduleRuntime.test.js
+- test/batchRuntimeFix.test.js
+- test/batchTerminalRuntime.test.js
+- test/dreamRetryRuntime.test.js
+- test/tokenRefreshRuntime.test.js
+
+
+【BOTTLE_CONNECTION_20261019｜2026-10-19｜版本 1.5】
+BOTTLE_CONNECTION_20261019｜盐罐去重、日常断线中止与报告改进
+基线：main / e05600cbc113bf9ff6d6b4eb807a304eb4842605
+运行版本标记：20261019.1；项目管理文件版本：1.5。
+
+适用条件与运行
+- 基于已应用 TOKEN_DREAM_STATUS_20261018、并提交至 e05600c 的源码。
+- Python 3.9+，Node.js 20+，项目已安装 pnpm 依赖。
+- 将本脚本放入项目根目录，运行：python patch_bottle_connection_20261019.py
+- 只做预检：python patch_bottle_connection_20261019.py --check
+- 恢复原始源码：python patch_bottle_connection_20261019.py --restore latest
+- 查看说明：python patch_bottle_connection_20261019.py --details
+- 非项目目录运行时加 --root 项目绝对路径。
+- 缺依赖时先执行 pnpm install --frozen-lockfile，再运行脚本。
+- 无 Git 元数据的完整基线源码包可显式使用 --source-snapshot；仍校验全部基线文件，不绕过内容冲突。
+
+已确认问题与本次处理
+1. 日常内部包含盐罐启停/领取，外层四任务链又包含独立重置/领取，存在重复。
+   引入任务链内、账号内共享执行记录：每个账号每轮最多一组 stop/start、一次 claim。
+   自动周计划、自建定时任务、手动执行定时任务均传递同一上下文；下一次执行重建，不跨账号、不永久跳过。
+   无论独立按钮排在日常前还是后，都共享记录；先前失败/超时也不会因后续入口重复而重发。
+   日常链领取前读回角色，确认 dailyTask.complete[14]=-1 时跳过；只代表日常目标完成，不声称已无奖励。
+   独立手动领取、只含领取的任务链仍保留收取额外奖励的用途，不仅因日常已完成而禁止领取。
+2. 缺少角色/助手状态时未发送领取并标记待核验。helperStopTime 仅用于精简诊断，不当作奖励成熟时间。
+   仓库及参考代码没有已验证的 reward-ready 字段，因此在助手状态存在且未确认日常目标完成时保留一次领取尝试。
+   对 bottlehelper_claim 的 2000150，最多读回一次状态；只有确认日常目标完成才跳过，其余记 warning 待核验。
+   保留错误码、领取前后日常14标记、助手截止时间和字段名；不输出原始 role、Token、BIN 或鉴权 URL。
+   不全局忽略 2000150，不把它推测为“无奖励”“时间不足”或成功；3500020/400340 等原策略未扩大。
+3. 日常子步骤曾捕获断线错误后继续，造成一个连接问题形成几十条失败。
+   现对 WebSocket 未连接/已关闭、请求超时或已确认连接异常，中止该账号本轮剩余日常，记录首个问题和未执行数量。
+   不重发超时战斗、不重跑整轮；阵容查询/切换超时不再触发强制切换。无法完成阵容恢复时提示游戏内核对。
+   初始读取/连接异常也不触发外层整轮重试；其他账号继续。普通业务拒绝仍按既有策略继续。
+   此处中止的是本轮日常内部；后续独立外层任务仍按原流程重新建连，并受盐罐共享记录约束。
+4. PushPlus 加入 20261019.1 标记以及完成/跳过/警告/异常四项数量。
+   普通警告正文仍隐藏；待核验详情和真实失败显示。避免日常连接中止原因重复列两遍。
+   保留“2/4”等原比例口径：completed+skipped 计入已处理；warning 不当作已完成。
+
+修改边界
+- 未改梦境轮次判断、选将或连续战斗策略；11:22 实测已能识别本轮阵亡并跳过。
+- 未改 Token 刷新认证、盐场任务、积分开箱、梦境商品购买、BON 或 WebSocket 底层协议。
+- 未更改默认周计划任务顺序，也不覆盖用户已有定时配置。
+- 不自动提交、推送或部署 Git；网页更新仍需用户按原部署流程操作。
+
+验证
+- node --test test/*.test.js：223 项通过（原有196项＋本次27项）。
+- pnpm build：通过，保留项目原有大 chunk 提示。
+- git diff --check：通过。
+- 针对同链前后两种顺序、并发去重、账号隔离、日常已完成、缺失状态、2000150读回成功/未知、其他错误码、停止边界、超时不重放、旧警告规则及实际Vue上下文传递均有回归覆盖。
+- 一键脚本会在本机应用后再次运行 Node 测试、生产构建与 Git 空白检查；失败自动回滚源码。
+- 本次未进行真实游戏请求；2000150 的服务器语义仍待实测，不能宣称全部盐罐业务错误已消失。
+
+部署后验收
+1. 部署本次提交后，结束旧页面任务并刷新执行页面；新 PushPlus 报告应显示 20261019.1。
+2. 用 Q587-1 或同类今日盐罐任务已完成的账号运行四任务链：独立领取应跳过，重置最多一组，不再盲目领取。
+3. 对未完成的账号若仍返回2000150，查看新增待核验摘要，核对游戏界面是否真有可领取奖励；不要提供Token/BIN。
+4. 断线测试应只显示首个问题与后续未执行数量，不再出现几十条“WebSocket未连接”；其他账号应继续。
+5. 独立盐罐按钮仍可使用；新一轮计划应重新检查，不被上一轮缓存永久跳过。
+
+备份与回滚
+- 默认要求 Git HEAD 等于 e05600c，并校验所读取的全部基线源码/测试/根目录文件；LF与CRLF兼容。
+- 冲突在写入前退出，不覆盖本机修改；已完整应用时重复运行不重复写入。
+- 自动备份目录：_patch_backups/BOTTLE_CONNECTION_20261019_时间_随机值。
+- 保存原始字节、权限与校验清单；验证失败自动恢复，手动恢复也会拒绝覆盖补丁后新编辑的文件。
+- 恢复只针对本次源码改动，不删除旧版备份或其他文件；dist 不属于源码回滚范围，恢复后执行 pnpm build 重建。
+- 备份目录应保留本地，通常无需上传 GitHub。
+
+修改文件
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/bottleWorkflow.js
+- src/utils/batch/dailyConnectionPolicy.js
+- src/utils/batch/tasksBottle.js
+- src/utils/dailyTaskRunner.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/autoScheduleRuntime.test.js
+- test/batchRuntimeFix.test.js
+- test/batchTerminalRuntime.test.js
+- test/bottleConnectionFix.test.js
+
+
+============================================================
+【BATCH_RELIABILITY_20261022｜2026-10-22｜版本 1.6】
+查询恢复、挂机去重、盐罐结果继承与 PushPlus 状态分列
+基线：main / f103f76ad34f306f24f791462e50764ea6eecef0
+运行版本：20261022.1（查询恢复/挂机去重/状态分列）
+交付脚本：patch_batch_reliability_20261022.py
+
+问题依据与判断边界
+- 依据用户 2026-10-21 六份 PushPlus 摘要。标题合计 101 账号次，但第二份粘贴仅有 18/20 行，不能把可见行当作完整总体。
+- 旧“已结束”包括普通警告与待核验，失败 0 不代表业务全部成功；早间梦境 15 个已结束中可见 5 个待核验。
+- 日常“完成1 跳过2 警告1”不能仅凭推送认定警告根因；普通警告正文仍按既有偏好隐藏。
+- 独立挂机“已确认5次操作”包含 1 次真正领奖和 4 次分享/加钟，并不等于 5 次领奖。
+- 已核对日常真正挂机领奖循环：最多 5 次、间隔约 5.1 秒，本次保留。
+- 200400 明确为查询过快时才做受限读取重试；不猜测 400340、800040、2000150 的业务含义。
+
+本次实现
+1. 梦境只读查询恢复（src/utils/batch/tasksDungeon.js）
+   明确识别 200400，初次查询后最多再读 3 次，等待分别为 5/10/20 秒。
+   已收到战斗胜负后等待 1.5 秒再读状态；等待期间支持停止。
+   战后查询失败只恢复查询，不重发 fight_startdungeon；非 200400 不套用重试。
+   保留既有轮次、选将、同关卡最多 6 次请求（首次 1 + 重试 5）及其他保护。
+2. 同链挂机共享结果（hangUpWorkflow.js / tasksHangUp.js / dailyTaskRunner.js）
+   共用现有每轮 bottleTaskContext，在其中增加按账号隔离的 hangUpActions。
+   日常分享、日常加钟、独立挂机和独立加钟共用同一组 4 个请求槽；功法残卷最多请求 1 次。
+   第一次加钟业务拒绝即停止后续未发槽位；后续入口继承同一结果，不继续盲发。
+   同槽并发调用共享原 Promise；新任务链重建上下文，不跨轮、跨账号缓存。
+   已确认、失败、超时都保留各自原结果；超时/断线明确待核验并停止相关后续操作。
+   独立挂机报告分开说明真正领奖、加钟、残卷，保留确认进度及首次错误码。
+   写请求不自动重试；每次实际分享/残卷写入前后至少间隔 1 秒，复用时不增加等待。
+   真正领奖循环未纳入分享/加钟去重；原每日最多 5 次领取保持不变。
+3. 盐罐复用不掩盖异常（src/utils/batch/bottleWorkflow.js）
+   前序领取待核验时，后续重复入口仍返回 warning；前序失败则重抛同一错误。
+   仅已确认完成或正常跳过的复用结果归为 skipped；所有复用仍不再发送领取。
+   不改变 2000150 的核验规则，不把 helperStopTime 当作已成熟证据。
+4. 结构化待核验与推送（taskResult.js / BatchDailyTasks.vue / pushPlusNotifier.js）
+   增加 verificationRequired / verificationDetails，完整穿过执行器、采集器与汇总。
+   兼容旧执行器的未确认、待核验、连接中断等说明；显式元数据优先。
+   顶部互斥分列确认完成、正常跳过、普通警告、待核验、部分异常、失败、其他。
+   部分异常若同时待核验，仍计入部分异常并保留核验详情，不重复计入待核验人数。
+   比例改名“完成/跳过”，只计已确认 completed/skipped；warning 仍不等同完成。
+   普通警告正文继续隐藏，真正异常和待核验证据显示；原长消息分页保留。
+
+未调整的业务与后续事项
+- 不改梦境商品清单、购买规则、Token 刷新、盐场周计划、BON、公共 WebSocket 协议。
+- 免费招募 400030、功法残卷 800040、加钟 400340、盐罐 2000150 的准确业务条件仍需独立证据。
+- 本补丁减少重复请求并改善查询恢复，但不承诺所有错误码消失或整批耗时必然下降。
+- 后续先收集每账号/任务/子步骤耗时、查询等待和连接排队时间，再定位 41 分钟长尾；不直接提高并发。
+- 若盐罐仍待核验，按账号对照游戏界面与只读状态；确认真实可领取条件后再设计前置判断。
+- 断线后整轮自动重跑、结果未知时重放写操作仍未启用。
+
+使用方法
+- Python 3.9+；Node 需提供 node:module.registerHooks，已验证 Node.js 24。
+- 项目依赖未安装时先运行：pnpm install --frozen-lockfile。
+- 项目根目录应用：python patch_batch_reliability_20261022.py
+- 只读预检：python patch_batch_reliability_20261022.py --check
+- 仅重新验证已应用版本：python patch_batch_reliability_20261022.py --verify-only
+- 恢复源码：python patch_batch_reliability_20261022.py --restore latest
+- 查看说明：python patch_batch_reliability_20261022.py --details
+- 非项目目录运行时加 --root 项目路径。无 .git 的完整源码包需显式加 --source-snapshot。
+- --source-snapshot 不能跳过已存在 Git 的版本检查；冲突须先核对，不支持强制覆盖。
+
+预检、备份与恢复
+- 首次应用要求 Git HEAD 为上述基线；校验本次文件及直接关联源码、测试、构建配置。
+- 兼容 UTF-8 BOM 和 CRLF；保存原始字节和权限，整体预检后才写入。
+- 完整应用后重复运行不新增备份、不再次写源码；修改冲突或部分应用直接停止。
+- 备份保存在项目同级 <项目文件夹名>_patch_backups/BATCH_RELIABILITY_20261022_时间_随机值。
+- 备份含原始文件、哈希清单与验证日志；文件锁防止本脚本同时操作同一项目。
+- 应用或验证失败、正常 Ctrl+C 时自动恢复本次源码；强制杀进程/断电后使用 --restore。
+- 手动恢复前校验全部目标，发现补丁后的新编辑则不覆盖；新增文件只在字节完全匹配时删除。
+- 构建会更新 dist；源码恢复不回滚 dist，恢复后须 pnpm build 重建旧版本。
+- 普通验证结束时还原构建自动生成的三份 .d.ts 原字节，避免把无关生成文件混入修改。
+- 请保留备份并暂停其他构建/源码编辑。脚本不自动提交、推送、部署或调用真实游戏。
+
+验证与验收
+- 243 项 Node 回归测试通过；包含既有 223 项和新增 20 项。
+- Vite 生产构建通过；现有大 chunk 提示未在本次范围内处理。
+- 验证覆盖只读重试不重发战斗、冷却停止、同槽并发、账号/轮次隔离、两种任务顺序、
+  首次 400340 停发、800040 不隐瞒、连接中止、真正挂机领奖次数及结构化待核验传递。
+- Python 脚本在应用目标上会再次运行全部列入清单的回归测试、生产构建；Git 项目另做 diff --check。
+- 离线验证不等于真实服务器已验收。应用并按原流程部署后，结束旧任务并刷新执行页面，核对 20261022.1。
+- 先用少量账号验证：梦境 200400 后只读恢复；拒绝加钟不再连发四次；新任务链重新检查；待核验不会并入完成。
+- 再比较连续几轮的异常账号、实际请求数和分步骤耗时，确认无收益遗漏后扩到原有账号范围。
+
+修改文件（15 个）
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/hangUpWorkflow.js（新增）
+- src/utils/batch/taskResult.js
+- src/utils/batch/tasksHangUp.js
+- src/utils/batch/bottleWorkflow.js
+- src/utils/batch/tasksDungeon.js
+- src/utils/dailyTaskRunner.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/batchReliability20261022.test.js（新增）
+- test/dreamRetryRuntime.test.js
+- test/autoScheduleRuntime.test.js
+- test/batchRuntimeFix.test.js
+- test/batchTerminalRuntime.test.js
+- test/bottleConnectionFix.test.js
+
+
+============================================================
+【BATCH_RELEASE_20261022｜2026-10-22｜版本 1.7】
+运行版本：20261022.2（残卷统一去重/正式日志）
+适用源码：已完整应用 BATCH_RELIABILITY_20261022 / 20261022.1。
+仓库基线：f103f76ad34f306f24f791462e50764ea6eecef0；允许包含该基线的后续提交，仍严格校验目标与关联文件内容。
+交付：patch_batch_release_20261022.py；这是增量补丁，不是覆盖任意旧版本的完整安装包。
+
+本次实测证据
+- 2026-10-22 10:00:28 外层挂机残卷领取成功，10:00:32 日常已正确复用。
+- 10:00:58 独立“批量领取功法残卷”仍重复请求，三个账号均收到12400000。
+- 10:05 新一轮独立残卷出现两次800040、一次12400000；新一轮不能永久复用旧缓存。
+- 页面有错误码，但 PushPlus 只给“执行器未提供详细原因”，说明详情未传递。
+- Q590-1 普通爬塔出现200400，缺少失败命令和确认场数；不能归因为梦境查询问题。
+- 日常日志大量逐项成功/普通警告、重复结束行；开始34项与末尾7成功+22警告缺少5项跳过说明。
+
+本次修改
+1. tasksLegacy.js：独立残卷入口接入 runHangUpLegacy，与日常/挂机共用当前链、当前账号的记录。
+   六种入口先后顺序均覆盖；成功、失败、待核验都继承原结果，不重发。
+   复用已有结果时不额外建连；新一轮或独立按钮下一次运行创建新作用域。
+   直接返回并记录结构化终态；800040、12400000及原文进入 PushPlus，不忽略错误码。
+   去掉对 reward[0].value 等回包字段的强制访问，避免服务端已确认后因展示字段缺失误报失败。
+   关闭连接异常也保留详情；执行结束恢复运行状态，释放连接槽。
+2. dailyTaskRunner.js / BatchDailyTasks.vue：批量日常默认正式日志。
+   每账号开始一条、结束一条；结束分别列完成、跳过、普通警告、待核验、异常及耗时。
+   保留真实失败、待核验、停止和关键共享结果；隐藏逐项执行/成功及普通警告正文。
+   取消重复结束与正常关闭连接行；公共连接队列日志继续保留。
+   原有单账号调用默认日志不变；请求顺序、等待与业务错误分类保持原规则。
+   调试开关：localStorage.setItem('batch_daily_debug_verbose','1')，下轮启用日常详细日志。
+   恢复正式日志：localStorage.removeItem('batch_daily_debug_verbose')，下轮生效。
+3. pushPlusNotifier.js：保留完整真实异常/待核验详情，普通警告正文继续隐藏。
+   增加“含待核验账号 X”补充数量，可与部分异常/失败重叠，不和顶部互斥总数相加。
+   混合状态显示“部分异常（含待核验）”；相同详情去重；保留长消息分页。
+4. tasksTower.js：普通爬塔查询阶段对明确200400做有限读取恢复。
+   仅 tower_getinfo、role_getroleinfo、presetteam_getinfo 的只读查询可重读；等待5/10/20秒，最多重试3次。
+   战后查询恢复不会重发已成功战斗；非200400不套用恢复；停止请求可打断等待。
+   既有战斗拒绝恢复上限3次保留，未增加战斗重试预算；其他写请求不新增重试。
+   失败报告包含命令、已确认场数、查询重试数、战斗恢复次数；显示账号名称。
+   本次补足定位并覆盖查询限频，尚不能保证实测那次200400已解决，需由新日志确认触发命令。
+
+正式输出示例（格式示意，不代表新增实测）
+[日常][账号] 开始
+[日常][账号] 领取功法残卷 - 功法残卷：复用本轮前序结果（功法残卷已确认）
+[日常][账号] 领取日常任务奖励 - 警告[200020]: ...（执行结果未确认）
+[日常][账号] 结束：完成7 跳过5 普通警告20 待核验2 异常0；耗时26秒
+[残卷][账号] 跳过；功法残卷：复用本轮前序结果（功法残卷已确认）
+[爬塔][账号] ...200400...；命令 role_getroleinfo；已确认 10 场；查询重试 3 次；战斗恢复 0/3
+
+本次验收范围调整（用户明确要求；取代历史章节中的待验证安排）
+- 不再要求验证：五次挂机领取及至少5.1秒间隔。
+- 不再要求验证：日常中途断线后中止剩余步骤的保护。
+- 不再要求验证：实际营地任务执行。
+- 上述三项保留既有功能；本记录只表示取消后续验收要求，不伪称新增实测通过。
+
+后续需要验证的任务及异常明细
+A. 残卷三个入口：同一计划包含领取挂机、日常任务、批量领取功法残卷。
+   不同账号或不同正常执行轮次分别覆盖独立残卷在前/在后；每账号每轮最多一次真实领取，其余复用。
+   自然出现800040/12400000时，同轮后续入口保留该错误且不重发，推送显示真实原因。
+   新一轮仍可重新请求；不猜测服务器要求的冷却时长，不为复现而密集重复领取。
+B. 普通一键爬塔：有体力账号；正常耗尽及200400场景。
+   查看具体命令。查询200400仅重读，恢复成功继续；耗尽预算后保留确认进度和真实错误。
+   战斗200400维持原恢复上限；无体力正常跳过。提供从开始到结束的日志及推送。
+C. 一键梦境：选本轮仍有血量、可以战斗的账号；血量0跳过不能验证战后查询。
+   观察战后role_getroleinfo的200400冷却恢复；非200400/重试耗尽保留待核验。
+   若自然出现同关卡6次上限，仍停止并报告待核验；无需刻意制造异常。
+D. 分享/加钟：日常目标尚未完成的账号，同链搭配领取挂机或一键加钟。
+   所有入口共享4个槽；第一次400340拒绝后不继续剩余槽位，同链后续入口继承结果。
+   单独加钟、新一轮调用仍正常；不把加钟次数算作真实领奖次数。
+E. 盐罐：日常目标未完成且具备实际领取场景的账号。
+   若出现2000150，观察读回确认与待核验；同链重复入口不得把失败/待核验变成成功跳过。
+   同时提供游戏内可领取状态或日常完成情况；不凭助手截止时间猜奖励成熟。
+F. 免费招募：尚未完成招募日常且实际可免费招募的账号。
+   观察400030是否再次出现及游戏内状态；本次没有更改其业务判断，也不忽略此码。
+G. 正式推送与规模观察：普通警告只保留计数，真实异常/待核验完整显示，无“未提供详细原因”的残卷占位。
+   混合账号互斥总数正确，补充待核验总数可解释；长消息分页不缺账号、不截异常。
+   小规模通过后收集一天原定时计划日志；对长耗时批次记录账号数和实际任务，不能与已做完日常的小样本直接比较。
+
+运行与备份
+- Python3.9+；Node支持node:module.registerHooks，Node24已验证；已安装项目依赖。
+- 应用：python patch_batch_release_20261022.py
+- 预检：python patch_batch_release_20261022.py --check
+- 再测：python patch_batch_release_20261022.py --verify-only
+- 恢复到应用前20261022.1：python patch_batch_release_20261022.py --restore latest
+- 非项目根目录加 --root 项目路径；无Git完整源码包加 --source-snapshot，仍严格校验内容。
+- 备份保存在项目同级 <项目名>_patch_backups/BATCH_RELEASE_20261022_时间_随机值。
+- 保留原始字节、BOM、换行和权限；冲突不覆盖；重复运行不重复写入。
+- 自动运行Node回归测试；失败自动恢复本次源码。手动还原拒绝覆盖补丁后的新编辑。
+- 不执行任何build/dev命令，不改dist，不安装依赖，不提交Git、不部署、不调用真实游戏。
+- pnpm run build 和 pnpm run dev 由用户自行运行；若用户之后构建过，恢复源码后也须自行重建。
+
+验证记录
+- 265项Node回归测试通过（原243项+本次22项），含三入口六种顺序、失败/超时继承、错误详情推送、
+  正式日志请求等价、汇总计数、爬塔只读恢复不重放战斗、预算耗尽、停止及原战斗恢复上限。
+- Vue脚本和模板编译检查通过；未运行生产构建或开发服务，遵从用户自行执行build/dev的要求。
+- Python预检、幂等、备份、失败恢复与还原在独立副本验证；真实账号验收待完成。
+
+修改文件（8个）
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/tasksLegacy.js
+- src/utils/batch/tasksTower.js
+- src/utils/dailyTaskRunner.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/bottleConnectionFix.test.js
+- test/batchRelease20261022.test.js（新增）
+
+
+============================================================
+【BATCH_OBSERVABILITY_20261023｜2026-10-23｜版本1.8】
+运行版本：20261023.1（盐罐回包核验/推送执行记录）
+交付：patch_batch_observability_20261023.py
+适用：完整应用20261022.2后的源码；不需要回退，不覆盖其他内容冲突。
+Git允许f103f76ad34f306f24f791462e50764ea6eecef0及其后续提交；最终以文件哈希预检为准。
+
+本次真实账号证据
+- 00:05普通爬塔7账号共133场；4账号查询200400后恢复，总查询重试15次，均体力耗尽完成。
+- Q582-1两组查询各3次共6次；另有1500040战斗恢复2次，未突破每组上限。
+- 00:10先独立领罐、重置，再日常和挂机；6账号同链盐罐领取/重置复用成功。
+- 日常加钟新增3复用1；后续挂机新增0复用4；该成功路径通过。
+- 00:16新一轮领罐5待核验1请求成功（Q582-2）；Q582-1另有读回200350。
+- 00:25新一轮4待核验2请求成功（Q581-2/Q581-3）。不能以日常14=-1或helperStopTime单独证明无奖励。
+- 旧成功分支丢弃回包且不记录奖励，PushPlus成功行只有“无”，无法确认实际奖励和匹配信息。
+- 用户后续只能稳定提供PushPlus全文；不能再以详细控制台日志作为必要验收材料。
+
+本次修改及边界
+1. bottleWorkflow.js / 新bottleEvidence.js：保持同轮同账号领取最多一次，跨轮正常允许重新执行。
+   成功响应检查专属bottlehelper_claimresp、resp关联与正数reward/rewards物品条目。
+   明确匹配且有正数条目时记“回包含奖励”；这仍不是游戏库存核验的替代。
+   空回包、未知奖励结构、仅命令名回退匹配、无法核对请求关联：记“已响应、奖励到账待核验”。
+   2000150仍待核验；即使随后日常完成，也不再把未知领取结果静默转为跳过。
+   原日常目标已完成的领取前跳过保留；独立领罐不据此全天禁止领取，不猜测冷却时长。
+   成功与2000150后均等待1.2秒再读状态；仅明确查询200400额外重试2次，间隔1.5/3秒。
+   200350不猜含义、不盲目重试；不重发领取、不会重跑整轮。
+   推送保留前后助手数值、奖励数字摘要、请求/响应命令、seq/resp、匹配方式、读回错误。
+   助手字段变化只作观察，不推断成熟/到账；奖励摘要只记录数字，不推送完整角色、库存、Token、BIN等。
+   本浏览器保存最近一次尝试时间/结果/错误码（7天、最多500账号，账号索引散列）；仅观察，不控制执行。
+   记录清理：localStorage.removeItem('xyzw_bottle_observation_v1')；已打开页面内存记录刷新后清除。
+2. xyzwWebSocket.js：只给盐罐成功回包附加不可枚举的最小协议头摘要。
+   不改响应匹配、连接、心跳、发包及梦境诊断规则；冻结对象不修改并保留待核验。
+3. tasksBottle.js / dailyTaskRunner.js：结构化状态和完整核验详情传递至汇总。
+   控制台盐罐简短显示终态，完整数据进入PushPlus；同轮复用保留首次错误/待核验。
+4. BatchDailyTasks.vue / pushPlusNotifier.js：添加运行编号、匿名执行端标识及计划任务顺序。
+   每账号展示各计划任务状态；成功/跳过的盐罐、爬塔、梦境、挂机、加钟、残卷保留执行摘要。
+   日常记录分享、加钟、残卷、盐罐、免费招募、日常/周常奖励各子项执行/未生成/未执行状态及错误码。
+   日常子项统计保留完成、跳过、普通警告、待核验、异常和未执行数。
+   日常耗时分总耗时、连接前等待及建连、连接后；未把二者误称精确纯排队/纯网络时间。
+   普通警告正文继续省略，真实异常/待核验原文保留；成功执行记录同样纳入无截断分页。
+   计划层“普通警告”和“待核验”分别显示；含待核验的部分异常仍可重叠，补充人数不相加。
+
+后续只需提供的PushPlus信息
+- 自然执行一次原计划，发送所有分页；保留版本20261023.1、运行编号、执行端、任务顺序及账号记录。
+- 盐罐重点看“回包含奖励”或“已响应、到账待核验”，以及回包字段/奖励数值、seq/resp、前后状态。
+- 不要求为触发2000150反复领罐；跨轮对照同浏览器上次尝试即可。首次升级没有历史属于正常。
+- 如果回包一直无法识别奖励，继续保留待核验，下一版依据回包证据适配，不先假设零奖励。
+- 独立残卷与其他入口同链联动、加钟400340、梦境实际战斗/查询200400/六次上限、免费招募400030、
+  日常/周常奖励200020及混合状态分页，仍待自然覆盖；实际状态改变可能仍需一张游戏截图。
+- 普通爬塔查询200400成功恢复、日常到挂机加钟成功复用、盐罐成功结果同链复用已真实验证，不必重复专测。
+- 无需继续验证：五次挂机领取及5.1秒间隔、日常中途断线中止、实际营地任务。
+- 本次6点前竞技场时段问题按用户要求不作为修复目标；不全局忽略700010或其他未知码。
+
+安装与还原
+- Python3.9+；Node需支持node:module.registerHooks（Node24已验证），已安装项目依赖。
+- python patch_batch_observability_20261023.py：严格预检、备份、写入、Node回归测试；失败自动恢复。
+- --check只预检；--verify-only重测；--restore latest还原到应用前20261022.2。
+- 其他目录用--root；无.git完整源码包用--source-snapshot，仍须内容预检通过。
+- 备份在项目同级<项目名>_patch_backups/BATCH_OBSERVABILITY_20261023_时间_随机值。
+- 保护原始字节/BOM/换行/权限；重复运行不重复修改；还原拒绝覆盖后来新编辑。
+- 不运行pnpm run build/dev，不修改dist，不安装依赖、不连接真实游戏、不提交或推送Git。
+- 用户自行build/dev及上传Git；回滚源码后如已构建，按需自行重建。
+
+离线验证
+- 290项Node回归通过：包括空成功回包、精确关联奖励、同轮并发去重、跨轮新请求、2000150/200350、
+  查询200400预算、停止、隐私裁剪、历史记录失效/不可用、实际WebSocket摘要与真实执行器至推送链、长分页。
+- 新样例回包均为离线测试构造，不冒充实服已观察到的奖励格式。
+- Python补丁预检、应用、幂等、备份、失败恢复、还原在隔离副本验证。
+- Vue脚本及模板编译检查；不运行build/dev。真实账号新版本尚待部署验收。
+
+代码索引（本次11个文件）
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/bottleEvidence.js
+- src/utils/batch/bottleWorkflow.js
+- src/utils/batch/tasksBottle.js
+- src/utils/dailyTaskRunner.js
+- src/utils/xyzwWebSocket.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/bottleConnectionFix.test.js
+- test/batchRelease20261022.test.js
+- test/batchObservability20261023.test.js
+
+
+============================================================
+【BATCH_CONFIRMED_20261023｜2026-10-23｜版本1.9】
+交付：patch_batch_confirmed_20261023.py；运行版本20261023.2。
+基线：Git main/d0edf19c2cd3d051c4045ed704281523a40850cd，已包含20261023.1。
+相关源码225份按Git树blob SHA逐字节验证复用，不以旧补丁文件替代最新Git基线。
+依据：10:19上传的320728字节UTF-16LE日志，共1126行；另一个对话分析正文未检索到。
+
+已确认及修复
+1. 盐罐成功奖励实际走syncrewardresp，code=0、seq=resp、包含正数reward。
+   旧代码只接受bottlehelper_claimresp，故把真实奖励回包误报待核验。
+   新代码允许上述两种响应，仍要求requestCmd=bottlehelper_claim、resp精确关联和正数奖励。
+   不改WebSocket通用匹配，不接受cmd-fallback、错seq、未知响应或错误码。
+   观察到的type2/7、itemId0、value>0资源条目也参与识别；暂标类型，不猜资源中文名称。
+   同类奖励合并；每数组只取前20条时明确标注，避免将采样总数冒充全部。
+2. 同一盐罐证据重复进入异常、待核验、日常观察及同链复用，导致推送大量重复。
+   成功只保留奖励摘要、协议关联、日常14及助手变化；未确认保留关键前后字段与未知奖励数值摘要。
+   同链复用保留原状态与原因首段，不再复制首次完整证据；不改变同轮一次写入规则。
+   PushPlus移除重复状态行，正常日常子项合并，未知诊断/异常完整保留并按需分页。
+   本地内容预算改为18000 UTF-8字节（更保守的本地策略，不声称服务端按此限制）。
+   PushPlus失败记录返回码、简短服务端消息、正文大小；不发自动重试消息，不泄露配置Token。
+3. 答题日志“请求有响应”不足以证明全部答对，文案明确该边界。
+   十次同码奖励拒绝合并显示奖励编号列表与一次原因。
+   增加开始/结束的白名单学习数值，领奖后只读查询一次，无写入重试，不新增自动答题。
+   等只读诊断结束才发布终态，避免批量执行器提前断开导致诊断丢失。
+   启动失败记录命令及连接状态，区分study_startgame/answer/claimreward阶段。
+
+仍待核实（只需精简PushPlus）
+- 答题3100060：学习maxCorrectNum及奖励状态、请求阶段、奖励编号；不能先认定已领取或答题全对。
+- 答题启动400340/3100030：保留真实错误状态和命令，不改为正常跳过、不猜冷却/活动条件。
+- 2000150：本份新日志未出现；继续待核验，记录关联、关键助手字段及上次尝试，不按obtainCnt=0拦截。
+  日志早间已显示obtainCnt=0仍收到奖励，助手计时或日常完成均不能单独判定无奖励。
+- PushPlus“服务端验证错误”的根因尚不能确认；旧日志丢了返回码，不能直接认定内容超长。
+  官方文档https://www.pushplus.plus/doc/guide/use.html写内容2万个字/频率1分钟5次（2026-10-23核对）；
+  当前13秒间隔保留，字节预算只作防御措施。服务端接收不等于最终通知送达。
+- 初始化查询超时和连接中断仍保留原异常；新日志未证明具体连接根因，本次不改全局重连策略。
+- 6点前竞技场时段问题按用户要求排除；不全局吞700010。
+- 免费招募400030、日常/周常200020本日志未出现；不以缺席当作修复完成。
+- 无需重测既定排除项：五次挂机/5.1秒间隔、日常中断中止、实际营地任务。
+
+离线验证
+- 301项Node回归全部通过；新增11项覆盖真实响应、资源条目、去重、字节分页、答题诊断及终态时机。
+- 日志抽取24组不同盐罐回包/状态样例：旧识别0/24，新识别24/24。
+  同一批盐罐诊断对照报告12页177587字节→2页22157字节；非完整实服整轮页数承诺。
+- Python严格预检、备份、幂等、失败回滚、还原，及真实测试执行在隔离副本验证。
+- 未连接真实游戏/PushPlus；消息发送测试使用mock。未运行pnpm run build/dev，未修改dist或推送Git。
+
+使用
+- Python3.9+，Node需支持node:module.registerHooks（Node24已验证），项目依赖已安装。
+- python patch_batch_confirmed_20261023.py：预检→备份→修改→Node测试；失败回滚。
+- --check只预检；--verify-only重测；--restore latest还原补丁前；--root指定目录。
+- 无.git完整源码包需--source-snapshot，仍严格核对源码；支持CRLF/BOM并保留权限。
+- 拒绝不匹配/部分应用源码，拒绝还原覆盖后续编辑；备份在项目同级<项目名>_patch_backups。
+- 用户自行build/dev、上传Git，部署后刷新并核对20261023.2。
+- 后续提供包含运行编号、账号结果、答题短诊断的新PushPlus；无需特意反复领取盐罐。
+
+本次文件索引
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/stores/events/study.ts
+- src/utils/batch/bottleEvidence.js
+- src/utils/batch/bottleWorkflow.js
+- src/utils/batch/tasksHangUp.js
+- src/utils/pushPlusNotifier.js
+- test/batchConfirmed20261023.test.js
+- test/batchObservability20261023.test.js
+- test/batchRelease20261022.test.js
+- test/bottleConnectionFix.test.js
+
+
+============================================================
+【BATCH_CONSOLE_20261023｜2026-10-23｜版本2.0】
+交付：patch_batch_console_20261023.py；运行版本20261023.3。
+基线：Git main/0e40cb5d45d68ffca17fe057353628adb002fa16，已包含20261023.2。
+相关源码226份按Git树blob SHA逐字节核对。此节覆盖此前以PushPlus承担完整诊断的要求。
+用户新要求：临时调试阶段结束，回到控制台详细输出，PushPlus只负责整体概览。
+
+本次修改
+1. dailyTaskRunner.js / BatchDailyTasks.vue：批量日常明确启用verboseLogs，保留账号前缀。
+   恢复步骤、成功、跳过、普通警告及错误的输出；不用手动设置localStorage调试开关。
+   非批量调用可继续使用原日志选项；不改变命令、延时、重试、错误分类或任务结果。
+2. bottleWorkflow.js：成功、2000150及未知奖励回包的consoleDetail恢复完整数字诊断。
+   输出奖励摘要、协议关联、查询重试、上次尝试、领取前后助手数值及变化；不输出Token/完整角色对象。
+   单独领取和日常领取两个入口均可看到。沿用原同链去重和成功判定，不重新领取。
+3. BatchDailyTasks.vue：定时任务结束先向页面运行日志输出运行编号/版本/执行顺序和每账号完整汇总。
+   完整异常、待核验、普通警告和执行记录都进入日志，不依赖PushPlus是否启用或发送是否成功。
+   控制台输出不做推送长度裁剪；同一轮前面的逐步日志仍保留，结束汇总便于集中复制。
+4. pushPlusNotifier.js：定时报告改为单条概览，不再生成parts分页。
+   保留时间/耗时/版本/运行编号/账号任务总数/各结果人数/含待核验人数。
+   成功与普通警告不展开；异常/待核验最多12个账号，失败优先，给出短原因及明确标识的错误码。
+   正文预算9000 UTF-8字节；超过则减少展开账号，明确“另有N个账号未展开”，不谎称全量报告。
+   完整步骤、异常和核验数据在页面运行日志中，推送引导使用复制日志。
+   推图整轮通知及其他发送功能保持原行为；本次单条保证只针对定时任务概览。
+
+日志保留与使用
+- 页面现有“最大日志条目”设置继续生效（100至5000，默认1000）；此补丁不覆盖用户已保存设置。
+- 多账号详细日志会更快达到上限；需要保留较长过程时，可将最大日志条目设为5000并及时复制。
+- 超过上限仍会删除较早条目；刷新/清空后不承诺保留。此版不加入自动上传、自动下载或后台永久存储。
+- 后续排障优先提供相应运行编号的控制台详细日志；PushPlus只用于查看整体执行情况。
+
+验证与边界
+- 310项Node测试通过；覆盖2000异常账号的单条字节预算/准确省略数、失败优先、HTML转义、
+  完整控制台数据未被概览裁剪、盐罐单写与完整数字诊断、单条HTTP发送、详细/精简日志命令结果一致。
+- Vue脚本与模板编译检查通过。安装器19项测试、实际应用/重复运行/还原在隔离副本验证。
+- 消息发送使用mock；未连接真实游戏或PushPlus。未运行pnpm run build/dev，未改dist或上传Git。
+- 保留20261023.2盐罐syncrewardresp修复及所有任务执行逻辑。
+- 答题3100060/400340/3100030、盐罐2000150、连接问题等未知根因仍未假定修复；查看控制台证据。
+
+安装与还原
+- python patch_batch_console_20261023.py：严格预检→备份→应用→Node回归，失败自动恢复。
+- --check只预检；--verify-only重测；--restore latest恢复补丁前20261023.2；--root指定项目目录。
+- 无.git完整源码包用--source-snapshot，仍严格比对内容；Python3.9+，Node需支持registerHooks（Node24已验证）。
+- 依赖需预先安装；不安装依赖、不运行build/dev、不改dist、不提交或推送Git。
+- 保留BOM/CRLF/权限，拒绝冲突、部分应用与覆盖后续编辑；备份在项目同级<项目名>_patch_backups。
+- 用户自行构建、启动及上传Git，部署刷新后检查推送版本20261023.3。
+
+本次文件索引
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/bottleWorkflow.js
+- src/utils/dailyTaskRunner.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/batchConfirmed20261023.test.js
+- test/batchConsole20261023.test.js
+- test/batchObservability20261023.test.js
+- test/batchRelease20261022.test.js
+- test/bottleConnectionFix.test.js
+
+
+============================================================
+【BATCH_TABLE_20261023｜2026-10-23｜版本2.1】
+交付：patch_batch_table_20261023.py；运行版本20261023.4。
+基线：Git main/0e40cb5d45d68ffca17fe057353628adb002fa16（20261023.2）及此前完整应用的20261023.3。
+已逐字节核对226份Git基线文件。20261023.2可直接升级，自动包含此前控制台详细日志改动；无需先运行旧补丁。
+本节覆盖上一节“异常最多12账号、分段文字概览”的展示要求，既有业务修复继续保留。
+
+本轮调试结论
+- 2026-10-23 15:42:01至15:46:32：15账号、4任务，待核验13、部分异常2，15账号均含待核验。
+- 14账号在日常/周常奖励处各出现一次200020；Q585-3日常前置连接中断。
+- 13账号盐罐按日常目标完成正常跳过；Q582-3、Q584-2出现200350，日志不足以单独锁定请求阶段。
+- 本轮未复现2000150、也无盐罐成功领取回执，不据此宣称领取根因修复。
+
+修改与快速索引
+1. src/utils/pushPlusNotifier.js：恢复绿色表头四列表格：账号、结果、完成/跳过、异常/待核验明细。
+   每账号一行，包括完成、跳过及普通警告；异常优先且同级稳定排序。
+   取消固定12账号上限；优先逐级缩短详情，正常15/20账号测试全部显示。
+   定时汇总仍单条、不分页，保持9000 UTF-8字节本地保守预算（不是声称服务端字符上限）。
+   极端批次不能容纳时才省略整行，明确展示/总数与省略数量；总数始终覆盖所有账号。
+   保留任务名称及错误码；普通警告只计数、完整诊断在控制台；HTML转义后再计算字节数。
+   完成/跳过为所选任务层级，日常内部子项不混入该分母。
+2. src/views/BatchDailyTasks.vue：连接中断分支同步warningCount与verificationCount。
+   前置普通警告导致后续日常未执行时同样计入待核验；尚未返回任务清单则显示未执行数量未知。
+   初始化失败及连接日志补充账号，初始化失败明确role_getroleinfo/fight_startlevel阶段。
+   不改变连接重试、连接槽位释放及后续任务执行策略。
+3. src/utils/batch/bottleWorkflow.js：错误补充领取前查询/发送领取/领取后核验及重置阶段，附命令及领取发送次数。
+   领取前查询失败明确请求0次；不输出角色完整对象、Token或凭证。
+   先保留原始服务器消息执行“无可领取”精确匹配，再添加领取失败诊断，防止日志改变业务分类。
+   沿用200400只读查询重试预算和同链去重；不重发领取，不把2000150/200350擅自改判成功。
+4. src/utils/dailyTaskRunner.js：日常/周常奖励失败增加控制台命令、阶段、空参数和错误说明。
+   没有新增查询、自动重发或改变200020分类。等待后续日志再判断协议/领取条件。
+5. test/batchTable20261023.test.js及相关既有测试：表格、完整账号、预算与HTML安全、阶段诊断、单写、计数及Vue编译回归。
+
+验证与边界
+- 321项Node测试通过，含Vue脚本/模板编译；不运行build/dev，不改dist。
+- 安装器验证两种基线、混合版本拒绝、版本冲突、精确备份还原、重复应用、测试失败回滚等。
+- 使用模拟游戏/PushPlus响应验证，未连接真实账号、未实际发送推送；客户端最终显示需用户部署后确认。
+- 控制台仍详细输出；沿用页面最大日志条目设置，较早日志可能被覆盖，可设为5000并及时复制。
+- 200020、200350根因仍待实测，本次修复已确认的汇报/计数问题并补足诊断。
+
+安装与还原
+- python patch_batch_table_20261023.py：完整版本预检→项目外备份→应用→Node测试，失败自动回滚。
+- --check只读预检；--verify-only重测；--restore latest恢复到此次实际输入版本（.2或.3），保留备份。
+- --root指定项目路径；无.git完整源码包使用--source-snapshot，仍严格内容校验。
+- Python3.9+；Node24已验证，需支持node:module.registerHooks；先安装项目依赖。
+- 保留BOM/换行/权限，拒绝不匹配文件、混合版本、部分应用和覆盖补丁后的新编辑。
+- 不安装依赖、不下载代码、不运行build/dev、不提交或推送Git；构建部署由用户自行操作。
+
+本次文件索引（含从20261023.2直接升级所需的20261023.3文件）
+- PROJECT_INDEX_AND_CHANGELOG.txt
+- src/utils/batch/bottleWorkflow.js
+- src/utils/dailyTaskRunner.js
+- src/utils/pushPlusNotifier.js
+- src/views/BatchDailyTasks.vue
+- test/batchConfirmed20261023.test.js
+- test/batchConsole20261023.test.js
+- test/batchObservability20261023.test.js
+- test/batchRelease20261022.test.js
+- test/batchRuntimeFix.test.js
+- test/batchTable20261023.test.js
+- test/bottleConnectionFix.test.js
+
+[SALT_DYNAMIC_EVIDENCE_20261024]
+日期：2026-10-24（北京时间）；基线：main/c3c0fa330396ba117c73f963531d5ffaddb22b16。
+盐场导航版本：3；调试日志：v4；批量日常运行版本号保持原值。
+依据：10月24日15账号日志中30次war_startmarch均返回200020，目标来源均为static-road；动态地图原始字段被深度裁剪，服务器具体拒绝原因尚未证实。
+核心修改：禁止静态格/缺失归属/缺失类型参与行军选址与路径扩展；明确拒绝后清除当前目标并保存拒绝历史；区分选址、提交、已接受行军；失败日志准确标注本轮未提交。
+诊断：保留confId、legionWarMap、mapName等地图信息；输出六邻格的动态存在性、原始字段、静态参考类型与排除状态。
+修改文件：src/utils/saltField/model.js、runner.js、session.js、debug.js；src/utils/batch/tasksSaltOnce.js；src/views/BatchDailyTasks.vue（补齐两种状态显示）；test/saltNavigation.test.js。
+新增文件：test/saltDynamicEvidence.test.js；docs/salt-dynamic-evidence-20261024.md。
+保留边界：自动周计划盐场仍取消；仅现有自建定时/手动入口；不改通用BON/WebSocket、盐罐及日常错误码；不重置v2耗尽预算或不确定执行记录。
+验证：52项盐场离线回归通过；补丁预检/应用/重复应用/冲突拒绝/恢复及模拟写入异常回滚均已验证；未执行完整前端构建、真实游戏请求、Git提交或部署。
+尚未解决：真实稀疏地图/道路字段与行军拒绝原因仍需活动期核验；没有动态证据时停止，不宣称已完成行军攻击实测。
+交付：patch_salt_dynamic_evidence_20261024.py（预检、原字节备份、异常回滚、带冲突保护的恢复）。
+
+[MAINTENANCE_FOUNDATION_20261025]
+日期：2026-10-25（北京时间）；输入基线：c95c032641234fd954f296db6e19db89600bfd1e。
+范围：模型维护规则、当前状态、模块索引、离线测试入口、只读lint、Ubuntu/Windows维护CI、本地备份忽略和取消Git跟踪。
+业务不变：不改src、public、render-backend、原有test、vite/worker配置、依赖或锁文件；原有启动/构建命令保持。
+新增：AGENTS.md；docs/CURRENT_STATE.md、MODULE_MAP.md、MAINTENANCE.md、MAINTENANCE_VALIDATION.md；maintenance/modules.json、toolchain.json；scripts/maintenance/*；.github/workflows/maintenance.yml。
+更新：package.json仅追加维护scripts；.gitignore取消.github整体忽略并排除本地备份；README.md和CLAUDE.md增加维护入口；本TXT更新首页说明并保留历史。
+备份：取消Git跟踪时保留本地文件及其他暂存内容，原始Git索引另行备份；恢复遇到后续改动时停止。
+验证：具体检查与执行结果见docs/MAINTENANCE_VALIDATION.md；不宣称GitHub CI或真实游戏任务已经验证。
+交付：patch_maintenance_foundation_20261025.py；本地应用、不自动提交或部署。
+
+
+[DAILY_NORMAL_RESPONSES_20261025]
+日期：2026-10-25；输入提交：88cc5a331a29adaaf5c9b9245e1daf4ae2e04d2e。
+需求：将指定日常返回作为正常处理，避免账号汇总出现普通警告/待核验。
+修改：dailyErrorPolicy.js 按命令/参数识别正常返回；dailyTaskRunner.js 记录正常结果、抑制对应领奖警告诊断，并按北京时间周二/四/六执行批量免费扭蛋。
+200020 仅对领取日常/周常任务奖励正常结束，不重发，不宣称已核实奖励到账。
+400190/2300190/1000020/1400010/3300060/3300050/700020/3500020 仅在指定日常请求中正常跳过；400000 仅在免费扭蛋请求中正常跳过。
+不改梦境、盐罐、通用 WebSocket、调度器、依赖及锁文件；超时/断线/其他请求保持原判断。
+回归：新增 dailyNormalResponses.test.js，并调整两处旧测试的预期；维护索引/当前状态同步更新。
+验证与映射：docs/daily-normal-responses-20261025.md。未执行真实游戏请求、提交、推送或部署。
+
+
+[DAILY_BOTTLE_ORDER_20261026 / 2026-10-26]
+输入基线：main / d3fa73d0395f42f62db471b8196c3f51589e1e96。
+自动周计划日常链：一键领取罐子 → 日常任务 → 领取挂机 → 重置罐子。
+唯一业务源码变更：src/utils/autoSchedule/weeklyPlan.js 中 CHAINS.daily 顺序。
+适用早间、中午、晚间、周五凌晨日常；其他链、时间/分组、持久化键和自建定时配置保持不变。
+保留日常内部盐罐重置，末尾重置复用本轮结果；领取/重置各最多一次，不隐藏2000150或未知异常。
+调整/新增回归：test/autoSchedule.test.js、test/autoScheduleRuntime.test.js、test/bottleConnectionFix.test.js。
+维护文档：docs/CURRENT_STATE.md、docs/MODULE_MAP.md、docs/daily-bottle-order-20261026.md。
+验证：相关离线78项通过；pnpm verify（维护检查、357项离线回归、生产构建）通过。
+交付：patch_daily_bottle_order_20261026.py；内容哈希预检、备份、冲突保护和恢复。
+未执行真实游戏请求、提交、推送、部署；能否减少盐罐报错待用户同账号下一轮日志确认。
+
+
+[2026-10-26] GENIE_CHALLENGE_V1 普通四国灯神手动挑战候选版
+基线：5a178c5e079287ccf7914ef7dcfc0704c4a31739。
+新增：batch/genieChallengePolicy.js、batch/tasksGenieChallenge.js、Batch/GenieChallengeModal.vue及genie测试/脱敏样例。
+修改：BatchDailyTasks.vue手动入口和只读连接；xyzwWebSocket.js仅注册/响应映射/灯神报文日志抑制；维护索引与当前状态同步。
+四国阵容按账号主线power最高站位交换主C；不交换养成，不改扫荡、周计划、定时任务。四国共用10次，超时不重发，缺失计数不当零。
+三个测试BIN认证及只读角色成功；pets条目uId/hp验证；无额外加成宠物支持比较。三个账号统计次数/时间均缺失，实服挑战0次，未通过实服战斗验收。
+验证：pnpm test:unit 378项通过；maintenance:check、build及verify通过。测试与限制详见docs/genie-challenge-20261026.md及交付报告；不自动提交/推送/部署。
+
+
+[2026-10-27] GENIE_CHALLENGE_V2 普通灯神本地增量修复
+输入：5a178c5e079287ccf7914ef7dcfc0704c4a31739 + V1未提交补丁；未commit/push/deploy。
+关键文件：genieChallengePolicy.js、tasksGenieChallenge.js、GenieChallengeModal.vue、BatchDailyTasks.vue。
+修复：副本按钮同组、稀疏战败回包+计数进度核对、只读重连和已收战报恢复、脱敏分阶段日志；受限首战默认关闭；主C定位置其余按基础顺序。
+回归：test/genieChallenge.test.js、fixtures/genie-live-battles-redacted.json；全量387项及构建通过，浏览器模拟预览/限额/停止通过。
+实服：三号累计请求4/3/5；V2在503连续两次战败正常完成（3→4→5），主线/等级不变。浏览器实服端到端与增强宠物仍未验收。
+未改扫荡、梦境、盐场、周计划、定时、PushPlus、通用BON/WS算法。详见docs/genie-challenge-20261027.md。
+
+
+[2026-10-27] GENIE_DAY_FIX_20261027 普通灯神历史日期修复
+基于V2本地未提交输入；未改Git基线，未commit/push/deploy。
+关键文件：genieChallengePolicy.js、tasksGenieChallenge.js、GenieChallengeModal.vue、test/genieChallenge.test.js。
+受限首战扩展到历史统计日期；今日次数保持未知，回读今日已用1次且战报一致才继续。未来/无效时间分开诊断；未决/超时不重发。
+新增8项人工跨日回归；全量395项、维护检查、构建和浏览器模拟通过。本轮未消耗真实次数，不声称跨日实服验收。索引docs/genie-day-fix-20261027.md。
+
+## 灯神科技联动（GENIE_TECHNOLOGY_20261028）
+
+叠加已应用的四国补丁；默认开启科技切换，魏法师4、蜀/群战士1、吴射手6。
+使用已有单套非零科技，按完整14槽回读核对。多套非零科技暂不自动交换。
+普通完成、停止和异常进入恢复战士流程；断网/未决记录持久化，下次开始优先恢复且当次不挑战。
+置换实测20钻/次，离开战士前至少保留40钻；异常费用停止并尝试恢复，不承诺断网立即恢复。
+所有科技为空时可显式开启101–104顺序isMax升级，可能耗尽可用升级资源，默认关闭；不自动重置。
+无进展/结果不明升级停止，不重发。未知未决需核对游戏状态，不清除恢复记录绕过。
+新模块genieTechnology.js；WebSocket新增置换注册和共享响应关联，不改BON。
+本轮离线测试及构建见交付说明；未新增实服资源操作。此前501四次置换为协议依据，不是本轮整合验收。
+
+## 科技重建与黑市下午综合处理（2026-10-28增量）
+输入：已应用GENIE_TECHNOLOGY_20261028的本地版本。
+多套基础科技全部逐职业重置（advanced:false），逐次完整回读核验，再按101–108依次isMax升级战士。重建改变等级分配并消耗升级资源，不保证恢复原有多职业等级；单套已有科技仍优先置换。
+升级无等级变化且正常回包时继续下一项；超时不重发，持久化重建步骤，下次开始先续建/恢复，不挑战。重建中断保留进度，不误报恢复成功。
+黑市周非周五A/B/C分别15:30/16:00/16:30执行batchWeirdTowerIntegrated；黑市周五保留原爬塔，17:00/17:30/18:00执行综合处理。缩短对应下午备用窗口；其他周、晚间备用、日常链、盐场决定不变。按每个计划实际北京时间判断活动周期。
+用户新记录确认法师重置、107/108单次升级和107一键升级；空科技增量不当作完整状态。本轮未发送实服重置/升级或挑战。
+
+## 淬炼宠物兼容与玩具择优（2026-10-28）
+输入：已应用科技重建/黑市下午补丁的本地版本。
+宠物按服务器hp字段排序；缺省淬炼字段及非空淬炼、天赋不再拦截，不重复叠加附加值，不宣称最终总生命口径已验证。UID/hp缺失仍停止。用户样例选择604，hp249760000（另外两只20000000/30000000）。
+各国科技切换后，以同一阵容和宠物调用hero_calcpowerbyteam，比较库存lordWeapon实际weaponId及0，使用最大power。并列优先已有玩具，再按ID升序；库存缺失/空时只使用0，不枚举1–9。
+注册只读战力命令及hero_calcpowerbyteamresp响应；查询失败或无效power停止并进入科技恢复，不重试战斗。页面显示玩具ID和战力，错误阶段区分宠物检查与玩具查询。
+用户样例：0=428771275、1=1029521223、2=454179702，选1。
+501只读实测库存[1]，同一合法群阵容查询0和1均返回439059685；未拥有2返回200020，没有替代ID。本轮挑战请求0、科技变更0。该错误仅说明本次不存在玩具查询被拒绝，不新增全局错误码忽略。最初探测错误使用原始主线阵容结构，三次返回400080；纠正为灯神请求格式后得到上述结果，不推断400080通用含义。
+无玩具完整账号的实服样例尚未验证；当前逻辑只使用明确的无玩具参数0。实服整套玩具+科技+挑战尚未运行。
+
+
+## 一键江湖黑市（2026-10-29）
+输入main：3b7f2527cecfb1066a26ef42d8b3e9a6a89a513b，原始blob已核对。
+日常新增手动清单配置/保存/开始/停止，9种商品按选择顺序购买；ID9可设本期累计1–4份，其他1份，已购部分跳过。
+全清单未购预算不足该账号零购买并打印缺口；逐笔重新读取余额和活动。activity_buystoregoods activityId=9、goodsIndex、buyNum=1；syncrewardresp后核对奖励/扣款/已购数。
+实时BON Date兼容；本地未决记录、异常不重发、跨标签锁及任务抢占。没有加入自动日常/周计划，不修改灯神/科技/玩具/怪异塔。
+502实测ID1一份，24608→24008，共600金砖；全清单64300不足未买，重复执行跳过。503亦完成不足零买、ID1一份13651→13051及重复跳过；501连接失败零购买。实际共消费1200金砖。
+455项离线、维护检查、生产构建、浏览器模拟、补丁兼容/冲突/恢复验证通过。见docs/jianghu-market-20261029.md；真实验证不覆盖所有商品或外部并发消费。
+
+
+[2026-10-29] DOCS_MAINTENANCE_20261029 仅维护文档整理
+输入：上一轮江湖黑市补丁应用后原字节，用户已本地验证暂未发现问题。
+变更：AGENTS.md；docs/CURRENT_STATE.md；docs/MODULE_MAP.md；docs/MAINTENANCE.md；docs/TODO.md；本TXT；docs/history/current-state-before-docs-20261029.md；docs/history/maintenance-foundation-before-docs-20261029.md。
+当前状态合并科技/宠物/玩具等最终行为，移除旧阶段结论混写；旧状态/旧维护说明原文归档，其他专题与本TXT历史保留。
+新增14项待办，分别记证据、入口、目标和验收条件；本轮只登记，不修复通信、不改页面/日志函数/调度/购买/科技/测试/依赖。
+验证：文档路径与维护入口检查；运行文件哈希不变；安装器LF/CRLF/BOM/无末尾换行、重复应用、冲突/部分应用零写入、失败回滚和恢复验证。没有重跑业务测试、构建或真实游戏请求。
+交付：patch_docs_maintenance_20261029.py，内容基线预检、备份、恢复；Git HEAD仅作记录，允许相同代码另行提交。未提交/推送/部署。
+
+
+[2026-10-30] STUDY_ANSWER_20261030 一键答题与领奖边界维护
+基线：GitHub main/d4583244ced5b6c65d0240143ae35e116c4e2a63；按当前分支文件blob严格预检。
+抓包：一份记录含10道题、10条有效答题响应均为right、奖励1至10成功；10条有效答案前另有一条空数组study_answer请求（code=0），当前插件不发空数组，来源待实测。另一份记录含study_setskin 10150→10250→10150→10000。该切换只证明useSkinID变化，不证明题目集合变化。
+数据：public/answer.json共583条记录，582条字段有效、581道唯一且无答案冲突的可用题；第一份抓包10/10精确匹配。不能据此宣称所有题库完整。
+修改：完整规范化匹配；未知/冲突/越界题不再默认选1；合并启动/逐题响应/回读的taskComplete增量，仅领取yes；领奖失败停止剩余请求，最终回读确认；不自动重试，不切换quizSkin/study_setskin。
+新增：test/studyFlow.test.js、docs/study-answer-20261030.md；更新维护机器索引、CURRENT_STATE、MODULE_MAP、TODO和本台账。
+验证：补丁应用后执行node scripts/maintenance/test.mjs study、pnpm maintenance:check、pnpm verify。当前分析未执行本地项目测试或构建，不写为通过。
+实服：501/502/503三个BIN的资料库记录已定位，但原始字节未能读取；真实答题、领奖及题库切换验证待用户直接附加三个BIN后补测。
+不提交、不推送、不部署；3100060/400340保持异常，不新增全局忽略。
+
+
+[2026-10-30] STUDY_LIVE_RECORD_20261030 答题BIN实测补验
+输入：d4583244 + 已应用STUDY_ANSWER_20261030。仅更新5个文本文件，业务源码保持原字节。
+501/502/503各提交10题，服务器均判right；各领取10项，reward回包及最终taskComplete=claimed核对通过。金砖差值0，主阵容、科技、答题皮肤保持不变。
+复跑专项离线回归7/7通过；没有复现3100060/400340，没有发空数组study_answer。旧空请求来源和题库切换仍列TODO-015。
+连接使用现有环境代理；通过serverlist与实际角色回读确认测试身份，不以认证返回roleId直接判定最终角色。
+未改业务逻辑，未重跑全量构建/CI，未提交/推送/部署。详情：docs/study-live-validation-20261030.md。
+
+
+[2026-10-30] STUDY_ANSWER_FULL_20261030 原始Git完整安装包
+输入：原始d4583244，尚未应用STUDY_ANSWER_20261030；不需要先运行旧补丁。原实测记录补丁在此输入被预检阻止属于正常版本保护，没有写入。
+整合：答题修复、专项回归、维护索引与文档、TXT和实测记录，并同步两份旧测试，共13个文件。业务代码与三个BIN各10题判对、10项确认已领的版本逐字节一致。
+旧测试更新：使用明确的taskComplete模拟回包；首项领奖失败只尝试1次；最终回读等待测试适配领奖前新增回读，保留账号隔离和超时待核验断言。
+安装器：标准库自包含、内容预检、自动备份、重复应用零写入、冲突保护、恢复及中途回滚；不会执行游戏请求、Git提交/推送或部署。
+应用后执行pnpm verify；部署版本需重新构建。真实测试沿用上轮证据，本轮不重复消耗账号操作。
+
+
+完整包验证（2026-10-30）：安装器LF/CRLF/BOM/无末尾换行、预检零写入、重复应用、冲突保护、恢复及中途失败回滚通过。相关回归39/39、全量离线回归462/462、维护检查、Vite生产构建通过。
+执行入口为node scripts/maintenance/verify.mjs（pnpm verify对应脚本）。本环境直接调用pnpm时其自动依赖安装被构建脚本批准机制阻止，随后使用已有依赖直接运行上述验证入口成功；没有修改项目依赖或审批配置，不写作pnpm命令本身通过。
+本轮没有再次执行游戏操作；三BIN实测是此前相同业务代码的证据。Git提交、CI和部署未执行。
+
+
+[2026-11-15] SALT_ROAD_CANDIDATES_20261114_R2 — 盐场静态道路候选与审查补充
+基线：main e63cd59c9237c5154fc4923d5310f723eeef2652，已含凤仪祈愿/竞技场单次/周福利分流/宝库移除。
+原因：11月14日15账号布阵后零行军；动态99建筑不含225道路，旧筛选阻断26_22出发。
+运行改动：src/utils/saltField/model.js、runner.js、diagnostics.js、src/utils/batch/tasksSaltOnce.js。
+行为：地图13道路只作通行候选；真实据点26_20/26_25/28_24离线可选，按响应有限尝试；120秒及实际到达/个人结算/防重复仍保留。v3从未提交的选址失败一次性恢复，其它记录不重置。
+诊断：页面候选路径、本批已安排人数和错误码；JSON候选/路径/请求响应/到达/aB-d证据，legions归属白名单；版本标识SALT_ROAD_CANDIDATES_20261114_R2。
+审查补充：当前role.position始终作为起点，并非写死26_22；增加动态大本营与可选strongholdId交叉核对日志，缺失或已离营不阻断。相同距离及中立优先级内按本批同战场同军团已安排角色数均衡，别名去重，明确拒绝释放，未决保留；不是跨设备分配器，不改变已接受的行军。
+测试：修改既有5个盐场回归中的模拟道路目标预期，R1补4个关键行为回归、R2补3个起点与分配回归；新增脱敏实际地图投影test/fixtures/salt-navigation-20261114.json。没有新增离线测试框架。20个大本营遍历及15角色5/5/5均为离线模拟。
+管理：CURRENT_STATE、MODULE_MAP、TODO-010、MAINTENANCE与docs/salt-road-candidates-20261114.md同步。
+范围：不组队不加速、不恢复自动周计划盐场，不改其它活动或通用通信；本轮未发真实游戏请求，未提交/推送/部署。
+安装：同名R2完整补丁替代尚未应用的旧版，从上述Git基线直接执行patch_salt_road_candidates_20261114.py --check / --apply / --restore latest；备份原字节，冲突零写入，恢复保护额外编辑。
+实服待验收：行军接受、自然到达、单账号攻击结算，先一个账号再15账号；保留JSON以定位下一处问题。
+
+本轮验证记录：R2的65项盐场专项、592项全量离线回归、维护检查和Vite生产构建通过；实际调用node scripts/maintenance/verify.mjs（pnpm verify对应入口），未重新安装依赖。实际日志30次选址回放在R1已确认旧版均SALT_NO_TARGET、新寻路均生成26_20/26_25/28_24；R2保留同一寻路算法并增加批内排序。R2的20个大本营起点及15角色5/5/5分配为模拟验证，零真实游戏请求。安装器20个场景通过，覆盖LF/CRLF、BOM、无末尾换行、冲突零写入、重复应用、latest恢复、原字节恢复和中断回滚。

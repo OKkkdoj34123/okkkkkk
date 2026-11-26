@@ -150,11 +150,11 @@
 </template>
 
 <script setup>
-import { Cube, PersonCircle, Ribbon, Settings } from "@vicons/ionicons5";
-import { useMessage } from "naive-ui";
-import { onMounted, reactive, ref } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useMessage } from "naive-ui";
 import { useAuthStore } from "@/stores/auth";
+import { PersonCircle, Cube, Ribbon, Settings } from "@vicons/ionicons5";
 
 const router = useRouter();
 const message = useMessage();

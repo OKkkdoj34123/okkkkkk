@@ -1,0 +1,48 @@
+{
+  "provenance": "2026-11-20 uploaded server-monitor capture. The pre-claim activity_get contains activity 6 (type 4), buyType 1, goodsList[0] 招募福利 (price 0, limit 1, reward type 3/itemId 1001/value 5), and myStoreInfo[6].complete is empty. The activity_buystoregoods response code is 0 and returns the same reward. Other paid goods are omitted from this curated fixture. The capture does not contain a post-claim activity_get; the production method's post-claim readback is simulated by the offline harness and remains to be confirmed after deployment.",
+  "activity": {
+    "activity": [
+      {
+        "id": 6,
+        "type": 4,
+        "openTime": 1795147200000,
+        "endTime": 1795708800000,
+        "data": {
+          "itemId": 0,
+          "goodsList": [
+            {
+              "title": "招募福利",
+              "description": "",
+              "limit": 1,
+              "price": 0,
+              "rewardList": [
+                {
+                  "type": 3,
+                  "itemId": 1001,
+                  "value": 5,
+                  "ext": 0
+                }
+              ],
+              "titleId": "",
+              "descriptionId": ""
+            }
+          ],
+          "buyType": 1
+        }
+      }
+    ],
+    "myStoreInfo": {
+      "6": {
+        "complete": {}
+      }
+    }
+  },
+  "reward": [
+    {
+      "type": 3,
+      "itemId": 1001,
+      "value": 5,
+      "ext": 0
+    }
+  ]
+}

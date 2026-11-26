@@ -1,0 +1,277 @@
+[
+  {
+    "source": "2026-10-27 actual final-probe; battle id anonymized; irrelevant fields removed",
+    "accountAlias": "501",
+    "genieId": 1,
+    "before": {
+      "statistics": {
+        "genie:battle": 3
+      },
+      "statisticsTime": {
+        "genie:battle": 1793068864
+      },
+      "genie": {
+        "4": 2
+      }
+    },
+    "after": {
+      "statistics": {
+        "genie:battle": 4
+      },
+      "statisticsTime": {
+        "genie:battle": 1793069255
+      },
+      "genie": {
+        "1": 0,
+        "4": 2
+      }
+    },
+    "response": {
+      "battleData": {
+        "options": {
+          "genieLevelId": 1001
+        },
+        "result": {
+          "type": 9,
+          "totalFrame": 2467,
+          "round": 7,
+          "id": 1,
+          "sponsor": {
+            "teamInfo": [
+              {
+                "heroId": 101,
+                "index": 0,
+                "hp": 66002260
+              },
+              {
+                "heroId": 117,
+                "index": 1,
+                "hp": 66009631
+              },
+              {
+                "heroId": 113,
+                "index": 2,
+                "hp": 66008970
+              },
+              {
+                "heroId": 109,
+                "index": 3,
+                "hp": 66003323
+              },
+              {
+                "heroId": 102,
+                "index": 4,
+                "hp": 66490244
+              }
+            ]
+          },
+          "accept": {
+            "teamInfo": [
+              {
+                "heroId": 7101,
+                "index": 10,
+                "hp": 0
+              },
+              {
+                "heroId": 7101,
+                "index": 11,
+                "hp": 0
+              },
+              {
+                "heroId": 7102,
+                "index": 12,
+                "hp": 0
+              },
+              {
+                "heroId": 7103,
+                "index": 13,
+                "hp": 0
+              },
+              {
+                "heroId": 7102,
+                "index": 14,
+                "hp": 0
+              }
+            ]
+          },
+          "isWin": true
+        }
+      },
+      "isWin": true
+    }
+  },
+  {
+    "source": "2026-10-27 actual final-probe; battle id anonymized; irrelevant fields removed",
+    "accountAlias": "503",
+    "genieId": 2,
+    "before": {
+      "statistics": {
+        "genie:battle": 2
+      },
+      "statisticsTime": {
+        "genie:battle": 1793068892
+      },
+      "genie": {
+        "2": 0
+      }
+    },
+    "after": {
+      "statistics": {
+        "genie:battle": 3
+      },
+      "statisticsTime": {
+        "genie:battle": 1793069263
+      },
+      "genie": {
+        "2": 0
+      }
+    },
+    "response": {
+      "battleData": {
+        "options": {
+          "genieLevelId": 2002
+        },
+        "result": {
+          "type": 9,
+          "totalFrame": 4741,
+          "round": 15,
+          "id": 1,
+          "sponsor": {
+            "teamInfo": [
+              {
+                "heroId": 103,
+                "index": 0,
+                "hp": 0
+              },
+              {
+                "heroId": 104,
+                "index": 1,
+                "hp": 0
+              },
+              {
+                "heroId": 110,
+                "index": 2,
+                "hp": 0
+              },
+              {
+                "heroId": 118,
+                "index": 3,
+                "hp": 0
+              },
+              {
+                "heroId": 114,
+                "index": 4,
+                "hp": 0
+              }
+            ]
+          },
+          "accept": {
+            "teamInfo": [
+              {
+                "heroId": 7201,
+                "index": 10,
+                "hp": 0
+              },
+              {
+                "heroId": 7201,
+                "index": 11,
+                "hp": 18526670
+              },
+              {
+                "heroId": 7202,
+                "index": 12,
+                "hp": 25046134
+              },
+              {
+                "heroId": 7203,
+                "index": 13,
+                "hp": 18449352
+              },
+              {
+                "heroId": 7202,
+                "index": 14,
+                "hp": 22667967
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "source": "2026-10-27 actual Wu defeat; no before/after snapshot attached",
+    "accountAlias": "502",
+    "genieId": 3,
+    "response": {
+      "battleData": {
+        "options": {
+          "genieLevelId": 3003
+        },
+        "result": {
+          "type": 9,
+          "totalFrame": 883,
+          "round": 2,
+          "id": 1,
+          "sponsor": {
+            "teamInfo": [
+              {
+                "heroId": 106,
+                "index": 0,
+                "hp": 0
+              },
+              {
+                "heroId": 121,
+                "index": 1,
+                "hp": 0
+              },
+              {
+                "heroId": 105,
+                "index": 2,
+                "hp": 0
+              },
+              {
+                "heroId": 111,
+                "index": 3,
+                "hp": 0
+              },
+              {
+                "heroId": 115,
+                "index": 4,
+                "hp": 0
+              }
+            ]
+          },
+          "accept": {
+            "teamInfo": [
+              {
+                "heroId": 7301,
+                "index": 10,
+                "hp": 321399219
+              },
+              {
+                "heroId": 7301,
+                "index": 11,
+                "hp": 288631550
+              },
+              {
+                "heroId": 7302,
+                "index": 12,
+                "hp": 323121081
+              },
+              {
+                "heroId": 7303,
+                "index": 13,
+                "hp": 398045188
+              },
+              {
+                "heroId": 7302,
+                "index": 14,
+                "hp": 284567931
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]

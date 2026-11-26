@@ -1,0 +1,338 @@
+{
+  "source": "server-monitor-main-1793188429072.json",
+  "kind": "real user capture; action deltas, not complete role snapshots",
+  "records": [
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 101,
+          "isMax": false
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "101": 1
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 1
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 101,
+          "isMax": false
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "101": 2
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 2
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 101,
+          "isMax": true
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "101": 60
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 60
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 102,
+          "isMax": true
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "102": 50
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 60,
+        "102": 50
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 103,
+          "isMax": true
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "103": 26
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 60,
+        "102": 50,
+        "103": 26
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_research",
+        "body": {
+          "researchId": 104,
+          "isMax": true
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "104": 2
+        }
+      },
+      "accumulatedNonzero": {
+        "101": 60,
+        "102": 50,
+        "103": 26,
+        "104": 2
+      },
+      "reportedDiamond": 0
+    },
+    {
+      "request": {
+        "cmd": "legion_exchangeresearch",
+        "body": {
+          "type": 1,
+          "targetType": 2
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "101": 0,
+          "102": 0,
+          "103": 0,
+          "104": 0,
+          "105": 0,
+          "106": 0,
+          "107": 0,
+          "108": 0,
+          "109": 0,
+          "110": 0,
+          "111": 0,
+          "112": 0,
+          "113": 0,
+          "114": 0,
+          "601": 60,
+          "602": 50,
+          "603": 26,
+          "604": 2,
+          "605": 0,
+          "606": 0,
+          "607": 0,
+          "608": 0,
+          "609": 0,
+          "610": 0,
+          "611": 0,
+          "612": 0,
+          "613": 0,
+          "614": 0
+        }
+      },
+      "accumulatedNonzero": {
+        "601": 60,
+        "602": 50,
+        "603": 26,
+        "604": 2
+      },
+      "reportedDiamond": 18599
+    },
+    {
+      "request": {
+        "cmd": "legion_exchangeresearch",
+        "body": {
+          "type": 2,
+          "targetType": 5
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "401": 60,
+          "402": 50,
+          "403": 26,
+          "404": 2,
+          "405": 0,
+          "406": 0,
+          "407": 0,
+          "408": 0,
+          "409": 0,
+          "410": 0,
+          "411": 0,
+          "412": 0,
+          "413": 0,
+          "414": 0,
+          "601": 0,
+          "602": 0,
+          "603": 0,
+          "604": 0
+        }
+      },
+      "accumulatedNonzero": {
+        "401": 60,
+        "402": 50,
+        "403": 26,
+        "404": 2
+      },
+      "reportedDiamond": 18579
+    },
+    {
+      "request": {
+        "cmd": "legion_exchangeresearch",
+        "body": {
+          "type": 5,
+          "targetType": 4
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "201": 60,
+          "202": 50,
+          "203": 26,
+          "204": 2,
+          "205": 0,
+          "206": 0,
+          "207": 0,
+          "208": 0,
+          "209": 0,
+          "210": 0,
+          "211": 0,
+          "212": 0,
+          "213": 0,
+          "214": 0,
+          "401": 0,
+          "402": 0,
+          "403": 0,
+          "404": 0
+        }
+      },
+      "accumulatedNonzero": {
+        "201": 60,
+        "202": 50,
+        "203": 26,
+        "204": 2
+      },
+      "reportedDiamond": 18559
+    },
+    {
+      "request": {
+        "cmd": "legion_exchangeresearch",
+        "body": {
+          "type": 4,
+          "targetType": 3
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "201": 0,
+          "202": 0,
+          "203": 0,
+          "204": 0,
+          "501": 60,
+          "502": 50,
+          "503": 26,
+          "504": 2,
+          "505": 0,
+          "506": 0,
+          "507": 0,
+          "508": 0,
+          "509": 0,
+          "510": 0,
+          "511": 0,
+          "512": 0,
+          "513": 0,
+          "514": 0
+        }
+      },
+      "accumulatedNonzero": {
+        "501": 60,
+        "502": 50,
+        "503": 26,
+        "504": 2
+      },
+      "reportedDiamond": 18539
+    },
+    {
+      "request": {
+        "cmd": "legion_exchangeresearch",
+        "body": {
+          "type": 4,
+          "targetType": 6
+        }
+      },
+      "response": {
+        "cmd": "legion_researchresp",
+        "code": 0,
+        "researchDelta": {
+          "301": 0,
+          "302": 0,
+          "303": 0,
+          "304": 0,
+          "305": 0,
+          "306": 0,
+          "307": 0,
+          "308": 0,
+          "309": 0,
+          "310": 0,
+          "311": 0,
+          "312": 0,
+          "313": 0,
+          "314": 0
+        }
+      },
+      "accumulatedNonzero": {
+        "501": 60,
+        "502": 50,
+        "503": 26,
+        "504": 2
+      },
+      "reportedDiamond": 18519
+    }
+  ]
+}

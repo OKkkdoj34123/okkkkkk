@@ -15,7 +15,20 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "paths": { "@/*": ["src/*"] }
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@@/*": [
+        "src/components/*"
+      ],
+      "#/*": [
+        "src/frames/*"
+      ],
+      "##/*": [
+        "src/views/*"
+      ]
+    }
   },
   "include": [
     "dist/types/**/*.d.ts",
