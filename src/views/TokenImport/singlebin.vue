@@ -106,6 +106,8 @@ const roleList = ref<
     accountKey?: string | null;
     roleId?: string | null;
     roleIndex?: string | null;
+    isUpdate?: boolean;
+    binBuffer?: ArrayBuffer;
   }>
 >([]);
 
@@ -149,20 +151,23 @@ const uploadBin = (binFile: File) => {
       // 命中则复用旧 id，让定时任务/分组/账号设置里的引用继续有效；
       // 未命中才用 bin 内容 MD5 作为新 id。
       const accountKey = buildAccountKey(roleMeta.server, roleMeta.roleId);
-      const existingToken = tokenStore.findTokenByAccountKey(
-        accountKey,
-        roleMeta.roleId || null,
+      // 老账号的 server 格式有两种：bin.vue 存「5服」，本组件历史上存「50」。
+      // 先用「5服」试（与 bin.vue 统一），再退回「50」，覆盖两种 legacy 账号。
+      const serverCandidates = [
+        `${roleMeta.server}服`,
         roleMeta.server + "" + roleMeta.roleIndex || roleMeta.server || "",
-        roleName,
-      );
-      const tokenId = existingToken?.id || contentId;
-
-      // 刷新indexDB数据库token数据（写到复用后的 id 下）
-      const saved = await storeArrayBuffer(tokenId, userToken);
-      if (!saved) {
-        message.error("保存BIN数据到IndexedDB失败");
-        return;
+      ];
+      let existingToken;
+      for (const serverLabel of serverCandidates) {
+        existingToken = tokenStore.findTokenByAccountKey(
+          accountKey,
+          roleMeta.roleId || null,
+          serverLabel,
+          roleName,
+        );
+        if (existingToken) break;
       }
+      const tokenId = existingToken?.id || contentId;
 
       // 上传列表中发现已存在的重复名称，提示消息
       if (roleList.value.some((role) => role.id === tokenId)) {
@@ -176,6 +181,7 @@ const uploadBin = (binFile: File) => {
       } else {
         message.success("Token读取成功，请检查角色名称等信息后提交");
       }
+      // bin 延迟到 handleImport 提交时写入，避免取消时提前覆盖旧账号的 bin
       roleList.value.push({
         id: tokenId,
         token: roleToken,
@@ -186,6 +192,8 @@ const uploadBin = (binFile: File) => {
         accountKey,
         roleId: roleMeta.roleId || existingToken?.roleId || null,
         roleIndex: roleMeta.roleIndex || existingToken?.roleIndex || null,
+        isUpdate: Boolean(existingToken),
+        binBuffer: userToken,
       });
     };
     reader.onerror = () => {
@@ -201,23 +209,34 @@ const handleImport = async () => {
     message.error("请先上传bin文件！");
     return;
   }
-  roleList.value.forEach((role) => {
-    // tokenStore.gameTokens中发现已存在的重复名称，则移出token后重新添加
-    const gameToken = tokenStore.gameTokens.find((t) => t.id === role.id);
-    if (gameToken) {
-      console.log("移除同名token:", gameToken);
-      // tokenStore.removeToken(gameToken.id);
-      tokenStore.updateToken(gameToken.id, {
-        ...role,
-      });
-    } else {
-      tokenStore.addToken({
-        ...role,
-      });
+  // 匹配在上传阶段已完成，id 与 bin 存储位置在此统一落库（避免取消时覆盖旧 bin）
+  let succeeded = 0;
+  let failed = 0;
+  for (const role of roleList.value) {
+    const { id, binBuffer } = role;
+    if (binBuffer) {
+      const saved = await storeArrayBuffer(id, binBuffer);
+      if (!saved) {
+        message.error(`保存BIN数据到IndexedDB失败: ${role.name}`);
+        failed++;
+        continue;
+      }
     }
-  });
+    const record = { ...role };
+    delete record.binBuffer;
+    delete record.isUpdate;
+    const gameToken = tokenStore.gameTokens.find((t) => t.id === id);
+    if (gameToken) {
+      console.log("更新同名token（保留id，定时任务引用不变）:", role.name);
+      tokenStore.updateToken(id, record);
+    } else {
+      tokenStore.addToken(record);
+    }
+    succeeded++;
+  }
   console.log("当前Token列表:", tokenStore.gameTokens);
-  message.success("Token添加成功");
+  if (failed > 0) message.warning(`Token添加完成：成功 ${succeeded}，失败 ${failed}`);
+  else message.success("Token添加成功");
   roleList.value = [];
   $emit("ok");
 };

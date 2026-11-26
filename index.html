@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Vite 会把 %BASE_URL% 替换为部署 base；createWebHistory() 读 document.baseURI 保证子路径路由正确 -->
+    <base href="%BASE_URL%" />
     <title>XYZW 游戏管理系统</title>
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <style>
