@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { bonProtocol, XCrypto } from "../src/utils/bonProtocol.js";
+import { bonProtocol, LXCrypto } from "../src/utils/bonProtocol.js";
 import {
   buildCombLoginUrl,
   buildLoginPayload,
@@ -73,13 +73,13 @@ test("combUser is parsed only on success", () => {
   assert.equal(parseCombUser({ meta: { errCode: 0 }, data: {} }), null);
 });
 
-test("serverlist bin is x-encrypted and encodes combUser + serverId", () => {
+test("serverlist bin is lx-encrypted (matches game lz4XorEncode)", () => {
   const combUser = { openid: "oREAL123" };
   const bin = buildServerListBin(combUser, 180);
   const u8 = new Uint8Array(bin);
   assert.equal(u8[0], 0x70);
-  assert.equal(u8[1], 0x78);
-  const plain = XCrypto.decrypt(u8);
+  assert.equal(u8[1], 0x6c);
+  const plain = LXCrypto.decrypt(u8);
   const raw = bonProtocol.decode(plain);
   assert.equal(raw.platform, "hortor");
   assert.equal(raw.info.openid, "oREAL123");
@@ -90,7 +90,7 @@ test("serverlist bin is x-encrypted and encodes combUser + serverId", () => {
 test("serverlist response roles are decrypted and extracted", () => {
   const responsePayload = { body: { roles: [{ serverId: 180, roleId: "123", name: "角色A" }] } };
   const plain = bonProtocol.encode(responsePayload, false);
-  const out = XCrypto.encrypt(plain);
+  const out = LXCrypto.encrypt(plain);
   const buf = out.buffer.slice(out.byteOffset, out.byteOffset + out.length);
   const roles = parseServerRoles(buf);
   assert.equal(roles.length, 1);

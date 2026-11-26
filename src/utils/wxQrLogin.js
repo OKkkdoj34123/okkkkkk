@@ -1,10 +1,9 @@
-import { bonProtocol, XCrypto } from "./bonProtocol.js";
+import { bonProtocol, getEnc, LXCrypto } from "./bonProtocol.js";
 /**
  * 微信扫码登录 → combUser → 服务器角色列表（核心逻辑，与 UI 解耦）
  *
  * 强依赖 Cloudflare Worker 代理绕过微信接口跨域：
- *   /api/weixin       微信登录页（取二维码）
- *   /api/weixin-long  扫码状态长轮询（取 code）
+ *   /api/weixin       微信登录页（取二维码）与扫码状态轮询（取 code）
  *   /api/hortor       comb-login-server 登录（code 换 combUser）
  *   GAME_API 直连      /login/serverlist（combUser 换角色列表）
  *
@@ -115,7 +114,7 @@ export const buildScanStatusUrl = (workerUrl, uuid) => {
   const base = String(workerUrl || "").replace(/\/+$/, "");
   return (
     `${base 
-    }/api/weixin-long/connect/l/qrconnect?uuid=${ 
+    }/api/weixin/connect/l/qrconnect?uuid=${ 
     encodeURIComponent(uuid) 
     }&f=url&_=${ 
     Date.now()}`
@@ -203,7 +202,9 @@ export const buildServerListBin = (combUser, serverId = null) => {
     referrerInfo: "",
   };
   const plain = bonProtocol.encode(loginData, false);
-  const out = XCrypto.encrypt(plain);
+  // 必须与游戏原生 dm.encMsg(..., lz4XorEncode) 一致，即 lx(lz4+掩码) 加密。
+  // 之前误用 x 加密，服务端解不出来 → 角色列表为空。
+  const out = LXCrypto.encrypt(plain);
   return out.buffer.byteLength === out.length && out.byteOffset === 0
     ? out.buffer
     : out.buffer.slice(out.byteOffset, out.byteOffset + out.length);
@@ -212,10 +213,11 @@ export const buildServerListBin = (combUser, serverId = null) => {
 export const buildServerListUrl = () =>
   `${QR_CONFIG.gameApi  }/login/serverlist?_seq=3`;
 
-/** 解析 serverlist 响应（x 解密 + BON 解码）→ 角色数组 */
+/** 解析 serverlist 响应（自动识别加密 + BON 解码）→ 角色数组 */
 export const parseServerRoles = (arrayBuffer) => {
   const u8 = new Uint8Array(arrayBuffer);
-  const plain = XCrypto.decrypt(u8);
+  // 服务端可能返回 lx / x / xtm 任一方案，用 auto 自动识别（与 g_utils.parse 一致）
+  const plain = getEnc("auto").decrypt(u8);
   const raw = bonProtocol.decode(plain);
   // 服务端响应结构可能是 {roles:[]} 或包在 body/data 里，逐个尝试
   const candidates = [raw, raw?.body, raw?.data, raw?._raw, raw?.body?.data];
