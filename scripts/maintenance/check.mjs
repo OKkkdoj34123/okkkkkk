@@ -25,7 +25,7 @@ for (const name of ['test:unit', 'test:salt', 'test:schedule', 'maintenance:chec
 }
 const ignored = readFileSync(resolve(root, '.gitignore'), 'utf8').split(/\r?\n/);
 if (ignored.includes('.github')) errors.push('.github仍被整体忽略');
-for (const name of ['/patch_backups/', '/_patch_backups/']) if (!ignored.includes(name)) errors.push(`缺少备份忽略规则：${name}`);
+for (const name of ['/patch_backups/', '/_patch_backups/', '/.patch_backups/']) if (!ignored.includes(name)) errors.push(`缺少备份忽略规则：${name}`);
 for (const file of ['test.mjs', 'verify.mjs', 'check.mjs', 'lint.mjs']) {
   const result = spawnSync(process.execPath, ['--check', resolve(root, 'scripts/maintenance', file)], { encoding: 'utf8' });
   if (result.status !== 0) errors.push(result.stderr || `语法检查失败：${file}`);

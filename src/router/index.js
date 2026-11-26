@@ -161,6 +161,21 @@ const my_routes = [
   }
 ]
 
+// GitHub Pages SPA 回退：404.html 把原始路径编码到 ?spa-redirect=。
+// 必须在 createWebHistory() 之前还原——history 会在创建时快照当前 location，
+// 若晚于快照还原，初始导航会把地址改回 ?spa-redirect= 并渲染错误路由。
+// 前置分号：避免上一行数组字面量 ] 与本 IIFE 的 ( 被解析成函数调用（ASI 陷阱）
+;(function restoreSpaRedirect() {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const redirected = params.get('spa-redirect')
+    if (!redirected) return
+    window.history.replaceState(null, '', redirected)
+  } catch (e) {
+    console.warn('SPA redirect restore failed', e)
+  }
+})();
+
 const router = createRouter({
   history: createWebHistory(),
   routes: my_routes,

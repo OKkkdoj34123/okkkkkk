@@ -103,6 +103,24 @@ export default defineConfig(async () => {
     componentsPlugin,
     vueI18nPlugin,
     {
+      // 子路径部署时，模板里写死的 /icons/... 是根绝对路径，<base> 管不到，
+      // 在产物生成阶段统一补上 base 前缀（本地与 Cloudflare 根路径部署 base="/" 时不改写）。
+      name: "rewrite-public-absolute-paths",
+      generateBundle(_options, bundle) {
+        const base = process.env.VITE_BASE_PATH || "/";
+        if (base === "/") return;
+        for (const file of Object.values(bundle)) {
+          if (file.type !== "chunk" || !file.code) continue;
+          if (!file.code.includes('"/icons/') && !file.code.includes('"/team/'))
+            continue;
+          file.code = file.code.replace(
+            /"\/(icons|team)\//g,
+            (_m, dir) => `"${base}${dir}/`,
+          );
+        }
+      },
+    },
+    {
       // GitHub Pages SPA fallback: 把实际 base 注入 dist/404.html
       name: "inject-404-base",
       closeBundle() {

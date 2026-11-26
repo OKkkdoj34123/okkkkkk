@@ -85,5 +85,8 @@ server/config.json
 # Local maintenance artifacts (keep backups locally)
 /patch_backups/
 /_patch_backups/
+/.patch_backups/
+/_removed_by_custom_merge/
+/test/_legacy_from_old_project/
 /patch_maintenance_foundation_*.py
 /.maintenance_foundation_patch.lock
