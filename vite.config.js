@@ -93,6 +93,9 @@ export default defineConfig(async () => {
     include: path.resolve(__dirname, "./src/locales/**"),
   });
 
+  // 由 rewrite-public-absolute-paths 的 configResolved 写入，供 generateBundle 使用
+  let publicBase = process.env.VITE_BASE_PATH || "/";
+
   const plugins = [
     routerPlugin && { ...routerPlugin, enforce: "pre" },
     vue(),
@@ -103,38 +106,51 @@ export default defineConfig(async () => {
     componentsPlugin,
     vueI18nPlugin,
     {
-      // 子路径部署时，模板里写死的 /icons/... 是根绝对路径，<base> 管不到，
-      // 在产物生成阶段统一补上 base 前缀（本地与 Cloudflare 根路径部署 base="/" 时不改写）。
+      // 子路径部署时，模板/脚本里写死的 /icons/... 是根绝对路径，<base> 管不到，
+      // 在产物生成阶段统一补上 base 前缀（根路径部署时不改写）。
       name: "rewrite-public-absolute-paths",
+      configResolved(config) {
+        // 以 Vite 实际生效的 base 为准，避免与 --base 参数/环境变量不一致
+        publicBase = config.base || "/";
+      },
       generateBundle(_options, bundle) {
-        const base = process.env.VITE_BASE_PATH || "/";
+        const base = publicBase || process.env.VITE_BASE_PATH || "/";
         if (base === "/") return;
+        // 覆盖单/双引号两种字面量，避免依赖压缩器的引号归一化
+        const re = /(["'])\/(icons|team)\//g;
         for (const file of Object.values(bundle)) {
           if (file.type !== "chunk" || !file.code) continue;
-          if (!file.code.includes('"/icons/') && !file.code.includes('"/team/'))
+          if (!file.code.includes("/icons/") && !file.code.includes("/team/"))
             continue;
           file.code = file.code.replace(
-            /"\/(icons|team)\//g,
-            (_m, dir) => `"${base}${dir}/`,
+            re,
+            (_m, quote, dir) => `${quote}${base}${dir}/`,
           );
         }
       },
     },
     {
-      // GitHub Pages SPA fallback: 把实际 base 注入 dist/404.html
+      // GitHub Pages SPA fallback: 把实际 base 注入 dist/404.html。
+      // 直接从源文件生成，不依赖 Vite 拷贝 public 的时序（closeBundle 阶段不稳定）。
       name: "inject-404-base",
       closeBundle() {
-        try {
-          const dest = path.resolve(__dirname, "dist/404.html");
-          if (!fs.existsSync(dest)) return;
-          const base = process.env.VITE_BASE_PATH || "/";
-          const html = fs
-            .readFileSync(dest, "utf8")
-            .replaceAll("__GH_PAGES_BASE__", base);
-          fs.writeFileSync(dest, html);
-        } catch (e) {
-          console.error("\n[inject-404-base] Error:", e);
+        const base = process.env.VITE_BASE_PATH || "/";
+        const src = path.resolve(__dirname, "public/404.html");
+        const dest = path.resolve(__dirname, "dist/404.html");
+        if (!fs.existsSync(src)) {
+          if (base !== "/")
+            this.error("[inject-404-base] public/404.html 不存在，子路径部署会失效");
+          return;
         }
+        let html = fs.readFileSync(src, "utf8");
+        if (html.includes("__GH_PAGES_BASE__")) {
+          html = html.replaceAll("__GH_PAGES_BASE__", base);
+        }
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.writeFileSync(dest, html);
+        // 校验占位符已彻底替换，避免 404 页面自我循环
+        if (fs.readFileSync(dest, "utf8").includes("__GH_PAGES_BASE__"))
+          this.error("[inject-404-base] 占位符替换失败");
       },
     },
     {
