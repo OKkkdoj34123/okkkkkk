@@ -160,7 +160,11 @@ const initName = (fileName: string) => {
     server: "",
     roleIndex: "",
     roleId: "",
-    roleName: importForm.name || "",
+    // 兼容「角色名-区服2016682.bin」这类第三方导出命名：去掉 region 后缀只留角色名
+    roleName:
+      importForm.name ||
+      fileName.replace(/\.bin$/i, "").replace(/[-_]区服?\d+$/, "").trim() ||
+      fileName.replace(/\.bin$/i, ""),
   };
 };
 
@@ -176,12 +180,25 @@ const uploadBin = (binFile: File) => {
       const roleToken = await transformToken(userToken);
       const roleName = roleMeta.roleName || binFile.name.split(".")?.[0] || "";
 
-      // 用文件名里的稳定角色标识（服务器+角色ID）查找已有账号：
+      // bin 换回来的 token 里带 roleId，可作为稳定身份（文件名格式不受限，
+      // 像「角色名-区服2016682.bin」这种也能精确匹配旧账号）。
+      let roleIdFromToken = null;
+      try {
+        const parsedToken = JSON.parse(roleToken);
+        roleIdFromToken =
+          parsedToken?.roleId ?? parsedToken?.body?.roleId ?? null;
+      } catch {
+        // token 不是 JSON 时忽略，退回文件名解析结果
+      }
+      // 文件名能解析出角色ID时优先用它，否则用 token 里的
+      const stableRoleId = roleMeta.roleId || roleIdFromToken || null;
+
+      // 用稳定角色标识（服务器+角色ID）查找已有账号：
       // 命中则复用旧 id，让定时任务/分组/账号设置里的引用继续有效；
       // 未命中才用 bin 内容 MD5 作为新 id。
       // 历史数据里 server 有三种写法，逐个尝试以兼容老账号：
       //   多bin 导入 → "102服"；本组件旧版 → "1020"；早期纯数字 → "102"
-      const accountKey = buildAccountKey(roleMeta.server, roleMeta.roleId);
+      const accountKey = buildAccountKey(roleMeta.server, stableRoleId);
       const serverCandidates = [
         `${roleMeta.server}服`,
         `${roleMeta.server}${roleMeta.roleIndex}`,
@@ -191,7 +208,7 @@ const uploadBin = (binFile: File) => {
       for (const serverLabel of serverCandidates) {
         existingToken = tokenStore.findTokenByAccountKey(
           accountKey,
-          roleMeta.roleId || null,
+          stableRoleId,
           serverLabel,
           roleName,
         );
@@ -222,11 +239,13 @@ const uploadBin = (binFile: File) => {
         id: tokenId,
         token: roleToken,
         name: roleName,
-        server: existingToken?.server || `${roleMeta.server}服`,
+        server:
+          existingToken?.server ||
+          (roleMeta.server ? `${roleMeta.server}服` : ""),
         wsUrl: importForm.wsUrl || existingToken?.wsUrl || "",
         importMethod: "bin",
         accountKey,
-        roleId: roleMeta.roleId || existingToken?.roleId || null,
+        roleId: stableRoleId || existingToken?.roleId || null,
         roleIndex: roleMeta.roleIndex || existingToken?.roleIndex || null,
       });
     };
