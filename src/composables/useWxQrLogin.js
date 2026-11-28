@@ -25,9 +25,15 @@ import {
 
 const WORKER_URL_STORAGE_KEY = "wxqr_worker_url";
 
+// 默认代理地址（Cloudflare Pages 部署的 worker.js）。
+// 用户可在界面「代理设置」里覆盖，会写入 localStorage 优先生效。
+const DEFAULT_WORKER_URL = "https://xyzw-okkkkk.pages.dev";
+
 export const useWxQrLogin = () => {
   // ---- Worker 配置 ----
-  const workerUrl = ref(localStorage.getItem(WORKER_URL_STORAGE_KEY) || "");
+  const workerUrl = ref(
+    localStorage.getItem(WORKER_URL_STORAGE_KEY) || DEFAULT_WORKER_URL,
+  );
   const setWorkerUrl = (url) => {
     const clean = String(url || "").trim().replace(/\/+$/, "");
     workerUrl.value = clean;
