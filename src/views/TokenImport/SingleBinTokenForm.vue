@@ -179,13 +179,24 @@ const uploadBin = (binFile: File) => {
       // 用文件名里的稳定角色标识（服务器+角色ID）查找已有账号：
       // 命中则复用旧 id，让定时任务/分组/账号设置里的引用继续有效；
       // 未命中才用 bin 内容 MD5 作为新 id。
+      // 历史数据里 server 有三种写法，逐个尝试以兼容老账号：
+      //   多bin 导入 → "102服"；本组件旧版 → "1020"；早期纯数字 → "102"
       const accountKey = buildAccountKey(roleMeta.server, roleMeta.roleId);
-      const existingToken = tokenStore.findTokenByAccountKey(
-        accountKey,
-        roleMeta.roleId || null,
-        `${roleMeta.server}${roleMeta.roleIndex}` || roleMeta.server || "",
-        roleName,
-      );
+      const serverCandidates = [
+        `${roleMeta.server}服`,
+        `${roleMeta.server}${roleMeta.roleIndex}`,
+        roleMeta.server,
+      ].filter(Boolean);
+      let existingToken;
+      for (const serverLabel of serverCandidates) {
+        existingToken = tokenStore.findTokenByAccountKey(
+          accountKey,
+          roleMeta.roleId || null,
+          serverLabel,
+          roleName,
+        );
+        if (existingToken) break;
+      }
       const tokenId = existingToken?.id || contentId;
 
       // 把新 bin 存到（可能复用的）id 下，刷新时即可读取到最新数据
@@ -211,7 +222,7 @@ const uploadBin = (binFile: File) => {
         id: tokenId,
         token: roleToken,
         name: roleName,
-        server: `${roleMeta.server}${roleMeta.roleIndex}` || "",
+        server: existingToken?.server || `${roleMeta.server}服`,
         wsUrl: importForm.wsUrl || existingToken?.wsUrl || "",
         importMethod: "bin",
         accountKey,
