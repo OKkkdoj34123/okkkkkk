@@ -3,7 +3,12 @@ import * as autoRoutes from "vue-router/auto-routes";
 import { useTokenStore } from "@/stores/tokenStore";
 import { isNowInLegionWarTime } from "@/utils/clubBattleUtils";
 
-const generatedRoutes = autoRoutes.routes ?? [];
+// 自动生成的路由里，这几个已有手写实现（且必须不套后台布局），过滤掉避免重复注册。
+// 其余自动路由统一挂在 /admin（DefaultLayout）下，保证页面有侧边栏且守卫生效。
+const LAYOUT_FREE_PATHS = new Set(["/Home", "/Login", "/Register", "/NotFound"]);
+const generatedRoutes = (autoRoutes.routes ?? []).filter(
+  (route) => !LAYOUT_FREE_PATHS.has(route.path),
+);
 
 const my_routes = [
   {
@@ -166,8 +171,6 @@ const my_routes = [
     path: "/game-roles",
     redirect: "/tokens",
   },
-  // 增加自动路由引用
-  ...generatedRoutes,
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
